@@ -9,9 +9,15 @@ const int MAX_RESOURCES = 1000;
 const int MAX_REQUESTS = 1000;
 const int NAME_LENGTH = 50;
 
+struct Departement {
+	char name[NAME_LENGTH];
+	char owner[NAME_LENGTH];
+};
+
 void IntroMenu();
 void AdminMenu();
 void AddDepartementMenu();
+void makeDepartement(char [] , char[]);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n";
@@ -91,5 +97,9 @@ void AddDepartementMenu() {
 
 	cout << "\nWhat is the name of the owner: ";
 	cin >> ownerName;
+	makeDepartement(name, ownerName);
+}
+
+void makeDepartement(char name[], char owner[]) {
 
 }
