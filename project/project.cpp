@@ -11,10 +11,13 @@ const int NAME_LENGTH = 50;
 
 void IntroMenu();
 void AdminMenu();
+void AddDepartementMenu();
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n";
 	IntroMenu();
+
+	return 0;
 }
 
 void IntroMenu() {
@@ -31,7 +34,7 @@ void IntroMenu() {
 	}
 	else {
 		system("cls");
-		cout << "Invalid choice!\n";
+		cout << "Invalid choice!\n\n";
 		IntroMenu();
 	}
 }
@@ -52,7 +55,8 @@ void AdminMenu() {
 
 	switch (choice) {
 	case 1:
-		// Add Department
+		system("cls");
+		AddDepartementMenu();
 		break;
 	case 2:
 		break;
@@ -66,10 +70,26 @@ void AdminMenu() {
 		system("cls");
 		IntroMenu();
 	case 0:
-		break;
+		exit(0);
+	break;
 	default:
 		system("cls");
-		cout << "Invalid choice!\n";
+		cout << "Invalid choice!\n\n";
 		AdminMenu();
 	}
+}
+
+//WIP
+void AddDepartementMenu() {
+	char name[NAME_LENGTH];
+	char ownerName[NAME_LENGTH];
+	
+	cout << "Welcom to the Department defining menu\n\n";
+
+	cout << "What is the name of the Department: ";
+	cin >> name;
+
+	cout << "\nWhat is the name of the owner: ";
+	cin >> ownerName;
+
 }
