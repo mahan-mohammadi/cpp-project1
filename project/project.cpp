@@ -10,6 +10,7 @@ const int MAX_REQUESTS = 1000;
 const int NAME_LENGTH = 50;
 
 struct Departement {
+	int id;
 	char name[NAME_LENGTH];
 	char owner[NAME_LENGTH];
 };
@@ -18,9 +19,10 @@ void IntroMenu();
 void AdminMenu();
 void AddDepartementMenu();
 void makeDepartement(char [] , char[]);
+void strcpy(char[], char[]);
 
 int main() {
-	cout << "Welcome to the Resoucre Management System!\n";
+	cout << "Welcome to the Resoucre Management System!\n\n";
 	IntroMenu();
 
 	return 0;
@@ -29,7 +31,7 @@ int main() {
 void IntroMenu() {
 	int choice;
 
-	cout << "1.Login as admin\n2.Login as user\nEnter number of you choice: ";
+	cout << "1.Login as admin\n2.Login as user\n0.exit\n\nEnter number of you choice: ";
 	cin >> choice;
 	if (choice == 1) {
 		system("cls");
@@ -37,6 +39,9 @@ void IntroMenu() {
 	}
 	else if (choice == 2) {
 		// Login as user
+	}
+	else if (choice == 0) {
+		exit(0);
 	}
 	else {
 		system("cls");
@@ -77,7 +82,7 @@ void AdminMenu() {
 		IntroMenu();
 	case 0:
 		exit(0);
-	break;
+		break;
 	default:
 		system("cls");
 		cout << "Invalid choice!\n\n";
@@ -85,7 +90,6 @@ void AdminMenu() {
 	}
 }
 
-//WIP
 void AddDepartementMenu() {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
@@ -98,8 +102,36 @@ void AddDepartementMenu() {
 	cout << "\nWhat is the name of the owner: ";
 	cin >> ownerName;
 	makeDepartement(name, ownerName);
+	system("cls");
+	AdminMenu();
 }
 
+//WIP
 void makeDepartement(char name[], char owner[]) {
+	static int i = 1;
+	Departement newDep;
+	
+	strcpy(newDep.name, name);
+	strcpy(newDep.owner, owner);
+	newDep.id = i;
+	i++;
+}
+
+void departementToString(Departement dep,char output[]) {
+	
+}
+
+void strcpy(char first[],char second[]) {
+	int i = 0;
+	while (second[i]) {
+		first[i] = second[i];
+		i++;
+	}
+	first[i] = '\0';
+}
+
+void printToFile(char path[], char name[]) {
+	ofstream file(path, ios::app);
+	file << name;
 
 }
