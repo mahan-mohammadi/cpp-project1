@@ -15,6 +15,13 @@ struct Departement {
 	char owner[NAME_LENGTH];
 };
 
+struct Section {
+	int id;
+	int dep_id;
+	char name[NAME_LENGTH];
+	char owner[NAME_LENGTH];
+};
+
 void IntroMenu();
 void AdminMenu();
 void AddDepartementMenu();
@@ -24,6 +31,7 @@ void departementToString(Departement , char []);
 void printToFile(char[], char[]);
 void intToStr(int, char[]);
 void concatString(char[], char[]);
+void addSectionMenu();
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -67,13 +75,14 @@ void AdminMenu() {
 	cout << "	0. Exit\n";
 	cout << "Enter choice: ";
 	cin >> choice;
+	system("cls");
 
 	switch (choice) {
 	case 1:
-		system("cls");
 		AddDepartementMenu();
 		break;
 	case 2:
+		addSectionMenu();
 		break;
 	case 3:
 		break;
@@ -82,13 +91,11 @@ void AdminMenu() {
 	case 5:
 		break;
 	case 6:
-		system("cls");
 		IntroMenu();
 	case 0:
 		exit(0);
 		break;
 	default:
-		system("cls");
 		cout << "Invalid choice!\n\n";
 		AdminMenu();
 	}
@@ -110,7 +117,17 @@ void AddDepartementMenu() {
 	AdminMenu();
 }
 
-//WIP
+//BUG : fix the numbering problem
+void addSectionMenu() {
+	Section section;
+	
+	cout << "what is the departement id: ";
+	cin >> section.dep_id;
+	cout << "What is section name: ";
+	cout << "who si the sections owner: ;";
+}
+
+//BUG : handle file appending problem when id numbers restart each time
 void makeDepartement(char name[], char owner[]) {
 	char path[] = "Depatement.txt";
 	char temp[NAME_LENGTH];
@@ -124,7 +141,7 @@ void makeDepartement(char name[], char owner[]) {
 	departementToString(newDep, temp);
 	printToFile(path, temp);
 }
-//check the null termination
+
 void departementToString(Departement dep,char output[]) {
 	char divider[] = "|";
 	char nextline[] = "\n";
