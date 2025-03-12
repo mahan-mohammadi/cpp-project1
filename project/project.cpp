@@ -20,6 +20,10 @@ void AdminMenu();
 void AddDepartementMenu();
 void makeDepartement(char [] , char[]);
 void copyString(char[], char[]);
+void departementToString(Departement , char []);
+void printToFile(char[], char[]);
+void intToStr(int, char[]);
+void concatString(char[], char[]);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -108,6 +112,8 @@ void AddDepartementMenu() {
 
 //WIP
 void makeDepartement(char name[], char owner[]) {
+	char path[] = "Depatement.txt";
+	char temp[NAME_LENGTH];
 	static int i = 1;
 	Departement newDep;
 	
@@ -115,10 +121,37 @@ void makeDepartement(char name[], char owner[]) {
 	copyString(newDep.owner, owner);
 	newDep.id = i;
 	i++;
+	departementToString(newDep, temp);
+	printToFile(path, temp);
+}
+//check the null termination
+void departementToString(Departement dep,char output[]) {
+	char divider[] = "|";
+	char nextline[] = "\n";
+	intToStr(dep.id,output);
+	concatString(output, divider);
+	concatString(output, dep.name);
+	concatString(output, divider);
+	concatString(output, dep.owner);
+	concatString(output,nextline);
 }
 
-void departementToString(Departement dep,char output[]) {
-	
+void intToStr(int number, char output[]) {
+	char temp[20];
+	int i = 0;
+	while (number > 0) {
+		int digit = number % 10;
+		temp[i] = digit + '0';
+		i++;
+		number /= 10;
+	}
+	// Reverse the digits to get the order right
+	int outputIndex = 0;
+	for (int j = i - 1; j >= 0; --j) {
+		output[outputIndex++] = temp[j];
+	}
+
+	output[outputIndex] = '\0';
 }
 
 void copyString(char first[],char second[]) {
@@ -130,8 +163,22 @@ void copyString(char first[],char second[]) {
 	first[i] = '\0';
 }
 
+void concatString(char first[], char second[]) {
+	int i = 0;
+	int j = 0;
+	while (first[i]) {
+		i++;
+	}
+	while (second[j]) {
+		first[i] = second[j];
+		j++;
+		i++;
+	}
+	first[i] = '\0';
+}
+
 void printToFile(char path[], char string[]) {
 	ofstream file(path, ios::app);
 	file << string;
-
+	file.close();
 }
