@@ -19,7 +19,7 @@ void IntroMenu();
 void AdminMenu();
 void AddDepartementMenu();
 void makeDepartement(char [] , char[]);
-void strcpy(char[], char[]);
+void copyString(char[], char[]);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -111,8 +111,8 @@ void makeDepartement(char name[], char owner[]) {
 	static int i = 1;
 	Departement newDep;
 	
-	strcpy(newDep.name, name);
-	strcpy(newDep.owner, owner);
+	copyString(newDep.name, name);
+	copyString(newDep.owner, owner);
 	newDep.id = i;
 	i++;
 }
@@ -121,7 +121,7 @@ void departementToString(Departement dep,char output[]) {
 	
 }
 
-void strcpy(char first[],char second[]) {
+void copyString(char first[],char second[]) {
 	int i = 0;
 	while (second[i]) {
 		first[i] = second[i];
@@ -130,8 +130,8 @@ void strcpy(char first[],char second[]) {
 	first[i] = '\0';
 }
 
-void printToFile(char path[], char name[]) {
+void printToFile(char path[], char string[]) {
 	ofstream file(path, ios::app);
-	file << name;
+	file << string;
 
 }
