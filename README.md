@@ -1,6 +1,6 @@
 # bugs:
-the numbering system in the files
+get id from dep list file.
 
 # to do:   
-complete the section part
+bugs
 
