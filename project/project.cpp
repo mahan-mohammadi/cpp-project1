@@ -27,10 +27,11 @@ void AdminMenu();
 void AddDepartementMenu();
 void makeDepartement(char [] , char[]);
 void copyString(char[], char[]);
-void printToFile(char[], Departement);
+void printDepToFile(char[], Departement);
 void intToStr(int, char[]);
 void concatString(char[], char[]);
 void addSectionMenu();
+int getid(char path[]);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -116,7 +117,7 @@ void AddDepartementMenu() {
 	AdminMenu();
 }
 
-//BUG : fix the numbering problem
+
 void addSectionMenu() {
 	Section section;
 	
@@ -126,18 +127,16 @@ void addSectionMenu() {
 	cout << "who si the sections owner: ;";
 }
 
-//BUG : handle file appending problem when id numbers restart each time
 void makeDepartement(char name[], char owner[]) {
 	char path[] = "Depatement.txt";
-	char temp[NAME_LENGTH];
-	static int i = 1;
+	char path2[] = "depid.txt";
+	int i = getid(path2);
 	Departement newDep;
 	
 	copyString(newDep.name, name);
 	copyString(newDep.owner, owner);
 	newDep.id = i;
-	i++;
-	printToFile(path, newDep);
+	printDepToFile(path, newDep);
 }
 
 void intToStr(int number, char output[]) {
@@ -181,8 +180,20 @@ void concatString(char first[], char second[]) {
 	first[i] = '\0';
 }
 
-void printToFile(char path[], Departement dep) {
+void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
 	file << dep.id << '|' << dep.name << '|' << dep.owner << '\n';
 	file.close();
+}
+
+int getid(char path[]) {
+	int id=0;
+	ifstream infile(path);
+	infile >> id;
+	infile.close();
+	id++;
+	ofstream outfile(path);
+	outfile << id;
+	outfile.close();
+	return id;
 }
