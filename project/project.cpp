@@ -137,7 +137,6 @@ void makeDepartement(char name[], char owner[]) {
 	copyString(newDep.owner, owner);
 	newDep.id = i;
 	i++;
-	departementToString(newDep, temp);
 	printToFile(path, newDep);
 }
 
