@@ -27,8 +27,7 @@ void AdminMenu();
 void AddDepartementMenu();
 void makeDepartement(char [] , char[]);
 void copyString(char[], char[]);
-void departementToString(Departement , char []);
-void printToFile(char[], char[]);
+void printToFile(char[], Departement);
 void intToStr(int, char[]);
 void concatString(char[], char[]);
 void addSectionMenu();
@@ -139,18 +138,7 @@ void makeDepartement(char name[], char owner[]) {
 	newDep.id = i;
 	i++;
 	departementToString(newDep, temp);
-	printToFile(path, temp);
-}
-
-void departementToString(Departement dep,char output[]) {
-	char divider[] = "|";
-	char nextline[] = "\n";
-	intToStr(dep.id,output);
-	concatString(output, divider);
-	concatString(output, dep.name);
-	concatString(output, divider);
-	concatString(output, dep.owner);
-	concatString(output,nextline);
+	printToFile(path, newDep);
 }
 
 void intToStr(int number, char output[]) {
@@ -194,8 +182,8 @@ void concatString(char first[], char second[]) {
 	first[i] = '\0';
 }
 
-void printToFile(char path[], char string[]) {
+void printToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
-	file << string;
+	file << dep.id << '|' << dep.name << '|' << dep.owner << '\n';
 	file.close();
 }
