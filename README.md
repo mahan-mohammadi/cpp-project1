@@ -1,6 +1,6 @@
 # bugs:
-get id from dep list file.
 
 # to do:   
 bugs
+add error handling to file objects
 
