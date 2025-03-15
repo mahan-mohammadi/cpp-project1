@@ -31,7 +31,7 @@ void printDepToFile(char[], Departement);
 void intToStr(int, char[]);
 void concatString(char[], char[]);
 void addSectionMenu();
-int getid(char path[]);
+int getLastId(char path[]);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -129,13 +129,11 @@ void addSectionMenu() {
 
 void makeDepartement(char name[], char owner[]) {
 	char path[] = "Depatement.txt";
-	char path2[] = "depid.txt";
-	int i = getid(path2);
 	Departement newDep;
 	
 	copyString(newDep.name, name);
 	copyString(newDep.owner, owner);
-	newDep.id = i;
+	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
 	printDepToFile(path, newDep);
 }
 
@@ -157,6 +155,16 @@ void intToStr(int number, char output[]) {
 	output[outputIndex] = '\0';
 }
 
+int stringToInt(const char str[]) {
+	int result = 0;
+	int i = 0;
+	while (str[i] != '\0') {
+		result = result * 10 + (str[i] - '0');
+		i++;
+	}
+	return result;
+}
+
 void copyString(char first[],char second[]) {
 	int i = 0;
 	while (second[i]) {
@@ -165,7 +173,7 @@ void copyString(char first[],char second[]) {
 	}
 	first[i] = '\0';
 }
-
+//might not be needed
 void concatString(char first[], char second[]) {
 	int i = 0;
 	int j = 0;
@@ -183,17 +191,34 @@ void concatString(char first[], char second[]) {
 void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
 	file << dep.id << '|' << dep.name << '|' << dep.owner << '\n';
-	file.close();
+		file.close();
 }
 
-int getid(char path[]) {
-	int id=0;
+int getLastId(char path[]) {
 	ifstream infile(path);
-	infile >> id;
+	if (!infile.is_open()) {
+		return 0;  // If file doesn't exist or is empty, start from ID 1
+	}
+
+	char line[256];
+	char lastLine[256] = "";  // The last line
+
+	while (infile.getline(line, 256)) {
+		copyString(lastLine, line);  // Keep updating
+	}
 	infile.close();
-	id++;
-	ofstream outfile(path);
-	outfile << id;
-	outfile.close();
-	return id;
+
+	if (lastLine[0] == '\0') {
+		return 0;  // If file was empty
+	}
+
+	char idStr[20];
+	int j = 0;
+	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != '|'; i++) {
+		idStr[j++] = lastLine[i]; // just get the id
+	}
+	idStr[j] = '\0'; // so the functions work with it
+
+
+	return stringToInt(idStr);
 }
