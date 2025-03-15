@@ -32,7 +32,7 @@ void intToStr(int, char[]);
 void concatString(char[], char[]);
 void addSectionMenu();
 int getLastId(char path[]);
-
+void printSecToFile(char[], Section);
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
 	IntroMenu();
@@ -100,7 +100,7 @@ void AdminMenu() {
 		AdminMenu();
 	}
 }
-
+// reformat this so make dep is here
 void AddDepartementMenu() {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
@@ -120,11 +120,28 @@ void AddDepartementMenu() {
 
 void addSectionMenu() {
 	Section section;
-	
-	cout << "what is the departement id: ";
+	char path[] = "sections.txt";
+
+	//add a way to handle this
+	cout << "what is the departement id of this section: ";
 	cin >> section.dep_id;
+
 	cout << "What is section name: ";
-	cout << "who si the sections owner: ;";
+	cin >> section.name;
+
+	cout << "who is the sections owner: ";
+	cin >> section.owner;
+
+	section.id = getLastId(path) + 1;
+	printSecToFile(path, section);
+	system("cls");
+	AdminMenu();
+}
+
+void printSecToFile(char path[], Section sec) {
+	ofstream file(path, ios::app);
+	file << sec.id << "|" << sec.name << "|" << sec.owner << "|" << sec.dep_id << '\n';
+	file.close();
 }
 
 void makeDepartement(char name[], char owner[]) {
@@ -218,7 +235,6 @@ int getLastId(char path[]) {
 		idStr[j++] = lastLine[i]; // just get the id
 	}
 	idStr[j] = '\0'; // so the functions work with it
-
 
 	return stringToInt(idStr);
 }
