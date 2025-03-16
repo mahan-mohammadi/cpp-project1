@@ -31,6 +31,7 @@ struct Resource {
 	int sec_id;
 	char name[NAME_LENGTH];
 	Type type;
+	int price;
 };
 
 void IntroMenu();
@@ -254,6 +255,9 @@ void addResourceMenu(){
 		}
 	}
 
+	cout << "\nwhat is the price of this resource per time/sample: ";
+	cin >> res.price;
+
 	res.id = getLastId(path) + 1;
 	printResourceToFile(path, res);
 	system("cls");
@@ -262,9 +266,8 @@ void addResourceMenu(){
 
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
-	file << res.id << "|" << res.name << "|" << res.type << "|" << res.sec_id << '\n';
+	file << res.id << "|" << res.name << "|" << res.type << "|" << res.price << "|" << res.sec_id << '\n';
 	file.close();
-
 }
 
 void printSecToFile(char path[], Section sec) {
@@ -481,7 +484,7 @@ void getResourcesMenu() {
 	cout << "list of all resources: \n\n";
 
 	while (file.getline(line, 256)) {
-		int level = 0 , id=0, nameIndex=0 , sec_id=0 , type=0;
+		int level = 0 , id=0, nameIndex=0 , sec_id=0 , type=0, price =0;
 		char name[NAME_LENGTH] = { 0 };
 		char typestr[20];
 		for (int i = 0; line[i]; i++) {
@@ -502,13 +505,16 @@ void getResourcesMenu() {
 				type = line[i] - '0';
 				break;
 			case 3:
+				price = price * 10 + (line[i] - '0');
+				break;
+			case 4:
 				sec_id = sec_id * 10 + (line[i] - '0');
 				break;
 			}
 		}
 		name[nameIndex] = '\0';
 		stringForResourceType(typestr, type);
-		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "section id: " << sec_id << "\n\n";
+		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
 	}
 }
 
