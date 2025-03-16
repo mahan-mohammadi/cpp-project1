@@ -50,6 +50,7 @@ void userMenu();
 void getDepartmentsMenu();
 void getSectionsMenu();
 void getResourcesMenu();
+void stringForResourceType(char[] , int);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -155,10 +156,13 @@ void userMenu() {
 	switch (choice){
 		case 1:
 			getDepartmentsMenu();
+			break;
 		case 2:
 			getSectionsMenu();
+			break;
 		case 3:
-
+			getResourcesMenu();
+			break;
 		case 4:
 
 		case 5:
@@ -465,4 +469,66 @@ void getSectionsMenu() {
 	}
 	system("cls");
 	userMenu();
+}
+
+void getResourcesMenu() {
+	char path[] = "resources.txt";
+	char line[256];
+	int Choice = 1;
+
+	ifstream file(path);
+
+	cout << "list of all resources: \n\n";
+
+	while (file.getline(line, 256)) {
+		int level = 0 , id=0, nameIndex=0 , sec_id=0 , type=0;
+		char name[NAME_LENGTH] = { 0 };
+		char typestr[20];
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 0: //process id
+				id = id * 10 + (line[i] - '0');
+				break;
+			case 1: // process Name
+				if (nameIndex < NAME_LENGTH - 1)
+					name[nameIndex++] = line[i];
+				break;
+			case 2: //process  type
+				type = line[i] - '0';
+				break;
+			case 3:
+				sec_id = sec_id * 10 + (line[i] - '0');
+				break;
+			}
+		}
+		name[nameIndex] = '\0';
+		stringForResourceType(typestr, type);
+		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "section id: " << sec_id << "\n\n";
+	}
+}
+
+void stringForResourceType(char type[], int intType) {
+	char hourly[] = "hourly";
+	char daily[] = "daily";
+	char mounthly[] = "mounthly";
+	char sample[] = "sample based";
+
+	switch (intType){
+		case 1:
+			copyString(type, hourly);
+			break;
+		case 2:
+			copyString(type, daily);
+			break;
+		case 3:
+			copyString(type, mounthly);
+			break;
+		case 4:
+			copyString(type, sample);
+	}
 }
