@@ -46,6 +46,7 @@ int getLastId(char path[]);
 void printSecToFile(char[], Section);
 void addResourceMenu();
 void printResourceToFile(char path[], Resource res);
+void userMenu();
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -64,7 +65,8 @@ void IntroMenu() {
 		AdminMenu();
 	}
 	else if (choice == 2) {
-		// Login as user
+		system("cls");
+		userMenu();
 	}
 	else if (choice == 0) {
 		exit(0);
@@ -132,6 +134,42 @@ void AddDepartementMenu() {
 	AdminMenu();
 }
 
+void userMenu() {
+	int choice;
+
+	cout << "welocme to user menu\n\n";
+	cout << "	1. see all Department\n";
+	cout << "	2. see all Section\n";
+	cout << "	3. see all Resource\n";
+	cout << "	4. send a Request\n";
+	cout << "	5. Go back\n";
+	cout << "	0. Exit\n";
+
+	cout << "Enter choice: ";
+	cin >> choice;
+	system("cls");
+
+	switch (choice){
+		case 1:
+
+		case 2:
+
+		case 3:
+
+		case 4:
+
+		case 5:
+			IntroMenu();
+			break;
+		case 0:
+			exit(0);
+			break;
+		default:
+			cout << "invalid choice \n\n";
+			userMenu();
+			break;
+	}
+}
 
 void addSectionMenu() {
 	Section section;
@@ -156,7 +194,7 @@ void addSectionMenu() {
 	system("cls");
 	AdminMenu();
 }
-
+// remove the unnesscary while loop here
 void addResourceMenu(){
 	cout << "Welcom to the resource defining menu\n\n";
 
