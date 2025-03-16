@@ -48,6 +48,8 @@ void addResourceMenu();
 void printResourceToFile(char path[], Resource res);
 void userMenu();
 void getDepartmentsMenu();
+void getSectionsMenu();
+void getResourcesMenu();
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -154,7 +156,7 @@ void userMenu() {
 		case 1:
 			getDepartmentsMenu();
 		case 2:
-
+			getSectionsMenu();
 		case 3:
 
 		case 4:
@@ -364,14 +366,14 @@ int getLastId(char path[]) {
 }
 
 void getDepartmentsMenu() {
-	Departement dep;
+
 	char path[] = "Depatement.txt";
 	char line[256];
 	int Choice = 1;
 
 	ifstream file(path);
 
-	cout << "list of all resources: \n\n";
+	cout << "list of all departments: \n\n";
 
 	while (file.getline(line, 256)) {
 	
@@ -402,7 +404,7 @@ void getDepartmentsMenu() {
 		name[nameIndex] = '\0';
 		owner[ownerIndex] = '\0';
 
-		cout << "	" << "name: " << name << " " << "owner: " << owner << " " << "id: " << id << "\n\n";
+		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
 		}
 		cout << "Enter 0 and enter to return back: ";
 		while (Choice) {
@@ -410,4 +412,56 @@ void getDepartmentsMenu() {
 		}
 		system("cls");
 		userMenu();
+}
+
+void getSectionsMenu() {
+	char path[] = "sections.txt";
+	char line[256];
+	int Choice = 1;
+
+	ifstream file(path);
+
+	cout << "list of all sections: \n\n";
+	while (file.getline(line, 256)) {
+
+		int nameIndex = 0, ownerIndex = 0, level = 0;
+		int id = 0, dep_id = 0;
+		char name[NAME_LENGTH] = { 0 };
+		char owner[NAME_LENGTH] = { 0 };
+
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 0: //process id
+				id = id * 10 + (line[i] - '0');
+				break;
+			case 1: // process Name
+				if (nameIndex < NAME_LENGTH - 1)
+					name[nameIndex++] = line[i];
+				break;
+			case 2: //process  Owner
+				if (ownerIndex < NAME_LENGTH - 1)
+					owner[ownerIndex++] = line[i];
+			case 3:
+				dep_id = dep_id * 10 + (line[i] - '0');
+				break;
+			}
+			
+		}
+		name[nameIndex] = '\0';
+		owner[ownerIndex] = '\0';
+
+		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
+
 	}
+	cout << "Enter 0 and enter to return back: ";
+	while (Choice) {
+		cin >> Choice;
+	}
+	system("cls");
+	userMenu();
+}
