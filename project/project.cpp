@@ -47,6 +47,7 @@ void printSecToFile(char[], Section);
 void addResourceMenu();
 void printResourceToFile(char path[], Resource res);
 void userMenu();
+void getDepartmentsMenu();
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -151,7 +152,7 @@ void userMenu() {
 
 	switch (choice){
 		case 1:
-
+			getDepartmentsMenu();
 		case 2:
 
 		case 3:
@@ -295,13 +296,13 @@ void intToStr(int number, char output[]) {
 }
 
 int stringToInt(const char str[]) {
-	int result = 0;
+	int number = 0;
 	int i = 0;
 	while (str[i] != '\0') {
-		result = result * 10 + (str[i] - '0');
+		number = number * 10 + (str[i] - '0');
 		i++;
 	}
-	return result;
+	return number;
 }
 
 void copyString(char first[],char second[]) {
@@ -334,29 +335,79 @@ void printDepToFile(char path[], Departement dep) {
 }
 
 int getLastId(char path[]) {
-	ifstream infile(path);
-	if (!infile.is_open()) {
+	ifstream file(path);
+	if (!file.is_open()) {
 		return 0;  // If file doesn't exist or is empty, start from ID 1
 	}
 
 	char line[256];
 	char lastLine[256] = "";  // The last line
 
-	while (infile.getline(line, 256)) {
+	while (file.getline(line, 256)) {
 		copyString(lastLine, line);  // Keep updating
 	}
-	infile.close();
+	file.close();
 
 	if (lastLine[0] == '\0') {
 		return 0;  // If file was empty
 	}
 
-	char idStr[20];
+	char id[20];
 	int j = 0;
 	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != '|'; i++) {
-		idStr[j++] = lastLine[i]; // just get the id
+		id[j] = lastLine[i]; // just get the id
+		j++;
 	}
-	idStr[j] = '\0'; // so the functions work with it
+	id[j] = '\0'; // so the functions work with it
 
-	return stringToInt(idStr);
+	return stringToInt(id);
 }
+
+void getDepartmentsMenu() {
+	Departement dep;
+	char path[] = "Depatement.txt";
+	char line[256];
+	int Choice = 1;
+
+	ifstream file(path);
+
+	cout << "list of all resources: \n\n";
+
+	while (file.getline(line, 256)) {
+	
+		int nameIndex = 0, ownerIndex = 0, level = 0;
+		int id = 0;
+		char name[NAME_LENGTH] = { 0 };
+		char owner[NAME_LENGTH] = { 0 };
+
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level) {
+			case 0: // procces ID
+				id = id * 10 + (line[i] - '0');
+				break;
+			case 1: // peocess Name
+				if (nameIndex < NAME_LENGTH - 1)
+					name[nameIndex++] = line[i];
+				break;
+			case 2: //process  Owner
+				if (ownerIndex < NAME_LENGTH - 1)
+					owner[ownerIndex++] = line[i];
+				break;
+			}
+		}
+		name[nameIndex] = '\0';
+		owner[ownerIndex] = '\0';
+
+		cout << "	" << "name: " << name << " " << "owner: " << owner << " " << "id: " << id << "\n\n";
+		}
+		cout << "Enter 0 and enter to return back: ";
+		while (Choice) {
+			cin >> Choice;
+		}
+		system("cls");
+		userMenu();
+	}
