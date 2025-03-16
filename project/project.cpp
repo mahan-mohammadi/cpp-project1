@@ -446,6 +446,7 @@ void getSectionsMenu() {
 			case 2: //process  Owner
 				if (ownerIndex < NAME_LENGTH - 1)
 					owner[ownerIndex++] = line[i];
+				break;
 			case 3:
 				dep_id = dep_id * 10 + (line[i] - '0');
 				break;
@@ -455,7 +456,7 @@ void getSectionsMenu() {
 		name[nameIndex] = '\0';
 		owner[ownerIndex] = '\0';
 
-		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
+		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
 
 	}
 	cout << "Enter 0 and enter to return back: ";
