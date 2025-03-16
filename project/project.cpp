@@ -9,6 +9,10 @@ const int MAX_RESOURCES = 1000;
 const int MAX_REQUESTS = 1000;
 const int NAME_LENGTH = 50;
 
+enum Type {
+	HOURLY =1 , DAILY , MOUNTHLY , SAMPLE
+};
+
 struct Departement {
 	int id;
 	char name[NAME_LENGTH];
@@ -22,6 +26,13 @@ struct Section {
 	char owner[NAME_LENGTH];
 };
 
+struct Resource {
+	int id;
+	int sec_id;
+	char name[NAME_LENGTH];
+	Type type;
+};
+
 void IntroMenu();
 void AdminMenu();
 void AddDepartementMenu();
@@ -33,6 +44,9 @@ void concatString(char[], char[]);
 void addSectionMenu();
 int getLastId(char path[]);
 void printSecToFile(char[], Section);
+void addResourceMenu();
+void printResourceToFile(char path[], Resource res);
+
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
 	IntroMenu();
@@ -85,6 +99,7 @@ void AdminMenu() {
 		addSectionMenu();
 		break;
 	case 3:
+		addResourceMenu();
 		break;
 	case 4:
 		break;
@@ -122,6 +137,8 @@ void addSectionMenu() {
 	Section section;
 	char path[] = "sections.txt";
 
+	cout << "Welcom to the section defining menu\n\n";
+
 	//add a way to handle this
 	cout << "what is the departement id of this section: ";
 	cin >> section.dep_id;
@@ -133,9 +150,76 @@ void addSectionMenu() {
 	cin >> section.owner;
 
 	section.id = getLastId(path) + 1;
+
 	printSecToFile(path, section);
+
 	system("cls");
 	AdminMenu();
+}
+
+void addResourceMenu(){
+	cout << "Welcom to the resource defining menu\n\n";
+
+	char path[] = "resources.txt";
+	Resource res;
+	int choice;
+	bool isValid = false;
+
+	cout << "what is the section id of this resource: ";
+	cin >> res.sec_id;
+
+	cout << "What is resource name: ";
+	cin >> res.name;
+	
+	cout << "What is the type of this resource:\n\n";
+	cout << "	1.HOURLY\n";
+	cout << "	2.DAILY\n";
+	cout << "	3.MOUNTHLY\n";
+	cout << "	4.SAMPLE BASED\n\n";
+
+	while (!isValid)
+	{
+		cout << "Enter your choice: ";
+		cin >> choice;
+		switch (choice)
+		{
+			case HOURLY:
+				isValid = true;
+				res.type = HOURLY;
+				break;
+
+			case DAILY:
+				isValid = true;
+				res.type = DAILY;
+				break; 
+
+			case MOUNTHLY:
+				isValid = true;
+				res.type = MOUNTHLY;
+				break;
+
+			case SAMPLE:
+				isValid = true;
+				res.type = SAMPLE;
+				break;
+
+			default:
+				cout << "Not a valid choice. Try again.";
+				break;
+		}
+	}
+
+	res.id = getLastId(path) + 1;
+	printResourceToFile(path, res);
+	system("cls");
+	AdminMenu();
+}
+
+void printResourceToFile(char path[], Resource res) {
+	ofstream file(path, ios::app);
+	file << res.id << "|" << res.name << "|" << res.type << "|" << res.sec_id << '\n';
+	file.close();
+
 }
 
 void printSecToFile(char path[], Section sec) {
