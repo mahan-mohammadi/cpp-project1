@@ -3,10 +3,6 @@
 
 using namespace std;
 
-const int MAX_DEPARTMENTS = 100;
-const int MAX_SECTIONS = 500;
-const int MAX_RESOURCES = 1000;
-const int MAX_REQUESTS = 1000;
 const int NAME_LENGTH = 50;
 
 enum Type {
@@ -32,6 +28,30 @@ struct Resource {
 	char name[NAME_LENGTH];
 	Type type;
 	int price;
+};
+
+struct Person {
+	int id;
+	char name[NAME_LENGTH];
+};
+
+struct Admin {
+	Person person;
+	int phoneNumber;
+};
+
+struct User {
+	Person person;
+	int gov_id;
+};
+
+struct Request {
+	Resource res;
+	User user;
+	int number;
+	int time;
+	bool isApproved;
+	char name[NAME_LENGTH];
 };
 
 void IntroMenu();
@@ -258,7 +278,8 @@ void addResourceMenu(){
 	cout << "\nwhat is the price of this resource per time/sample: ";
 	cin >> res.price;
 
-	res.id = getLastId(path) + 1;
+	res.id = getLastId(path) + 1;  // get an id for the request
+
 	printResourceToFile(path, res);
 	system("cls");
 	AdminMenu();
@@ -516,6 +537,13 @@ void getResourcesMenu() {
 		stringForResourceType(typestr, type);
 		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
 	}
+
+	cout << "Enter 0 and enter to return back: ";
+	while (Choice) {
+		cin >> Choice;
+	}
+	system("cls");
+	userMenu();
 }
 
 void stringForResourceType(char type[], int intType) {
