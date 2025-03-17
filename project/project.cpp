@@ -48,9 +48,10 @@ struct User {
 struct Request {
 	Resource res;
 	User user;
+	int id;
 	int number;
 	int time;
-	bool isApproved;
+	bool isApproved = false;
 	char name[NAME_LENGTH];
 };
 
@@ -72,6 +73,9 @@ void getDepartmentsMenu();
 void getSectionsMenu();
 void getResourcesMenu();
 void stringForResourceType(char[] , int);
+void sendReqMenu();
+void printDepToCLI();
+void printSecToCLI(int);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -185,7 +189,8 @@ void userMenu() {
 			getResourcesMenu();
 			break;
 		case 4:
-
+			sendReqMenu();
+			break;
 		case 5:
 			IntroMenu();
 			break;
@@ -395,57 +400,23 @@ int getLastId(char path[]) {
 
 void getDepartmentsMenu() {
 
-	char path[] = "Depatement.txt";
-	char line[256];
 	int Choice = 1;
-
-	ifstream file(path);
-
-	cout << "list of all departments: \n\n";
-
-	while (file.getline(line, 256)) {
 	
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
+	printDepToCLI();
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0: // procces ID
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // peocess Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			}
-		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
+	cout << "Enter 0 and enter to return back: ";
+	while (Choice) {
+		cin >> Choice;
+	}
 
-		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
-		}
-		cout << "Enter 0 and enter to return back: ";
-		while (Choice) {
-			cin >> Choice;
-		}
-		system("cls");
-		userMenu();
+	system("cls");
+	userMenu();
 }
 
 void getSectionsMenu() {
+	int Choice = 1;
 	char path[] = "sections.txt";
 	char line[256];
-	int Choice = 1;
 
 	ifstream file(path);
 
@@ -496,9 +467,9 @@ void getSectionsMenu() {
 }
 
 void getResourcesMenu() {
+	int Choice = 1;
 	char path[] = "resources.txt";
 	char line[256];
-	int Choice = 1;
 
 	ifstream file(path);
 
@@ -565,4 +536,165 @@ void stringForResourceType(char type[], int intType) {
 		case 4:
 			copyString(type, sample);
 	}
+}
+
+void printDepToCLI() {
+	char path[] = "Depatement.txt";
+	char line[256];
+
+
+	ifstream file(path);
+
+	cout << "list of all departments: \n\n";
+
+	while (file.getline(line, 256)) {
+
+		int nameIndex = 0, ownerIndex = 0, level = 0;
+		int id = 0;
+		char name[NAME_LENGTH] = { 0 };
+		char owner[NAME_LENGTH] = { 0 };
+
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level) {
+			case 0: // procces ID
+				id = id * 10 + (line[i] - '0');
+				break;
+			case 1: // peocess Name
+				if (nameIndex < NAME_LENGTH - 1)
+					name[nameIndex++] = line[i];
+				break;
+			case 2: //process  Owner
+				if (ownerIndex < NAME_LENGTH - 1)
+					owner[ownerIndex++] = line[i];
+				break;
+			}
+		}
+		name[nameIndex] = '\0';
+		owner[ownerIndex] = '\0';
+
+		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
+	}
+}
+
+void printSecToCLI(int targetDep) {
+	char path[] = "sections.txt";
+	char line[256];
+
+	ifstream file(path);
+
+	cout << "List of sections in department " << targetDep << ":\n\n";
+	while (file.getline(line, 256)) {
+
+		int nameIndex = 0, ownerIndex = 0, level = 0;
+		int id = 0, dep_id = 0;
+		char name[NAME_LENGTH] = { 0 };
+		char owner[NAME_LENGTH] = { 0 };
+
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 0: //process id
+				id = id * 10 + (line[i] - '0');
+				break;
+			case 1: // process Name
+				if (nameIndex < NAME_LENGTH - 1)
+					name[nameIndex++] = line[i];
+				break;
+			case 2: //process  Owner
+				if (ownerIndex < NAME_LENGTH - 1)
+					owner[ownerIndex++] = line[i];
+				break;
+			case 3:
+				dep_id = dep_id * 10 + (line[i] - '0');
+				break;
+			}
+
+		}
+		name[nameIndex] = '\0';
+		owner[ownerIndex] = '\0';
+
+		if (dep_id == targetDep) {
+			cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
+		}
+
+	}
+}
+
+void printResToCLI(int targetSec) {
+	char path[] = "resources.txt";
+	char line[256];
+
+	ifstream file(path);
+
+	cout << "list of all resources: \n\n";
+
+	while (file.getline(line, 256)) {
+		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
+		char name[NAME_LENGTH] = { 0 };
+		char typestr[20];
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 0: //process id
+				id = id * 10 + (line[i] - '0');
+				break;
+			case 1: // process Name
+				if (nameIndex < NAME_LENGTH - 1)
+					name[nameIndex++] = line[i];
+				break;
+			case 2: //process  type
+				type = line[i] - '0';
+				break;
+			case 3:
+				price = price * 10 + (line[i] - '0');
+				break;
+			case 4:
+				sec_id = sec_id * 10 + (line[i] - '0');
+				break;
+			}
+		}
+		if (targetSec == sec_id) {
+			name[nameIndex] = '\0';
+			stringForResourceType(typestr, type);
+			cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
+		}
+	}
+}
+
+void printRequestToFile(Request req) {
+	ofstream file("request.txt");
+	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '\n'; // << req.user stuff and number of request
+}
+
+void sendReqMenu() {
+
+	printDepToCLI();
+	int dep_id;
+	cout << "type the wanted department id: ";
+	cin >> dep_id;
+
+	system("cls");
+	printSecToCLI(dep_id);
+	int sec_id;
+	cout << "type the wanted section id: ";
+	cin >> sec_id;
+
+	system("cls");
+	printResToCLI(sec_id);
+
+	int res_id;
+	cout << "type the wante resorce id: ";
+	cin >> res_id;
 }
