@@ -674,11 +674,21 @@ void printResToCLI(int targetSec) {
 }
 
 void printRequestToFile(Request req) {
-	ofstream file("request.txt");
+	ofstream file("requests.txt");
 	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '\n'; // << req.user stuff and number of request
 }
 
+Request makeReq(int id, char name[], int res_id) {
+	Request req;
+	req.id = id;
+	req.res.id = res_id;
+	copyString(req.name, name);
+	req.isApproved = false;
+	return req;
+}
+
 void sendReqMenu() {
+	char path[] = "requests.txt";
 
 	printDepToCLI();
 	int dep_id;
@@ -695,6 +705,22 @@ void sendReqMenu() {
 	printResToCLI(sec_id);
 
 	int res_id;
-	cout << "type the wante resorce id: ";
+	cout << "type the wanted resorce id: ";
 	cin >> res_id;
+
+	system("cls");
+	cout << "you have selected resource with id: " << res_id << "\n\n";
+
+	char name[NAME_LENGTH];
+	cout << "what is the name of this request: ";
+	cin >> name;
+	
+	int id = getLastId(path) + 1;
+
+	Request req = makeReq(id, name, res_id);
+
+	printRequestToFile(req);
+
+	system("cls");
+	userMenu();
 }
