@@ -74,11 +74,11 @@ void printSecToFile(char[], Section);
 void addResourceMenu();
 void printResourceToFile(char path[], Resource res);
 void userMenu(int id);
-void getDepartmentsMenu();
-void getSectionsMenu();	
-void getResourcesMenu();
+void getDepartmentsMenu(int id);
+void getSectionsMenu(int id);
+void getResourcesMenu(int id);
 void stringForResourceType(char[], int);
-void sendReqMenu();
+void sendReqMenu(int id);
 void printDepToCLI();
 void printSecToCLI(int);
 void logIn(int);
@@ -87,7 +87,7 @@ void printUserToFile(User);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
-	IntroMenu();
+	signIn();
 
 	return 0;
 }
@@ -104,7 +104,7 @@ void signIn() {
 	cout << "Enter your goverment id number: ";
 	cin >> gov_id;
 
-	int id = getLastId(path);
+	int id = getLastId(path)+1;
 
 	user.person.id = id;
 	copyString(user.person.name, name);
@@ -124,7 +124,7 @@ void printUserToFile(User user) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
 
-	file << user.person.id << user.person.name << user.gov_id << user.level;
+	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level << '\n';
 }
 
 void IntroMenu() {
@@ -138,7 +138,7 @@ void IntroMenu() {
 	}
 	else if (choice == 2) {
 		system("cls");
-		userMenu(_placeholder_);
+		userMenu(1);
 	}
 	else if (choice == 0) {
 		exit(0);
@@ -223,16 +223,16 @@ void userMenu(int id) {
 
 	switch (choice) {
 	case 1:
-		getDepartmentsMenu();
+		getDepartmentsMenu(id);
 		break;
 	case 2:
-		getSectionsMenu();
+		getSectionsMenu(id);
 		break;
 	case 3:
-		getResourcesMenu();
+		getResourcesMenu(id);
 		break;
 	case 4:
-		sendReqMenu();
+		sendReqMenu(id);
 		break;
 	case 5:
 		IntroMenu();
@@ -441,7 +441,7 @@ int getLastId(char path[]) {
 	return stringToInt(id);
 }
 
-void getDepartmentsMenu() {
+void getDepartmentsMenu(int id) {
 
 	int Choice = 1;
 
@@ -456,7 +456,7 @@ void getDepartmentsMenu() {
 	userMenu(id);
 }
 
-void getSectionsMenu() {
+void getSectionsMenu(int id) {
 	int Choice = 1;
 	char path[] = "sections.txt";
 	char line[256];
@@ -509,7 +509,7 @@ void getSectionsMenu() {
 	userMenu(id);
 }
 
-void getResourcesMenu() {
+void getResourcesMenu(int userid) {
 	int Choice = 1;
 	char path[] = "resources.txt";
 	char line[256];
@@ -557,7 +557,7 @@ void getResourcesMenu() {
 		cin >> Choice;
 	}
 	system("cls");
-	userMenu(id);
+	userMenu(userid);
 }
 
 void stringForResourceType(char type[], int intType) {
@@ -730,7 +730,7 @@ Request makeReq(int id, char name[], int res_id) {
 	return req;
 }
 
-void sendReqMenu() {
+void sendReqMenu(int userid) {
 	char path[] = "requests.txt";
 
 	printDepToCLI();
@@ -765,5 +765,5 @@ void sendReqMenu() {
 	printRequestToFile(req);
 
 	system("cls");
-	userMenu(_placeholder_);
+	userMenu(userid);
 }
