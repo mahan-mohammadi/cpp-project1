@@ -6,7 +6,11 @@ using namespace std;
 const int NAME_LENGTH = 50;
 
 enum Type {
-	HOURLY =1 , DAILY , MOUNTHLY , SAMPLE
+	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
+};
+
+enum Acess_Level {
+	ADMIN = 1, OWNER, USER
 };
 
 struct Departement {
@@ -43,6 +47,7 @@ struct Admin {
 struct User {
 	Person person;
 	int gov_id;
+	Acess_Level level = USER;
 };
 
 struct Request {
@@ -58,7 +63,7 @@ struct Request {
 void IntroMenu();
 void AdminMenu();
 void AddDepartementMenu();
-void makeDepartement(char [] , char[]);
+void makeDepartement(char[], char[]);
 void copyString(char[], char[]);
 void printDepToFile(char[], Departement);
 void intToStr(int, char[]);
@@ -68,20 +73,58 @@ int getLastId(char path[]);
 void printSecToFile(char[], Section);
 void addResourceMenu();
 void printResourceToFile(char path[], Resource res);
-void userMenu();
+void userMenu(int id);
 void getDepartmentsMenu();
-void getSectionsMenu();
+void getSectionsMenu();	
 void getResourcesMenu();
-void stringForResourceType(char[] , int);
+void stringForResourceType(char[], int);
 void sendReqMenu();
 void printDepToCLI();
 void printSecToCLI(int);
+void logIn(int);
+void signIn();
+void printUserToFile(User);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
 	IntroMenu();
 
 	return 0;
+}
+
+void signIn() {
+	char path[] = "users.txt";
+	User user;
+
+	char name[NAME_LENGTH];
+	cout << "what is your name: ";
+	cin >> name;
+
+	int gov_id;
+	cout << "Enter your goverment id number: ";
+	cin >> gov_id;
+
+	int id = getLastId(path);
+
+	user.person.id = id;
+	copyString(user.person.name, name);
+	user.gov_id = gov_id;
+
+	printUserToFile(user);
+	system("cls");
+	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
+	userMenu(id);
+}
+void logIn(int id) {
+	ifstream file("users.txt");
+
+}
+
+void printUserToFile(User user) {
+	char path[] = "users.txt";
+	ofstream file(path, ios::app);
+
+	file << user.person.id << user.person.name << user.gov_id << user.level;
 }
 
 void IntroMenu() {
@@ -95,7 +138,7 @@ void IntroMenu() {
 	}
 	else if (choice == 2) {
 		system("cls");
-		userMenu();
+		userMenu(_placeholder_);
 	}
 	else if (choice == 0) {
 		exit(0);
@@ -150,7 +193,7 @@ void AdminMenu() {
 void AddDepartementMenu() {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
-	
+
 	cout << "Welcom to the Department defining menu\n\n";
 
 	cout << "What is the name of the Department: ";
@@ -163,7 +206,7 @@ void AddDepartementMenu() {
 	AdminMenu();
 }
 
-void userMenu() {
+void userMenu(int id) {
 	int choice;
 
 	cout << "welocme to user menu\n\n";
@@ -178,29 +221,29 @@ void userMenu() {
 	cin >> choice;
 	system("cls");
 
-	switch (choice){
-		case 1:
-			getDepartmentsMenu();
-			break;
-		case 2:
-			getSectionsMenu();
-			break;
-		case 3:
-			getResourcesMenu();
-			break;
-		case 4:
-			sendReqMenu();
-			break;
-		case 5:
-			IntroMenu();
-			break;
-		case 0:
-			exit(0);
-			break;
-		default:
-			cout << "invalid choice \n\n";
-			userMenu();
-			break;
+	switch (choice) {
+	case 1:
+		getDepartmentsMenu();
+		break;
+	case 2:
+		getSectionsMenu();
+		break;
+	case 3:
+		getResourcesMenu();
+		break;
+	case 4:
+		sendReqMenu();
+		break;
+	case 5:
+		IntroMenu();
+		break;
+	case 0:
+		exit(0);
+		break;
+	default:
+		cout << "invalid choice \n\n";
+		userMenu(id);
+		break;
 	}
 }
 
@@ -228,7 +271,7 @@ void addSectionMenu() {
 	AdminMenu();
 }
 // remove the unnesscary while loop here
-void addResourceMenu(){
+void addResourceMenu() {
 	cout << "Welcom to the resource defining menu\n\n";
 
 	char path[] = "resources.txt";
@@ -241,7 +284,7 @@ void addResourceMenu(){
 
 	cout << "What is resource name: ";
 	cin >> res.name;
-	
+
 	cout << "What is the type of this resource:\n\n";
 	cout << "	1.HOURLY\n";
 	cout << "	2.DAILY\n";
@@ -254,29 +297,29 @@ void addResourceMenu(){
 		cin >> choice;
 		switch (choice)
 		{
-			case HOURLY:
-				isValid = true;
-				res.type = HOURLY;
-				break;
+		case HOURLY:
+			isValid = true;
+			res.type = HOURLY;
+			break;
 
-			case DAILY:
-				isValid = true;
-				res.type = DAILY;
-				break; 
+		case DAILY:
+			isValid = true;
+			res.type = DAILY;
+			break;
 
-			case MOUNTHLY:
-				isValid = true;
-				res.type = MOUNTHLY;
-				break;
+		case MOUNTHLY:
+			isValid = true;
+			res.type = MOUNTHLY;
+			break;
 
-			case SAMPLE:
-				isValid = true;
-				res.type = SAMPLE;
-				break;
+		case SAMPLE:
+			isValid = true;
+			res.type = SAMPLE;
+			break;
 
-			default:
-				cout << "Not a valid choice. Try again.";
-				break;
+		default:
+			cout << "Not a valid choice. Try again.";
+			break;
 		}
 	}
 
@@ -305,7 +348,7 @@ void printSecToFile(char path[], Section sec) {
 void makeDepartement(char name[], char owner[]) {
 	char path[] = "Depatement.txt";
 	Departement newDep;
-	
+
 	copyString(newDep.name, name);
 	copyString(newDep.owner, owner);
 	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
@@ -340,7 +383,7 @@ int stringToInt(const char str[]) {
 	return number;
 }
 
-void copyString(char first[],char second[]) {
+void copyString(char first[], char second[]) {
 	int i = 0;
 	while (second[i]) {
 		first[i] = second[i];
@@ -366,7 +409,7 @@ void concatString(char first[], char second[]) {
 void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
 	file << dep.id << '|' << dep.name << '|' << dep.owner << '\n';
-		file.close();
+	file.close();
 }
 
 int getLastId(char path[]) {
@@ -401,7 +444,7 @@ int getLastId(char path[]) {
 void getDepartmentsMenu() {
 
 	int Choice = 1;
-	
+
 	printDepToCLI();
 
 	cout << "Enter 0 and enter to return back: ";
@@ -410,7 +453,7 @@ void getDepartmentsMenu() {
 	}
 
 	system("cls");
-	userMenu();
+	userMenu(id);
 }
 
 void getSectionsMenu() {
@@ -450,7 +493,7 @@ void getSectionsMenu() {
 				dep_id = dep_id * 10 + (line[i] - '0');
 				break;
 			}
-			
+
 		}
 		name[nameIndex] = '\0';
 		owner[ownerIndex] = '\0';
@@ -463,7 +506,7 @@ void getSectionsMenu() {
 		cin >> Choice;
 	}
 	system("cls");
-	userMenu();
+	userMenu(id);
 }
 
 void getResourcesMenu() {
@@ -476,7 +519,7 @@ void getResourcesMenu() {
 	cout << "list of all resources: \n\n";
 
 	while (file.getline(line, 256)) {
-		int level = 0 , id=0, nameIndex=0 , sec_id=0 , type=0, price =0;
+		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
 		char name[NAME_LENGTH] = { 0 };
 		char typestr[20];
 		for (int i = 0; line[i]; i++) {
@@ -514,7 +557,7 @@ void getResourcesMenu() {
 		cin >> Choice;
 	}
 	system("cls");
-	userMenu();
+	userMenu(id);
 }
 
 void stringForResourceType(char type[], int intType) {
@@ -523,18 +566,18 @@ void stringForResourceType(char type[], int intType) {
 	char mounthly[] = "mounthly";
 	char sample[] = "sample based";
 
-	switch (intType){
-		case 1:
-			copyString(type, hourly);
-			break;
-		case 2:
-			copyString(type, daily);
-			break;
-		case 3:
-			copyString(type, mounthly);
-			break;
-		case 4:
-			copyString(type, sample);
+	switch (intType) {
+	case 1:
+		copyString(type, hourly);
+		break;
+	case 2:
+		copyString(type, daily);
+		break;
+	case 3:
+		copyString(type, mounthly);
+		break;
+	case 4:
+		copyString(type, sample);
 	}
 }
 
@@ -714,7 +757,7 @@ void sendReqMenu() {
 	char name[NAME_LENGTH];
 	cout << "what is the name of this request: ";
 	cin >> name;
-	
+
 	int id = getLastId(path) + 1;
 
 	Request req = makeReq(id, name, res_id);
@@ -722,5 +765,5 @@ void sendReqMenu() {
 	printRequestToFile(req);
 
 	system("cls");
-	userMenu();
+	userMenu(_placeholder_);
 }
