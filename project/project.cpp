@@ -85,6 +85,7 @@ void logIn(int);
 void signIn();
 void printUserToFile(User);
 bool isGovIDValid(int);
+Request makeReq(int id, char name[], int res_id, int userID);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -132,16 +133,22 @@ bool isGovIDValid(int targetID ) {
 
 	while (file.getline(line, 256)) {
 		int level = 0;
+		int id = 0;
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
+				continue;
 			}
 			switch (level)
 			{
 			case 2:
-				found = true;
+				id = id * 10 + (line[i] - '0');
 				break;
 			}
+		}
+		if (id == targetID) {
+			found = true;
+			break;
 		}
 	}
 	file.close();
@@ -752,14 +759,15 @@ void printResToCLI(int targetSec) {
 }
 
 void printRequestToFile(Request req) {
-	ofstream file("requests.txt");
-	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '\n'; // << req.user stuff and number of request
+	ofstream file("requests.txt", ios::app );
+	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '|' << req.user.person.id << '\n'; //number of request
 }
 
-Request makeReq(int id, char name[], int res_id) {
+Request makeReq(int id, char name[], int res_id, int userID) {
 	Request req;
 	req.id = id;
 	req.res.id = res_id;
+	req.user.person.id = userID;
 	copyString(req.name, name);
 	req.isApproved = false;
 	return req;
@@ -795,7 +803,7 @@ void sendReqMenu(int userid) {
 
 	int id = getLastId(path) + 1;
 
-	Request req = makeReq(id, name, res_id);
+	Request req = makeReq(id, name, res_id, userid);
 
 	printRequestToFile(req);
 
