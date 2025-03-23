@@ -84,6 +84,7 @@ void printSecToCLI(int);
 void logIn(int);
 void signIn();
 void printUserToFile(User);
+bool isGovIDValid(int);
 
 int main() {
 	cout << "Welcome to the Resoucre Management System!\n\n";
@@ -101,8 +102,15 @@ void signIn() {
 	cin >> name;
 
 	int gov_id;
-	cout << "Enter your goverment id number: ";
-	cin >> gov_id;
+	bool isNotValid = false;
+	do {
+		cout << "Enter your goverment id number: ";
+		cin >> gov_id;
+		isNotValid = !isGovIDValid(gov_id);
+		if (isNotValid) {
+			cout << "\nthis id already exist in our database\n\n";
+		}
+	} while (isNotValid);
 
 	int id = getLastId(path)+1;
 
@@ -115,6 +123,33 @@ void signIn() {
 	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
 	userMenu(id);
 }
+
+bool isGovIDValid(int targetID ) {
+	char path[] = "users.txt";
+	ifstream file(path);
+	char line[256];
+	bool found = false;
+
+	while (file.getline(line, 256)) {
+		int level = 0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+			}
+			switch (level)
+			{
+			case 2:
+				found = true;
+				break;
+			}
+		}
+	}
+	file.close();
+
+	bool isValid = !found;
+	return isValid;
+}
+
 void logIn(int id) {
 	ifstream file("users.txt");
 
