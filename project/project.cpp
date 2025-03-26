@@ -48,6 +48,7 @@ struct User {
 	Person person;
 	int gov_id;
 	Acess_Level level = USER;
+	char password[NAME_LENGTH];
 };
 
 struct Request {
@@ -86,9 +87,42 @@ void signIn();
 void printUserToFile(User);
 bool isGovIDValid(int);
 Request makeReq(int id, char name[], int res_id, int userID);
+bool areStringsEqual(char[], char[]);
+bool isPasswordValid(char str[]);
 
 int main() {
-	cout << "Welcome to the Resoucre Management System!\n\n";
+
+	int choice;
+	bool valid = false;
+	do {
+		cout << "Welcome to the Resoucre Management System!\n\n";
+		cout << "do you want to:\n\n";
+		cout << "\t1 - log in\n";
+		cout << "\t2 - sign in\n";
+		cout << "\t0 - exit\n\n";
+		cout << "Enter you choice number: ";
+		cin >> choice;
+		switch (choice)
+		{
+		case 1:
+			system("cls");
+			logIn(1); // fix this
+			valid = true;
+			break;
+		case 2:
+			system("cls");
+			signIn();
+			valid = true;
+			break;
+		case 0:
+			exit(0);
+			break;
+		default:
+			system("cls");
+			cout << "\ninvalid choice\n\n";
+			break;
+		}
+	} while (!valid);
 	signIn();
 
 	return 0;
@@ -113,16 +147,71 @@ void signIn() {
 		}
 	} while (isNotValid);
 
+	char password[NAME_LENGTH];
+
+	do {
+		cout << "Enter a password that is atleast 8 characthers long and has both numbers and letters: ";
+		cin >> password;
+	} while (!isPasswordValid(password));
+	
 	int id = getLastId(path)+1;
 
 	user.person.id = id;
 	copyString(user.person.name, name);
+	copyString(user.password, password);
 	user.gov_id = gov_id;
+	
 
 	printUserToFile(user);
 	system("cls");
 	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
 	userMenu(id);
+}
+
+int strLen(char str[]) {
+	int count = 0;
+	while (*str) {
+		str++;
+		count++;
+	}
+	return count;
+}
+
+bool isAlpha(char c) {
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isNumber(char c) {
+	if (c >= '0' && c <= '9') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isPasswordValid(char str[]) {
+	bool hasAlpha = false;
+	bool hasNumber = false;
+	if (strLen(str) < 8) {
+		return false;
+	}
+	while (*str) {
+		if (isNumber(*str)) {
+			hasNumber = true;
+		}
+		if (isAlpha(*str)) {
+			hasAlpha = true;
+		}
+		str++;
+	}
+	
+	return hasAlpha && hasNumber;
 }
 
 bool isGovIDValid(int targetID ) {
@@ -158,15 +247,71 @@ bool isGovIDValid(int targetID ) {
 }
 
 void logIn(int id) {
-	ifstream file("users.txt");
+	char inputPassword[NAME_LENGTH];
 
+	int inputID;
+
+	ifstream file("users.txt");
+	cout << "Enter your user id: ";
+	cin >> inputID;
+	cout << "Enter your password: ";
+	cin >> inputPassword;
+	char line[256];
+
+	while (file.getline(line, 256)) {
+		char targetPassword[NAME_LENGTH]{0};
+		int TargetId = 0;
+		int level = 0;
+		int passwordIndex = 0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 0:
+				TargetId = TargetId * 10 + (line[i] - '0');
+				break;
+			case 4:
+				if (passwordIndex < NAME_LENGTH - 1)
+					targetPassword[passwordIndex++] = line[i];
+				break;
+			}
+		}
+		if (TargetId == inputID && areStringsEqual(inputPassword, targetPassword)) {
+			file.close();
+			system("cls");
+			userMenu(TargetId);
+			break;
+		}
+	}
+	
+	file.close();
 }
+
+bool areStringsEqual(char first[] , char second[]) {
+	while (*first != '\0' && *second != '\0') {
+
+		if (*first != *second)
+			return false;
+		first++;
+		second++;
+	}
+	if (*first == '\0' && *second == '\0') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 
 void printUserToFile(User user) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
 
-	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level << '\n';
+	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
 }
 
 void IntroMenu() {

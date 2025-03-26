@@ -1,5 +1,5 @@
 # bugs:
-the print section to cli function misbehaves when number is unexpected
+the see resource function still works if no resource exists
 # to do:   
 finish the request menu
 bugs
