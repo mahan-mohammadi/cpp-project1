@@ -62,7 +62,7 @@ struct Request {
 };
 
 void IntroMenu();
-void AdminMenu();
+void OwnerMenu(int id);
 void AddDepartementMenu();
 void makeDepartement(char[], char[]);
 void copyString(char[], char[]);
@@ -123,9 +123,48 @@ int main() {
 			break;
 		}
 	} while (!valid);
-	signIn();
 
 	return 0;
+}
+
+void AdminMenu() {
+	int choice;
+
+	cout << " welcome to The admin menu:\n\n";
+	cout << "	1 - add department\n";
+	cout << "	2 - see all Department\n";
+	cout << "	3 - see all Section\n";
+	cout << "	4 - see all Resource\n";
+	cout << "	5 - go back\n";
+	cout << "	0 - exit\n\n";
+	cout << "enter your choice: ";
+	cin >> choice;
+
+	system("cls");
+	switch (choice)
+	{
+		case 1:
+			AddDepartementMenu();
+			break;
+		case 2:
+			getDepartmentsMenu(0);
+			break;
+		case 3:
+			getSectionsMenu(0);
+			break;
+		case 4:
+			getResourcesMenu(0);
+			break;
+		case 5:
+			main();
+			break;
+		case 0:
+			exit(0);
+			break;
+		default:
+			cout << "invalid input";
+			AdminMenu();
+	}
 }
 
 void signIn() {
@@ -298,7 +337,7 @@ void logIn() {
 					userMenu(TargetId);
 				}
 				else if (acess == OWNER) {
-					AdminMenu();
+					OwnerMenu(TargetId);
 				}
 				break; // Exit the file reading loop if a match is found
 			}
@@ -336,34 +375,11 @@ void printUserToFile(User user) {
 	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
 }
 
-void IntroMenu() {
+void OwnerMenu(int id) {
 	int choice;
 
-	cout << "1.Login as admin\n2.Login as user\n0.exit\n\nEnter number of you choice: ";
-	cin >> choice;
-	if (choice == 1) {
-		system("cls");
-		AdminMenu();
-	}
-	else if (choice == 2) {
-		system("cls");
-		userMenu(1);
-	}
-	else if (choice == 0) {
-		exit(0);
-	}
-	else {
-		system("cls");
-		cout << "Invalid choice!\n\n";
-		IntroMenu();
-	}
-}
-
-void AdminMenu() {
-	int choice;
-
-	cout << "Admin menu:\n";
-	cout << "	1. Add Department\n";
+	cout << "Owner menu:\n";
+	cout << "	1. Add Department\n"; // this should be removed
 	cout << "	2. Add Section\n";
 	cout << "	3. Add Resource\n";
 	cout << "	4. View Requests\n";
@@ -395,7 +411,7 @@ void AdminMenu() {
 		break;
 	default:
 		cout << "Invalid choice!\n\n";
-		AdminMenu();
+		OwnerMenu(id);
 	}
 }
 // reformat this so make dep is here
@@ -412,7 +428,7 @@ void AddDepartementMenu() {
 	cin >> ownerName;
 	makeDepartement(name, ownerName);
 	system("cls");
-	AdminMenu();
+	OwnerMenu(id);
 }
 
 void userMenu(int id) {
@@ -477,7 +493,7 @@ void addSectionMenu() {
 	printSecToFile(path, section);
 
 	system("cls");
-	AdminMenu();
+	OwnerMenu(id);
 }
 // remove the unnesscary while loop here
 void addResourceMenu() {
@@ -539,7 +555,7 @@ void addResourceMenu() {
 
 	printResourceToFile(path, res);
 	system("cls");
-	AdminMenu();
+	OwnerMenu(id);
 }
 
 void printResourceToFile(char path[], Resource res) {
