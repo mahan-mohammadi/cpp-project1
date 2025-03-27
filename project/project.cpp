@@ -250,7 +250,8 @@ void logIn() {
 	char inputPassword[NAME_LENGTH];
 	int inputID;
 	bool valid = false;
-
+	Acess_Level acessLevel;
+	int acess;
 	while (!valid) {
 		cout << "Enter your user id: ";
 		cin >> inputID;
@@ -265,9 +266,8 @@ void logIn() {
 		}
 
 		char line[256];
-		bool found = false;
-		while (file.getline(line, 256) && !found) {
-			char targetPassword[NAME_LENGTH]{ 0 };
+		while (file.getline(line, 256)) {
+			char targetPassword[NAME_LENGTH] = { 0 };
 			int TargetId = 0;
 			int level = 0;
 			int passwordIndex = 0;
@@ -281,6 +281,9 @@ void logIn() {
 				case 0: // Parse user ID
 					TargetId = TargetId * 10 + (line[i] - '0');
 					break;
+				case 3:
+					acess = line[i] - '0';
+					break;
 				case 4: // Parse password
 					if (passwordIndex < NAME_LENGTH - 1)
 						targetPassword[passwordIndex++] = line[i];
@@ -289,19 +292,25 @@ void logIn() {
 			}
 
 			if (TargetId == inputID && areStringsEqual(inputPassword, targetPassword)) {
-				found = true;
 				valid = true;
 				system("cls");
-				userMenu(TargetId);
+				if (acess == USER) {
+					userMenu(TargetId);
+				}
+				else if (acess == OWNER) {
+					AdminMenu();
+				}
+				break; // Exit the file reading loop if a match is found
 			}
 		}
 
 		file.close();
-		if (!found) {
+		if (!valid) {
 			cout << "Invalid ID or password. Please try again.\n" << endl;
 		}
 	}
 }
+
 
 bool areStringsEqual(char first[] , char second[]) {
 	while (*first != '\0' && *second != '\0') {
