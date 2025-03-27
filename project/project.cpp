@@ -82,7 +82,7 @@ void stringForResourceType(char[], int);
 void sendReqMenu(int id);
 void printDepToCLI();
 void printSecToCLI(int);
-void logIn(int);
+void logIn();
 void signIn();
 void printUserToFile(User);
 bool isGovIDValid(int);
@@ -106,7 +106,7 @@ int main() {
 		{
 		case 1:
 			system("cls");
-			logIn(1); // fix this
+			logIn();
 			valid = true;
 			break;
 		case 2:
@@ -246,48 +246,61 @@ bool isGovIDValid(int targetID ) {
 	return isValid;
 }
 
-void logIn(int id) {
+void logIn() {
 	char inputPassword[NAME_LENGTH];
-
 	int inputID;
+	bool valid = false;
 
-	ifstream file("users.txt");
-	cout << "Enter your user id: ";
-	cin >> inputID;
-	cout << "Enter your password: ";
-	cin >> inputPassword;
-	char line[256];
+	while (!valid) {
+		cout << "Enter your user id: ";
+		cin >> inputID;
 
-	while (file.getline(line, 256)) {
-		char targetPassword[NAME_LENGTH]{0};
-		int TargetId = 0;
-		int level = 0;
-		int passwordIndex = 0;
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
+		cout << "Enter your password: ";
+		cin >> inputPassword; // Safer password input
+
+		ifstream file("users.txt");
+		if (!file) {
+			cerr << "Error opening user database." << endl;
+			return;
+		}
+
+		char line[256];
+		bool found = false;
+		while (file.getline(line, 256) && !found) {
+			char targetPassword[NAME_LENGTH]{ 0 };
+			int TargetId = 0;
+			int level = 0;
+			int passwordIndex = 0;
+
+			for (int i = 0; line[i]; i++) {
+				if (line[i] == '|') {
+					level++;
+					continue;
+				}
+				switch (level) {
+				case 0: // Parse user ID
+					TargetId = TargetId * 10 + (line[i] - '0');
+					break;
+				case 4: // Parse password
+					if (passwordIndex < NAME_LENGTH - 1)
+						targetPassword[passwordIndex++] = line[i];
+					break;
+				}
 			}
-			switch (level)
-			{
-			case 0:
-				TargetId = TargetId * 10 + (line[i] - '0');
-				break;
-			case 4:
-				if (passwordIndex < NAME_LENGTH - 1)
-					targetPassword[passwordIndex++] = line[i];
-				break;
+
+			if (TargetId == inputID && areStringsEqual(inputPassword, targetPassword)) {
+				found = true;
+				valid = true;
+				system("cls");
+				userMenu(TargetId);
 			}
 		}
-		if (TargetId == inputID && areStringsEqual(inputPassword, targetPassword)) {
-			file.close();
-			system("cls");
-			userMenu(TargetId);
-			break;
+
+		file.close();
+		if (!found) {
+			cout << "Invalid ID or password. Please try again.\n" << endl;
 		}
 	}
-	
-	file.close();
 }
 
 bool areStringsEqual(char first[] , char second[]) {
@@ -367,7 +380,7 @@ void AdminMenu() {
 	case 5:
 		break;
 	case 6:
-		IntroMenu();
+		main();
 	case 0:
 		exit(0);
 		break;
@@ -422,7 +435,7 @@ void userMenu(int id) {
 		sendReqMenu(id);
 		break;
 	case 5:
-		IntroMenu();
+		main();
 		break;
 	case 0:
 		exit(0);
