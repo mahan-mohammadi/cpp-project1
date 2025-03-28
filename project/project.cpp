@@ -63,16 +63,16 @@ struct Request {
 
 void IntroMenu();
 void OwnerMenu(int id);
-void AddDepartementMenu();
+void AddDepartementMenu(int id);
 void makeDepartement(char[], char[]);
 void copyString(char[], char[]);
 void printDepToFile(char[], Departement);
 void intToStr(int, char[]);
 void concatString(char[], char[]);
-void addSectionMenu();
+void addSectionMenu(int id);
 int getLastId(char path[]);
 void printSecToFile(char[], Section);
-void addResourceMenu();
+void addResourceMenu(int id);
 void printResourceToFile(char path[], Resource res);
 void userMenu(int id);
 void getDepartmentsMenu(int id);
@@ -89,6 +89,7 @@ bool isGovIDValid(int);
 Request makeReq(int id, char name[], int res_id, int userID);
 bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
+void AdminMenu();
 
 int main() {
 
@@ -113,6 +114,10 @@ int main() {
 			system("cls");
 			signIn();
 			valid = true;
+			break;
+		case 3:
+			system("cls");
+			AdminMenu();
 			break;
 		case 0:
 			exit(0);
@@ -144,7 +149,7 @@ void AdminMenu() {
 	switch (choice)
 	{
 		case 1:
-			AddDepartementMenu();
+			AddDepartementMenu(0);
 			break;
 		case 2:
 			getDepartmentsMenu(0);
@@ -378,34 +383,31 @@ void printUserToFile(User user) {
 void OwnerMenu(int id) {
 	int choice;
 
-	cout << "Owner menu:\n";
-	cout << "	1. Add Department\n"; // this should be removed
-	cout << "	2. Add Section\n";
-	cout << "	3. Add Resource\n";
-	cout << "	4. View Requests\n";
-	cout << "	5. Generate Reports\n";
-	cout << "	6. Go back\n";
-	cout << "	0. Exit\n";
+	cout << "Owner menu:\n\n";
+	cout << "	1. Add Section\n";
+	cout << "	2. Add Resource\n";
+	cout << "	3. View Requests\n";
+	cout << "	4. Generate Reports\n";
+	cout << "	5. Go back\n";
+	cout << "	0. Exit\n\n";
 	cout << "Enter choice: ";
 	cin >> choice;
 	system("cls");
 
 	switch (choice) {
 	case 1:
-		AddDepartementMenu();
+		addSectionMenu(id);
 		break;
 	case 2:
-		addSectionMenu();
+		addResourceMenu(id);
 		break;
 	case 3:
-		addResourceMenu();
 		break;
 	case 4:
 		break;
 	case 5:
-		break;
-	case 6:
 		main();
+		break;
 	case 0:
 		exit(0);
 		break;
@@ -415,7 +417,7 @@ void OwnerMenu(int id) {
 	}
 }
 // reformat this so make dep is here
-void AddDepartementMenu() {
+void AddDepartementMenu(int id) {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
 
@@ -472,7 +474,7 @@ void userMenu(int id) {
 	}
 }
 
-void addSectionMenu() {
+void addSectionMenu(int id) {
 	Section section;
 	char path[] = "sections.txt";
 
@@ -495,8 +497,9 @@ void addSectionMenu() {
 	system("cls");
 	OwnerMenu(id);
 }
+
 // remove the unnesscary while loop here
-void addResourceMenu() {
+void addResourceMenu(int id) {
 	cout << "Welcom to the resource defining menu\n\n";
 
 	char path[] = "resources.txt";
