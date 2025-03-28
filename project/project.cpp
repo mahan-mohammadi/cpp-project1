@@ -6,7 +6,11 @@ using namespace std;
 const int NAME_LENGTH = 50;
 
 enum Type {
-	HOURLY =1 , DAILY , MOUNTHLY , SAMPLE
+	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
+};
+
+enum Acess_Level {
+	ADMIN = 1, OWNER, USER
 };
 
 struct Departement {
@@ -43,6 +47,8 @@ struct Admin {
 struct User {
 	Person person;
 	int gov_id;
+	Acess_Level level = USER;
+	char password[NAME_LENGTH];
 };
 
 struct Request {
@@ -56,101 +62,365 @@ struct Request {
 };
 
 void IntroMenu();
-void AdminMenu();
-void AddDepartementMenu();
-void makeDepartement(char [] , char[]);
+void OwnerMenu(int id);
+void AddDepartementMenu(int id);
+void makeDepartement(char[], char[]);
 void copyString(char[], char[]);
 void printDepToFile(char[], Departement);
 void intToStr(int, char[]);
 void concatString(char[], char[]);
-void addSectionMenu();
+void addSectionMenu(int id);
 int getLastId(char path[]);
 void printSecToFile(char[], Section);
-void addResourceMenu();
+void addResourceMenu(int id);
 void printResourceToFile(char path[], Resource res);
-void userMenu();
-void getDepartmentsMenu();
-void getSectionsMenu();
-void getResourcesMenu();
-void stringForResourceType(char[] , int);
-void sendReqMenu();
+void userMenu(int id);
+void getDepartmentsMenu(int id);
+void getSectionsMenu(int id);
+void getResourcesMenu(int id);
+void stringForResourceType(char[], int);
+void sendReqMenu(int id);
 void printDepToCLI();
 void printSecToCLI(int);
+void logIn();
+void signIn();
+void printUserToFile(User);
+bool isGovIDValid(int);
+Request makeReq(int id, char name[], int res_id, int userID);
+bool areStringsEqual(char[], char[]);
+bool isPasswordValid(char str[]);
+void AdminMenu();
 
 int main() {
-	cout << "Welcome to the Resoucre Management System!\n\n";
-	IntroMenu();
+
+	int choice;
+	bool valid = false;
+	do {
+		cout << "Welcome to the Resoucre Management System!\n\n";
+		cout << "do you want to:\n\n";
+		cout << "\t1 - log in\n";
+		cout << "\t2 - sign in\n";
+		cout << "\t0 - exit\n\n";
+		cout << "Enter you choice number: ";
+		cin >> choice;
+		switch (choice)
+		{
+		case 1:
+			system("cls");
+			logIn();
+			valid = true;
+			break;
+		case 2:
+			system("cls");
+			signIn();
+			valid = true;
+			break;
+		case 3:
+			system("cls");
+			AdminMenu();
+			break;
+		case 0:
+			exit(0);
+			break;
+		default:
+			system("cls");
+			cout << "\ninvalid choice\n\n";
+			break;
+		}
+	} while (!valid);
 
 	return 0;
-}
-
-void IntroMenu() {
-	int choice;
-
-	cout << "1.Login as admin\n2.Login as user\n0.exit\n\nEnter number of you choice: ";
-	cin >> choice;
-	if (choice == 1) {
-		system("cls");
-		AdminMenu();
-	}
-	else if (choice == 2) {
-		system("cls");
-		userMenu();
-	}
-	else if (choice == 0) {
-		exit(0);
-	}
-	else {
-		system("cls");
-		cout << "Invalid choice!\n\n";
-		IntroMenu();
-	}
 }
 
 void AdminMenu() {
 	int choice;
 
-	cout << "Admin menu:\n";
-	cout << "	1. Add Department\n";
-	cout << "	2. Add Section\n";
-	cout << "	3. Add Resource\n";
-	cout << "	4. View Requests\n";
-	cout << "	5. Generate Reports\n";
-	cout << "	6. Go back\n";
-	cout << "	0. Exit\n";
+	cout << " welcome to The admin menu:\n\n";
+	cout << "	1 - add department\n";
+	cout << "	2 - see all Department\n";
+	cout << "	3 - see all Section\n";
+	cout << "	4 - see all Resource\n";
+	cout << "	5 - go back\n";
+	cout << "	0 - exit\n\n";
+	cout << "enter your choice: ";
+	cin >> choice;
+
+	system("cls");
+	switch (choice)
+	{
+		case 1:
+			AddDepartementMenu(0);
+			break;
+		case 2:
+			getDepartmentsMenu(0);
+			break;
+		case 3:
+			getSectionsMenu(0);
+			break;
+		case 4:
+			getResourcesMenu(0);
+			break;
+		case 5:
+			main();
+			break;
+		case 0:
+			exit(0);
+			break;
+		default:
+			cout << "invalid input";
+			AdminMenu();
+	}
+}
+
+void signIn() {
+	char path[] = "users.txt";
+	User user;
+
+	char name[NAME_LENGTH];
+	cout << "what is your name: ";
+	cin >> name;
+
+	int gov_id;
+	bool isNotValid = false;
+	do {
+		cout << "Enter your goverment id number: ";
+		cin >> gov_id;
+		isNotValid = !isGovIDValid(gov_id);
+		if (isNotValid) {
+			cout << "\nthis id already exist in our database\n\n";
+		}
+	} while (isNotValid);
+
+	char password[NAME_LENGTH];
+
+	do {
+		cout << "Enter a password that is atleast 8 characthers long and has both numbers and letters: ";
+		cin >> password;
+	} while (!isPasswordValid(password));
+	
+	int id = getLastId(path)+1;
+
+	user.person.id = id;
+	copyString(user.person.name, name);
+	copyString(user.password, password);
+	user.gov_id = gov_id;
+	
+
+	printUserToFile(user);
+	system("cls");
+	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
+	userMenu(id);
+}
+
+int strLen(char str[]) {
+	int count = 0;
+	while (*str) {
+		str++;
+		count++;
+	}
+	return count;
+}
+
+bool isAlpha(char c) {
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isNumber(char c) {
+	if (c >= '0' && c <= '9') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isPasswordValid(char str[]) {
+	bool hasAlpha = false;
+	bool hasNumber = false;
+	if (strLen(str) < 8) {
+		return false;
+	}
+	while (*str) {
+		if (isNumber(*str)) {
+			hasNumber = true;
+		}
+		if (isAlpha(*str)) {
+			hasAlpha = true;
+		}
+		str++;
+	}
+	
+	return hasAlpha && hasNumber;
+}
+
+bool isGovIDValid(int targetID ) {
+	char path[] = "users.txt";
+	ifstream file(path);
+	char line[256];
+	bool found = false;
+
+	while (file.getline(line, 256)) {
+		int level = 0;
+		int id = 0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 2:
+				id = id * 10 + (line[i] - '0');
+				break;
+			}
+		}
+		if (id == targetID) {
+			found = true;
+			break;
+		}
+	}
+	file.close();
+
+	bool isValid = !found;
+	return isValid;
+}
+
+void logIn() {
+	char inputPassword[NAME_LENGTH];
+	int inputID;
+	bool valid = false;
+	Acess_Level acessLevel;
+	int acess;
+	while (!valid) {
+		cout << "Enter your user id: ";
+		cin >> inputID;
+
+		cout << "Enter your password: ";
+		cin >> inputPassword; // Safer password input
+
+		ifstream file("users.txt");
+		if (!file) {
+			cerr << "Error opening user database." << endl;
+			return;
+		}
+
+		char line[256];
+		while (file.getline(line, 256)) {
+			char targetPassword[NAME_LENGTH] = { 0 };
+			int TargetId = 0;
+			int level = 0;
+			int passwordIndex = 0;
+
+			for (int i = 0; line[i]; i++) {
+				if (line[i] == '|') {
+					level++;
+					continue;
+				}
+				switch (level) {
+				case 0: // Parse user ID
+					TargetId = TargetId * 10 + (line[i] - '0');
+					break;
+				case 3:
+					acess = line[i] - '0';
+					break;
+				case 4: // Parse password
+					if (passwordIndex < NAME_LENGTH - 1)
+						targetPassword[passwordIndex++] = line[i];
+					break;
+				}
+			}
+
+			if (TargetId == inputID && areStringsEqual(inputPassword, targetPassword)) {
+				valid = true;
+				system("cls");
+				if (acess == USER) {
+					userMenu(TargetId);
+				}
+				else if (acess == OWNER) {
+					OwnerMenu(TargetId);
+				}
+				break; // Exit the file reading loop if a match is found
+			}
+		}
+
+		file.close();
+		if (!valid) {
+			cout << "Invalid ID or password. Please try again.\n" << endl;
+		}
+	}
+}
+
+
+bool areStringsEqual(char first[] , char second[]) {
+	while (*first != '\0' && *second != '\0') {
+
+		if (*first != *second)
+			return false;
+		first++;
+		second++;
+	}
+	if (*first == '\0' && *second == '\0') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+
+void printUserToFile(User user) {
+	char path[] = "users.txt";
+	ofstream file(path, ios::app);
+
+	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
+}
+
+void OwnerMenu(int id) {
+	int choice;
+
+	cout << "Owner menu:\n\n";
+	cout << "	1. Add Section\n";
+	cout << "	2. Add Resource\n";
+	cout << "	3. View Requests\n";
+	cout << "	4. Generate Reports\n";
+	cout << "	5. Go back\n";
+	cout << "	0. Exit\n\n";
 	cout << "Enter choice: ";
 	cin >> choice;
 	system("cls");
 
 	switch (choice) {
 	case 1:
-		AddDepartementMenu();
+		addSectionMenu(id);
 		break;
 	case 2:
-		addSectionMenu();
+		addResourceMenu(id);
 		break;
 	case 3:
-		addResourceMenu();
 		break;
 	case 4:
 		break;
 	case 5:
+		main();
 		break;
-	case 6:
-		IntroMenu();
 	case 0:
 		exit(0);
 		break;
 	default:
 		cout << "Invalid choice!\n\n";
-		AdminMenu();
+		OwnerMenu(id);
 	}
 }
 // reformat this so make dep is here
-void AddDepartementMenu() {
+void AddDepartementMenu(int id) {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
-	
+
 	cout << "Welcom to the Department defining menu\n\n";
 
 	cout << "What is the name of the Department: ";
@@ -160,10 +430,10 @@ void AddDepartementMenu() {
 	cin >> ownerName;
 	makeDepartement(name, ownerName);
 	system("cls");
-	AdminMenu();
+	OwnerMenu(id);
 }
 
-void userMenu() {
+void userMenu(int id) {
 	int choice;
 
 	cout << "welocme to user menu\n\n";
@@ -178,33 +448,33 @@ void userMenu() {
 	cin >> choice;
 	system("cls");
 
-	switch (choice){
-		case 1:
-			getDepartmentsMenu();
-			break;
-		case 2:
-			getSectionsMenu();
-			break;
-		case 3:
-			getResourcesMenu();
-			break;
-		case 4:
-			sendReqMenu();
-			break;
-		case 5:
-			IntroMenu();
-			break;
-		case 0:
-			exit(0);
-			break;
-		default:
-			cout << "invalid choice \n\n";
-			userMenu();
-			break;
+	switch (choice) {
+	case 1:
+		getDepartmentsMenu(id);
+		break;
+	case 2:
+		getSectionsMenu(id);
+		break;
+	case 3:
+		getResourcesMenu(id);
+		break;
+	case 4:
+		sendReqMenu(id);
+		break;
+	case 5:
+		main();
+		break;
+	case 0:
+		exit(0);
+		break;
+	default:
+		cout << "invalid choice \n\n";
+		userMenu(id);
+		break;
 	}
 }
 
-void addSectionMenu() {
+void addSectionMenu(int id) {
 	Section section;
 	char path[] = "sections.txt";
 
@@ -225,10 +495,11 @@ void addSectionMenu() {
 	printSecToFile(path, section);
 
 	system("cls");
-	AdminMenu();
+	OwnerMenu(id);
 }
+
 // remove the unnesscary while loop here
-void addResourceMenu(){
+void addResourceMenu(int id) {
 	cout << "Welcom to the resource defining menu\n\n";
 
 	char path[] = "resources.txt";
@@ -241,7 +512,7 @@ void addResourceMenu(){
 
 	cout << "What is resource name: ";
 	cin >> res.name;
-	
+
 	cout << "What is the type of this resource:\n\n";
 	cout << "	1.HOURLY\n";
 	cout << "	2.DAILY\n";
@@ -254,29 +525,29 @@ void addResourceMenu(){
 		cin >> choice;
 		switch (choice)
 		{
-			case HOURLY:
-				isValid = true;
-				res.type = HOURLY;
-				break;
+		case HOURLY:
+			isValid = true;
+			res.type = HOURLY;
+			break;
 
-			case DAILY:
-				isValid = true;
-				res.type = DAILY;
-				break; 
+		case DAILY:
+			isValid = true;
+			res.type = DAILY;
+			break;
 
-			case MOUNTHLY:
-				isValid = true;
-				res.type = MOUNTHLY;
-				break;
+		case MOUNTHLY:
+			isValid = true;
+			res.type = MOUNTHLY;
+			break;
 
-			case SAMPLE:
-				isValid = true;
-				res.type = SAMPLE;
-				break;
+		case SAMPLE:
+			isValid = true;
+			res.type = SAMPLE;
+			break;
 
-			default:
-				cout << "Not a valid choice. Try again.";
-				break;
+		default:
+			cout << "Not a valid choice. Try again.";
+			break;
 		}
 	}
 
@@ -287,7 +558,7 @@ void addResourceMenu(){
 
 	printResourceToFile(path, res);
 	system("cls");
-	AdminMenu();
+	OwnerMenu(id);
 }
 
 void printResourceToFile(char path[], Resource res) {
@@ -305,7 +576,7 @@ void printSecToFile(char path[], Section sec) {
 void makeDepartement(char name[], char owner[]) {
 	char path[] = "Depatement.txt";
 	Departement newDep;
-	
+
 	copyString(newDep.name, name);
 	copyString(newDep.owner, owner);
 	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
@@ -340,7 +611,7 @@ int stringToInt(const char str[]) {
 	return number;
 }
 
-void copyString(char first[],char second[]) {
+void copyString(char first[], char second[]) {
 	int i = 0;
 	while (second[i]) {
 		first[i] = second[i];
@@ -366,7 +637,7 @@ void concatString(char first[], char second[]) {
 void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
 	file << dep.id << '|' << dep.name << '|' << dep.owner << '\n';
-		file.close();
+	file.close();
 }
 
 int getLastId(char path[]) {
@@ -398,10 +669,10 @@ int getLastId(char path[]) {
 	return stringToInt(id);
 }
 
-void getDepartmentsMenu() {
+void getDepartmentsMenu(int id) {
 
 	int Choice = 1;
-	
+
 	printDepToCLI();
 
 	cout << "Enter 0 and enter to return back: ";
@@ -410,10 +681,10 @@ void getDepartmentsMenu() {
 	}
 
 	system("cls");
-	userMenu();
+	userMenu(id);
 }
 
-void getSectionsMenu() {
+void getSectionsMenu(int id) {
 	int Choice = 1;
 	char path[] = "sections.txt";
 	char line[256];
@@ -450,7 +721,7 @@ void getSectionsMenu() {
 				dep_id = dep_id * 10 + (line[i] - '0');
 				break;
 			}
-			
+
 		}
 		name[nameIndex] = '\0';
 		owner[ownerIndex] = '\0';
@@ -463,10 +734,10 @@ void getSectionsMenu() {
 		cin >> Choice;
 	}
 	system("cls");
-	userMenu();
+	userMenu(id);
 }
 
-void getResourcesMenu() {
+void getResourcesMenu(int userid) {
 	int Choice = 1;
 	char path[] = "resources.txt";
 	char line[256];
@@ -476,7 +747,7 @@ void getResourcesMenu() {
 	cout << "list of all resources: \n\n";
 
 	while (file.getline(line, 256)) {
-		int level = 0 , id=0, nameIndex=0 , sec_id=0 , type=0, price =0;
+		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
 		char name[NAME_LENGTH] = { 0 };
 		char typestr[20];
 		for (int i = 0; line[i]; i++) {
@@ -514,7 +785,7 @@ void getResourcesMenu() {
 		cin >> Choice;
 	}
 	system("cls");
-	userMenu();
+	userMenu(userid);
 }
 
 void stringForResourceType(char type[], int intType) {
@@ -523,18 +794,18 @@ void stringForResourceType(char type[], int intType) {
 	char mounthly[] = "mounthly";
 	char sample[] = "sample based";
 
-	switch (intType){
-		case 1:
-			copyString(type, hourly);
-			break;
-		case 2:
-			copyString(type, daily);
-			break;
-		case 3:
-			copyString(type, mounthly);
-			break;
-		case 4:
-			copyString(type, sample);
+	switch (intType) {
+	case 1:
+		copyString(type, hourly);
+		break;
+	case 2:
+		copyString(type, daily);
+		break;
+	case 3:
+		copyString(type, mounthly);
+		break;
+	case 4:
+		copyString(type, sample);
 	}
 }
 
@@ -674,20 +945,21 @@ void printResToCLI(int targetSec) {
 }
 
 void printRequestToFile(Request req) {
-	ofstream file("requests.txt");
-	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '\n'; // << req.user stuff and number of request
+	ofstream file("requests.txt", ios::app );
+	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '|' << req.user.person.id << '\n'; //number of request
 }
 
-Request makeReq(int id, char name[], int res_id) {
+Request makeReq(int id, char name[], int res_id, int userID) {
 	Request req;
 	req.id = id;
 	req.res.id = res_id;
+	req.user.person.id = userID;
 	copyString(req.name, name);
 	req.isApproved = false;
 	return req;
 }
 
-void sendReqMenu() {
+void sendReqMenu(int userid) {
 	char path[] = "requests.txt";
 
 	printDepToCLI();
@@ -714,13 +986,13 @@ void sendReqMenu() {
 	char name[NAME_LENGTH];
 	cout << "what is the name of this request: ";
 	cin >> name;
-	
+
 	int id = getLastId(path) + 1;
 
-	Request req = makeReq(id, name, res_id);
+	Request req = makeReq(id, name, res_id, userid);
 
 	printRequestToFile(req);
 
 	system("cls");
-	userMenu();
+	userMenu(userid);
 }
