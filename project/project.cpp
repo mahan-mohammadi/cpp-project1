@@ -36,6 +36,7 @@ struct Resource {
 	int price;
 };
 
+// might reformat these 3struct ?? 
 struct Person {
 	int id;
 	char name[NAME_LENGTH];
@@ -44,6 +45,8 @@ struct Person {
 struct Owner {
 	Person person;
 	int phoneNumber;
+	Acess_Level level = OWNER;
+	char password[NAME_LENGTH];
 };
 
 struct User {
@@ -94,6 +97,7 @@ bool isPasswordValid(char str[]);
 void AdminMenu();
 void ViewReqMenu(int);
 void getRequests(int, Request[]);
+void makeOwner();
 
 int main() {
 
@@ -382,6 +386,7 @@ void printUserToFile(User user) {
 	ofstream file(path, ios::app);
 
 	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
+	file.close();
 }
 
 void OwnerMenu(int id) {
@@ -431,6 +436,7 @@ void AddDepartementMenu(int id) {
 	cout << "What is the name of the Department: ";
 	cin >> name;
 	
+	makeOwner();
 
 
 
@@ -1051,5 +1057,47 @@ void getRequests(int userid, Request requests[]) {
 		requests[i] = req;
 		i++;
 	}
+	file.close();
+}
+
+void makeOwner() {
+	char path[] = "users.txt";
+	Owner owner;
+
+	char name[NAME_LENGTH];
+	cout << "what is owner's name: ";
+	cin >> name;
+
+	int phoneNumber;
+	bool isNotValid = false;
+	
+	cin >> phoneNumber;
+
+	char password[NAME_LENGTH];
+
+	do {
+		cout << "Enter a password that is atleast 8 characthers long and has both numbers and letters: ";
+		cin >> password;
+	} while (!isPasswordValid(password));
+
+	int id = getLastId(path) + 1;
+
+	owner.person.id = id;
+	copyString(owner.person.name, name);
+	copyString(owner.password, password);
+	owner.phoneNumber = phoneNumber;
+
+
+	printUserToFile(user);
+	system("cls");
+	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
+	OwnerMenu(id);
+}
+
+void printOwnerToFile(Owner owner) {
+	char path[] = "users.txt";
+	ofstream file(path, ios::app);
+
+	file << owner.person.id << '|' << owner.person.name << '|' << owner.phoneNumber << '|' << owner.level << '|' << owner.password << '\n';
 	file.close();
 }
