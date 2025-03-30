@@ -96,9 +96,11 @@ bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
 void AdminMenu();
 void ViewReqMenu(int);
-void getRequests(int, Request[]);
+void getRequests(int, Request[], int& count);
 int makeOwner();
 void printOwnerToFile(Owner);
+void printReqToCLI(Request);
+
 
 int main() {
 
@@ -1022,13 +1024,24 @@ void sendReqMenu(int userid) {
 
 void ViewReqMenu(int userid) {
 	Request requests[MAX_REQUESTS];
-	getRequests(userid, requests);
+	int count = 0;
+	int depid = DepIDOfOwner(userid);
+	getRequests(userid, requests, count);
 
 
+	for (int i = 0; i < count; i++) {
+		//get the dpe id of the request (with res id)????
+		if (requests[i].user.person.id == depid && requests[i].isApproved == false) {
+			printReqToCLI(requests[i]);
+		}
+		
+	}
+	cin >> requests[0].name;
 
 }
 
-void getRequests(int userid, Request requests[]) {
+//remove userid from here??
+void getRequests(int userid, Request requests[], int &count) {
 	ifstream file("requests.txt");
 	char line[256];
 	int  i = 0;
@@ -1039,33 +1052,35 @@ void getRequests(int userid, Request requests[]) {
 		int level =0;
 
 		for (int j = 0; line[j]; j++) {
-			if (line[i] == '|') {
+			if (line[j] == '|') {
 				level++;
+				continue;
 			}
 			switch (level)
 			{
 				case 0:
-					req.id = req.id * 10 + (line[i] - '0');
+					req.id = req.id * 10 + (line[j] - '0');
 					break;
 				case 1:
 					if (nameIndex < nameIndex - 1) {
-						req.name[nameIndex++] = line[i];
+						req.name[nameIndex++] = line[j];
 					}
 					break;
 				case 2:
-					req.isApproved = line[i] - '0';
+					req.isApproved = line[j] - '0';
 					break;
 				case 3:
-					req.res.id = req.res.id * 10 + (line[i] - '0');
+					req.res.id = req.res.id * 10 + (line[j] - '0');
 					break;
 				case 4:
-					req.user.person.id = req.user.person.id * 10 + (line[i] - '0');
+					req.user.person.id = req.user.person.id * 10 + (line[j] - '0');
 					break;
 			}
 		}
 		requests[i] = req;
 		i++;
 	}
+	count = i;
 	file.close();
 }
 
@@ -1110,5 +1125,38 @@ void printOwnerToFile(Owner owner) {
 	ofstream file(path, ios::app);
 
 	file << owner.person.id << '|' << owner.person.name << '|' << owner.phoneNumber << '|' << owner.level << '|' << owner.password << '\n';
+	file.close();
+}
+
+void printReqToCLI(Request req) {
+	cout << "Request title: " << req.name << '\t' << "Resource: " << req.res.name << '\t' << "Requester name: " << req.user.person.name << '\t' <<  "Requesrer goverment id: " << req.user.gov_id;
+}
+
+int DepIDOfOwner(int targetid) {
+	ifstream file("Depatement.txt");
+	char line[256];
+	while (file.getline(line, 256)) {
+		int level = 0 , depid= 0 , userid =0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				break;
+			}
+			switch (level)
+			{	
+				case 0:
+					depid = depid * 10 + (line[i] - '0');
+					break;
+				case 2:
+					userid = userid * 10 + (line[i] - '0');
+					break;
+			}
+		}
+		if (userid == targetid) {
+			file.close();
+			return depid;
+		}
+
+	}
 	file.close();
 }
