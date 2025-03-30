@@ -4,6 +4,8 @@
 using namespace std;
 
 const int NAME_LENGTH = 50;
+const int LINE_LENGTH = 256;
+const int MAX_REQUESTS = 100;
 
 enum Type {
 	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
@@ -39,7 +41,7 @@ struct Person {
 	char name[NAME_LENGTH];
 };
 
-struct Admin {
+struct Owner {
 	Person person;
 	int phoneNumber;
 };
@@ -90,6 +92,8 @@ Request makeReq(int id, char name[], int res_id, int userID);
 bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
 void AdminMenu();
+void ViewReqMenu(int);
+void getRequests(int, Request[]);
 
 int main() {
 
@@ -402,6 +406,7 @@ void OwnerMenu(int id) {
 		addResourceMenu(id);
 		break;
 	case 3:
+		ViewReqMenu(id);
 		break;
 	case 4:
 		break;
@@ -421,10 +426,13 @@ void AddDepartementMenu(int id) {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
 
-	cout << "Welcom to the Department defining menu\n\n";
+	cout << "Welcome to the Department defining menu\n\n";
 
 	cout << "What is the name of the Department: ";
 	cin >> name;
+	
+
+
 
 	cout << "\nWhat is the name of the owner: ";
 	cin >> ownerName;
@@ -995,4 +1003,53 @@ void sendReqMenu(int userid) {
 
 	system("cls");
 	userMenu(userid);
+}
+
+void ViewReqMenu(int userid) {
+	Request requests[MAX_REQUESTS];
+	getRequests(userid, requests);
+
+
+
+}
+
+void getRequests(int userid, Request requests[]) {
+	ifstream file("requests.txt");
+	char line[256];
+	int  i = 0;
+	while (file.getline(line, 256)) {
+		Request req;
+		req.id = 0, req.user.person.id = 0, req.res.id = 0;
+		int nameIndex = 0;
+		int level =0;
+
+		for (int j = 0; line[j]; j++) {
+			if (line[i] == '|') {
+				level++;
+			}
+			switch (level)
+			{
+				case 0:
+					req.id = req.id * 10 + (line[i] - '0');
+					break;
+				case 1:
+					if (nameIndex < nameIndex - 1) {
+						req.name[nameIndex++] = line[i];
+					}
+					break;
+				case 2:
+					req.isApproved = line[i] - '0';
+					break;
+				case 3:
+					req.res.id = req.res.id * 10 + (line[i] - '0');
+					break;
+				case 4:
+					req.user.person.id = req.user.person.id * 10 + (line[i] - '0');
+					break;
+			}
+		}
+		requests[i] = req;
+		i++;
+	}
+	file.close();
 }
