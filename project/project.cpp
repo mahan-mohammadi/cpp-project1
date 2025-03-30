@@ -15,27 +15,6 @@ enum Acess_Level {
 	ADMIN = 1, OWNER, USER
 };
 
-struct Departement {
-	int id;
-	char name[NAME_LENGTH];
-	char owner[NAME_LENGTH];
-};
-
-struct Section {
-	int id;
-	int dep_id;
-	char name[NAME_LENGTH];
-	char owner[NAME_LENGTH];
-};
-
-struct Resource {
-	int id;
-	int sec_id;
-	char name[NAME_LENGTH];
-	Type type;
-	int price;
-};
-
 // might reformat these 3struct ?? 
 struct Person {
 	int id;
@@ -56,6 +35,27 @@ struct User {
 	char password[NAME_LENGTH];
 };
 
+struct Departement {
+	int id;
+	char name[NAME_LENGTH];
+	Owner owner;
+};
+
+struct Section {
+	int id;
+	int dep_id;
+	char name[NAME_LENGTH];
+	char owner[NAME_LENGTH];
+};
+
+struct Resource {
+	int id;
+	int sec_id;
+	char name[NAME_LENGTH];
+	Type type;
+	int price;
+};
+
 struct Request {
 	Resource res;
 	User user;
@@ -69,7 +69,7 @@ struct Request {
 void IntroMenu();
 void OwnerMenu(int id);
 void AddDepartementMenu(int id);
-void makeDepartement(char[], char[]);
+void makeDepartement(char[], int);
 void copyString(char[], char[]);
 void printDepToFile(char[], Departement);
 void intToStr(int, char[]);
@@ -97,7 +97,8 @@ bool isPasswordValid(char str[]);
 void AdminMenu();
 void ViewReqMenu(int);
 void getRequests(int, Request[]);
-void makeOwner();
+int makeOwner();
+void printOwnerToFile(Owner);
 
 int main() {
 
@@ -436,15 +437,22 @@ void AddDepartementMenu(int id) {
 	cout << "What is the name of the Department: ";
 	cin >> name;
 	
-	makeOwner();
+	int ownerid = makeOwner();
 
+	makeDepartement(name, ownerid);
 
+	int number;
+	cout << "\nEnter the number 0 to go back: ";
 
-	cout << "\nWhat is the name of the owner: ";
-	cin >> ownerName;
-	makeDepartement(name, ownerName);
+	while (true) {
+		cin >> number;
+		if (number == 0) {
+			break;
+		}
+	}
+
 	system("cls");
-	OwnerMenu(id);
+	AdminMenu();
 }
 
 void userMenu(int id) {
@@ -587,14 +595,15 @@ void printSecToFile(char path[], Section sec) {
 	file.close();
 }
 
-void makeDepartement(char name[], char owner[]) {
+void makeDepartement(char name[], int owner) {
 	char path[] = "Depatement.txt";
 	Departement newDep;
 
 	copyString(newDep.name, name);
-	copyString(newDep.owner, owner);
+	newDep.owner.person.id = owner;
 	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
 	printDepToFile(path, newDep);
+	cout << "the department with the id: " << newDep.id << " has been created\n";
 }
 
 void intToStr(int number, char output[]) {
@@ -650,7 +659,7 @@ void concatString(char first[], char second[]) {
 
 void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
-	file << dep.id << '|' << dep.name << '|' << dep.owner << '\n';
+	file << dep.id << '|' << dep.name << '|' << dep.owner.person.id << '\n';
 	file.close();
 }
 
@@ -1060,7 +1069,7 @@ void getRequests(int userid, Request requests[]) {
 	file.close();
 }
 
-void makeOwner() {
+int makeOwner() {
 	char path[] = "users.txt";
 	Owner owner;
 
@@ -1071,6 +1080,7 @@ void makeOwner() {
 	int phoneNumber;
 	bool isNotValid = false;
 	
+	cout << "what is owners phone number: ";
 	cin >> phoneNumber;
 
 	char password[NAME_LENGTH];
@@ -1087,11 +1097,12 @@ void makeOwner() {
 	copyString(owner.password, password);
 	owner.phoneNumber = phoneNumber;
 
-
-	printUserToFile(user);
+	printOwnerToFile(owner);
+	
 	system("cls");
+
 	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
-	OwnerMenu(id);
+	return owner.person.id;
 }
 
 void printOwnerToFile(Owner owner) {
