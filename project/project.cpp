@@ -95,7 +95,7 @@ Request makeReq(int id, char name[], int res_id, int userID);
 bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
 void AdminMenu();
-void ViewReqMenu(int);
+void ViewNonApprovedReqMenu(int);
 void getRequests(int, Request[], int& count);
 int makeOwner();
 void printOwnerToFile(Owner);
@@ -104,6 +104,7 @@ int DepIDOfOwner(int);
 int secIDOfRes(int);
 int depIDOfsec(int);
 void approveReq(Request);
+void ViewApprovedReqMenu(int);
 
 int main() {
 
@@ -369,7 +370,6 @@ void logIn() {
 	}
 }
 
-
 bool areStringsEqual(char first[] , char second[]) {
 	while (*first != '\0' && *second != '\0') {
 
@@ -417,7 +417,7 @@ void OwnerMenu(int id) {
 		addResourceMenu(id);
 		break;
 	case 3:
-		ViewReqMenu(id);
+		ViewNonApprovedReqMenu(id);
 		break;
 	case 4:
 		break;
@@ -468,7 +468,8 @@ void userMenu(int id) {
 	cout << "	2. see all Section\n";
 	cout << "	3. see all Resource\n";
 	cout << "	4. send a Request\n";
-	cout << "	5. Go back\n";
+	cout << "	5. view approved requests\n";
+	cout << "	6. Go back\n";
 	cout << "	0. Exit\n";
 
 	cout << "Enter choice: ";
@@ -489,6 +490,9 @@ void userMenu(int id) {
 		sendReqMenu(id);
 		break;
 	case 5:
+		ViewApprovedReqMenu(id);
+		break;
+	case 6:
 		main();
 		break;
 	case 0:
@@ -499,6 +503,58 @@ void userMenu(int id) {
 		userMenu(id);
 		break;
 	}
+}
+
+void ViewApprovedReqMenu(int targetid) {
+	ifstream file("requests.txt");
+	char line[256];
+	
+	while (file.getline(line, 256)) {
+		int reqid =0, userid = 0 , resid =0 , level =0 , nameindex =0;
+		bool isApproved = false;
+		char name[NAME_LENGTH] = { 0 };
+
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level) {
+				case 0:
+					reqid = reqid * 10 + (line[i] - '0');
+					break;
+				case 1:
+					if(nameindex < NAME_LENGTH -1 )
+						name[nameindex++] = line[i];
+					break;
+				case 2:
+					isApproved = line[i] - '0';
+					break;
+				case 3:
+					resid = resid * 10 + (line[i] - '0');
+					break;
+				case 4:
+					userid = userid * 10 + (line[i] - '0');
+					break;
+			}
+		}
+		if (userid == targetid && isApproved) {
+			cout << "your request for resource with id: " << resid << "with request id: " << reqid << " was approved." << "\n\n";
+		}
+	}
+	file.close();
+
+	int choice;
+	bool canExit = false;
+	do {
+		cout << "Enter 0 to go back: ";
+		cin >> choice;
+		if (choice == 0) {
+			canExit = true;
+		}
+	} while (!canExit);
+	system("cls");
+	userMenu(targetid);
 }
 
 void addSectionMenu(int id) {
@@ -1025,7 +1081,7 @@ void sendReqMenu(int userid) {
 	userMenu(userid);
 }
 
-void ViewReqMenu(int userid) {
+void ViewNonApprovedReqMenu(int userid) {
 	Request requests[MAX_REQUESTS];
 	int count = 0;
 	int depid = DepIDOfOwner(userid);
@@ -1059,7 +1115,7 @@ void ViewReqMenu(int userid) {
 					approveReq(requests[i]);
 					system("cls");
 					cout << "request for id (" << requests[i].id << ") is approved\n\n";
-					ViewReqMenu(userid);
+					ViewNonApprovedReqMenu(userid);
 					break;
 				}
 			}
@@ -1116,7 +1172,6 @@ void approveReq(Request req) {
 	outputFile.close();
 }
 
-//remove userid from here??
 void getRequests(int userid, Request requests[], int &count) {
 	ifstream file("requests.txt");
 	char line[256];
