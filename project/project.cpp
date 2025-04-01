@@ -15,7 +15,6 @@ enum Acess_Level {
 	ADMIN = 1, OWNER, USER
 };
 
-// might reformat these 3struct ?? 
 struct Person {
 	int id;
 	char name[NAME_LENGTH];
@@ -66,7 +65,6 @@ struct Request {
 	char name[NAME_LENGTH];
 };
 
-void IntroMenu();
 void OwnerMenu(int id);
 void AddDepartementMenu(int id);
 void makeDepartement(char[], int);
@@ -581,7 +579,6 @@ void addSectionMenu(int id) {
 	OwnerMenu(id);
 }
 
-// remove the unnesscary while loop here
 void addResourceMenu(int id) {
 	cout << "Welcom to the resource defining menu\n\n";
 
