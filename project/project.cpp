@@ -100,7 +100,10 @@ void getRequests(int, Request[], int& count);
 int makeOwner();
 void printOwnerToFile(Owner);
 void printReqToCLI(Request);
-
+int DepIDOfOwner(int);
+int secIDOfRes(int);
+int depIDOfsec(int);
+void approveReq(Request);
 
 int main() {
 
@@ -1026,18 +1029,91 @@ void ViewReqMenu(int userid) {
 	Request requests[MAX_REQUESTS];
 	int count = 0;
 	int depid = DepIDOfOwner(userid);
+	int choice;
 	getRequests(userid, requests, count);
 
-
+	cout << "the list of unapproved requests:\n\n";
 	for (int i = 0; i < count; i++) {
-		//get the dpe id of the request (with res id)????
-		if (requests[i].user.person.id == depid && requests[i].isApproved == false) {
+		
+		int target = depIDOfsec(secIDOfRes(requests[i].res.id));
+		if (target == depid && requests[i].isApproved == false) {
 			printReqToCLI(requests[i]);
 		}
-		
 	}
-	cin >> requests[0].name;
 
+	do {
+		cout << "Enter the request id you want to approve or 0 to go back: ";
+		cin >> choice;
+
+		if (choice == 0) {
+			system("cls");
+			OwnerMenu(userid);
+		}
+
+		else {
+			bool found = false;
+			for (int i = 0; i < count; i++) {
+				if (requests[i].id == choice && !requests[i].isApproved) {
+					requests[i].isApproved = true;
+					found = true;
+					approveReq(requests[i]);
+					system("cls");
+					cout << "request for id (" << requests[i].id << ") is approved\n\n";
+					ViewReqMenu(userid);
+					break;
+				}
+			}
+			if (!found) {
+				cout << "\nid not found";
+			}
+		}
+
+		
+	} while (true);
+}
+
+void approveReq(Request req) {
+	ifstream inputFile("requests.txt");
+	char line[1000][256];
+	int i = 0;
+
+	while (inputFile.getline(line[i], 256)) {
+		i++;
+	}
+	inputFile.close();
+
+	for (int j = 0; j < i; j++) {
+		int level = 0;
+		int reqid = 0;
+		int apporvalIndex = -1;
+		for (int k = 0; line[j][k]; k++) {
+			if (line[j][k] == '|') {
+				level++;
+				continue;
+			}
+			switch (level) {
+				case 0:
+					reqid = reqid * 10 + (line[j][k] - '0');
+					break;
+				case 2:
+					apporvalIndex = k;
+					break;
+			}
+
+		}
+		if (req.id == reqid) {
+			if (apporvalIndex != -1 && line[j][apporvalIndex] == '0') {
+				line[j][apporvalIndex] = '1';
+				break;
+			}
+		}
+	}
+
+	ofstream outputFile("requests.txt");
+	for (int l = 0; l < i; l++) {
+		outputFile << line[l] << '\n';
+	}
+	outputFile.close();
 }
 
 //remove userid from here??
@@ -1050,7 +1126,6 @@ void getRequests(int userid, Request requests[], int &count) {
 		req.id = 0, req.user.person.id = 0, req.res.id = 0;
 		int nameIndex = 0;
 		int level =0;
-
 		for (int j = 0; line[j]; j++) {
 			if (line[j] == '|') {
 				level++;
@@ -1062,7 +1137,7 @@ void getRequests(int userid, Request requests[], int &count) {
 					req.id = req.id * 10 + (line[j] - '0');
 					break;
 				case 1:
-					if (nameIndex < nameIndex - 1) {
+					if (nameIndex < LINE_LENGTH - 1) {
 						req.name[nameIndex++] = line[j];
 					}
 					break;
@@ -1077,6 +1152,7 @@ void getRequests(int userid, Request requests[], int &count) {
 					break;
 			}
 		}
+		req.name[nameIndex] = '\0';
 		requests[i] = req;
 		i++;
 	}
@@ -1129,7 +1205,7 @@ void printOwnerToFile(Owner owner) {
 }
 
 void printReqToCLI(Request req) {
-	cout << "Request title: " << req.name << '\t' << "Resource: " << req.res.name << '\t' << "Requester name: " << req.user.person.name << '\t' <<  "Requesrer goverment id: " << req.user.gov_id;
+	cout << "id: " << req.id << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.res.id << '\t' << "Requester id: " << req.user.person.id << "\n\n";
 }
 
 int DepIDOfOwner(int targetid) {
@@ -1140,7 +1216,7 @@ int DepIDOfOwner(int targetid) {
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
-				break;
+				continue;
 			}
 			switch (level)
 			{	
@@ -1160,3 +1236,60 @@ int DepIDOfOwner(int targetid) {
 	}
 	file.close();
 }
+
+int secIDOfRes(int targetid) {
+	ifstream file("resources.txt");
+	char line[256];
+	while (file.getline(line , 256)){
+		int level = 0 , resid =0 , secid = 0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level) {
+				case 0:
+					resid = resid * 10 + (line[i] - '0');
+					break;
+				case 4:
+					secid = secid * 10 + (line[i] - '0');
+					break;
+			}
+		}
+		if (targetid == resid) {
+			file.close();
+			return secid;
+		}
+	}
+
+	file.close();
+	return 0;
+}
+
+int depIDOfsec(int targetid) {
+	ifstream file("sections.txt");
+	char line[256];
+	while (file.getline(line, 256)) {
+		int secid = 0, depid = 0, level = 0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level) {
+				case 0:
+					secid = secid * 10 + (line[i] - '0');
+					break;
+				case 3:
+					depid = depid * 10 + (line[i] - '0');
+					break;
+			}
+		}
+		if (secid == targetid) {
+			file.close();
+			return depid;
+		}
+	}
+	file.close();
+	return 0;
+} 
