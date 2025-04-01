@@ -314,7 +314,7 @@ void logIn() {
 		cin >> inputID;
 
 		cout << "Enter your password: ";
-		cin >> inputPassword; // Safer password input
+		cin >> inputPassword;
 
 		ifstream file("users.txt");
 		if (!file) {
@@ -335,13 +335,13 @@ void logIn() {
 					continue;
 				}
 				switch (level) {
-				case 0: // Parse user ID
+				case 0: 
 					TargetId = TargetId * 10 + (line[i] - '0');
 					break;
 				case 3:
 					acess = line[i] - '0';
 					break;
-				case 4: // Parse password
+				case 4:
 					if (passwordIndex < NAME_LENGTH - 1)
 						targetPassword[passwordIndex++] = line[i];
 					break;
@@ -383,7 +383,6 @@ bool areStringsEqual(char first[] , char second[]) {
 		return false;
 	}
 }
-
 
 void printUserToFile(User user) {
 	char path[] = "users.txt";
@@ -517,6 +516,7 @@ void ViewApprovedReqMenu(int targetid) {
 				level++;
 				continue;
 			}
+
 			switch (level) {
 				case 0:
 					reqid = reqid * 10 + (line[i] - '0');
@@ -536,14 +536,17 @@ void ViewApprovedReqMenu(int targetid) {
 					break;
 			}
 		}
+
 		if (userid == targetid && isApproved) {
 			cout << "your request for resource with id: " << resid << "with request id: " << reqid << " was approved." << "\n\n";
 		}
 	}
+
 	file.close();
 
 	int choice;
 	bool canExit = false;
+
 	do {
 		cout << "Enter 0 to go back: ";
 		cin >> choice;
@@ -551,6 +554,7 @@ void ViewApprovedReqMenu(int targetid) {
 			canExit = true;
 		}
 	} while (!canExit);
+
 	system("cls");
 	userMenu(targetid);
 }
@@ -603,6 +607,7 @@ void addResourceMenu(int id) {
 	{
 		cout << "Enter your choice: ";
 		cin >> choice;
+
 		switch (choice)
 		{
 		case HOURLY:
@@ -660,26 +665,9 @@ void makeDepartement(char name[], int owner) {
 	copyString(newDep.name, name);
 	newDep.owner.person.id = owner;
 	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
+
 	printDepToFile(path, newDep);
 	cout << "the department with the id: " << newDep.id << " has been created\n";
-}
-
-void intToStr(int number, char output[]) {
-	char temp[20];
-	int i = 0;
-	while (number > 0) {
-		int digit = number % 10;
-		temp[i] = digit + '0';
-		i++;
-		number /= 10;
-	}
-	// Reverse the digits to get the order right
-	int outputIndex = 0;
-	for (int j = i - 1; j >= 0; --j) {
-		output[outputIndex++] = temp[j];
-	}
-
-	output[outputIndex] = '\0';
 }
 
 int stringToInt(const char str[]) {
@@ -700,7 +688,7 @@ void copyString(char first[], char second[]) {
 	}
 	first[i] = '\0';
 }
-//might not be needed
+
 void concatString(char first[], char second[]) {
 	int i = 0;
 	int j = 0;
@@ -1083,6 +1071,7 @@ void ViewNonApprovedReqMenu(int userid) {
 	int count = 0;
 	int depid = DepIDOfOwner(userid);
 	int choice;
+
 	getRequests(userid, requests, count);
 
 	cout << "the list of unapproved requests:\n\n";
@@ -1109,7 +1098,9 @@ void ViewNonApprovedReqMenu(int userid) {
 				if (requests[i].id == choice && !requests[i].isApproved) {
 					requests[i].isApproved = true;
 					found = true;
+
 					approveReq(requests[i]);
+
 					system("cls");
 					cout << "request for id (" << requests[i].id << ") is approved\n\n";
 					ViewNonApprovedReqMenu(userid);
@@ -1139,6 +1130,7 @@ void approveReq(Request req) {
 		int level = 0;
 		int reqid = 0;
 		int apporvalIndex = -1;
+
 		for (int k = 0; line[j][k]; k++) {
 			if (line[j][k] == '|') {
 				level++;
@@ -1148,6 +1140,7 @@ void approveReq(Request req) {
 				case 0:
 					reqid = reqid * 10 + (line[j][k] - '0');
 					break;
+
 				case 2:
 					apporvalIndex = k;
 					break;
@@ -1166,6 +1159,7 @@ void approveReq(Request req) {
 	for (int l = 0; l < i; l++) {
 		outputFile << line[l] << '\n';
 	}
+
 	outputFile.close();
 }
 
@@ -1188,20 +1182,25 @@ void getRequests(int userid, Request requests[], int &count) {
 				case 0:
 					req.id = req.id * 10 + (line[j] - '0');
 					break;
+
 				case 1:
 					if (nameIndex < LINE_LENGTH - 1) {
 						req.name[nameIndex++] = line[j];
 					}
 					break;
+
 				case 2:
 					req.isApproved = line[j] - '0';
 					break;
+
 				case 3:
 					req.res.id = req.res.id * 10 + (line[j] - '0');
 					break;
+
 				case 4:
 					req.user.person.id = req.user.person.id * 10 + (line[j] - '0');
 					break;
+
 			}
 		}
 		req.name[nameIndex] = '\0';
@@ -1263,6 +1262,7 @@ void printReqToCLI(Request req) {
 int DepIDOfOwner(int targetid) {
 	ifstream file("Depatement.txt");
 	char line[256];
+
 	while (file.getline(line, 256)) {
 		int level = 0 , depid= 0 , userid =0;
 		for (int i = 0; line[i]; i++) {
@@ -1275,6 +1275,7 @@ int DepIDOfOwner(int targetid) {
 				case 0:
 					depid = depid * 10 + (line[i] - '0');
 					break;
+
 				case 2:
 					userid = userid * 10 + (line[i] - '0');
 					break;
@@ -1292,8 +1293,10 @@ int DepIDOfOwner(int targetid) {
 int secIDOfRes(int targetid) {
 	ifstream file("resources.txt");
 	char line[256];
+
 	while (file.getline(line , 256)){
 		int level = 0 , resid =0 , secid = 0;
+
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
@@ -1321,8 +1324,10 @@ int secIDOfRes(int targetid) {
 int depIDOfsec(int targetid) {
 	ifstream file("sections.txt");
 	char line[256];
+
 	while (file.getline(line, 256)) {
 		int secid = 0, depid = 0, level = 0;
+
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
@@ -1332,6 +1337,7 @@ int depIDOfsec(int targetid) {
 				case 0:
 					secid = secid * 10 + (line[i] - '0');
 					break;
+
 				case 3:
 					depid = depid * 10 + (line[i] - '0');
 					break;
@@ -1342,6 +1348,7 @@ int depIDOfsec(int targetid) {
 			return depid;
 		}
 	}
+
 	file.close();
 	return 0;
 } 
