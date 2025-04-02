@@ -65,6 +65,11 @@ struct Request {
 	char name[NAME_LENGTH];
 };
 
+struct reqcount {
+	int index = -1;
+	int count = 0;
+};
+
 void OwnerMenu(int id);
 void AddDepartementMenu(int id);
 void makeDepartement(char[], int);
@@ -103,6 +108,8 @@ int secIDOfRes(int);
 int depIDOfsec(int);
 void approveReq(Request);
 void ViewApprovedReqMenu(int);
+void ReportMenu(int);
+void sortReq(reqcount[], int);
 
 int main() {
 
@@ -417,6 +424,7 @@ void OwnerMenu(int id) {
 		ViewNonApprovedReqMenu(id);
 		break;
 	case 4:
+		ReportMenu(id);
 		break;
 	case 5:
 		main();
@@ -429,7 +437,53 @@ void OwnerMenu(int id) {
 		OwnerMenu(id);
 	}
 }
-// reformat this so make dep is here
+
+void ReportMenu(int userid) {
+	Request requests[MAX_REQUESTS];
+	int count = 0;
+	int depid = DepIDOfOwner(userid);
+	int choice;
+
+	getRequests(userid, requests, count);
+	reqcount* requestnumber = new reqcount[count];
+
+	int targetcount = 0;
+	for (int i = 0; i < count; i++) {
+
+		int target = depIDOfsec(secIDOfRes(requests[i].res.id));
+		if (target == depid && requests[i].isApproved) {
+			requestnumber[i].index = i;
+			requestnumber[i].count++;
+		}
+	}
+
+	sortReq(requestnumber, count);
+	for (int i = 0; requestnumber[i].index != -1; i++) {
+		cout << "request with id: " << requests[requestnumber[i].index].id << " had " << requestnumber[i].count << "\n\n";
+	}
+
+	int menustatus =1;
+
+	while (menustatus) {
+		cout << "Enter 0 to go back: ";
+		cin >> menustatus;
+	}
+
+	system("cls");
+	OwnerMenu(userid);
+}
+
+void sortReq(reqcount reqnumber[], int count) {
+	for (int i = 0; i < count - 1; i++) {
+		for(int j=0 ; j< count - 1 -i ; j++)
+		if (reqnumber[j + 1].count > reqnumber[j].count) {
+			reqcount swap = reqnumber[j + 1];
+			reqnumber[j + 1] = reqnumber[j];
+			reqnumber[j] = swap;
+		}
+	}
+}
+
 void AddDepartementMenu(int id) {
 	char name[NAME_LENGTH];
 	char ownerName[NAME_LENGTH];
