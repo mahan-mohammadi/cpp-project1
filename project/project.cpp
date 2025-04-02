@@ -112,9 +112,9 @@ void ReportMenu(int);
 void sortReq(reqcount[], int);
 
 int main() {
-
 	int choice;
 	bool valid = false;
+
 	do {
 		cout << "Welcome to the Resoucre Management System!\n\n";
 		cout << "do you want to:\n\n";
@@ -202,6 +202,7 @@ void signIn() {
 
 	int gov_id;
 	bool isNotValid = false;
+
 	do {
 		cout << "Enter your goverment id number: ";
 		cin >> gov_id;
@@ -403,12 +404,12 @@ void OwnerMenu(int id) {
 	int choice;
 
 	cout << "Owner menu:\n\n";
-	cout << "	1. Add Section\n";
-	cout << "	2. Add Resource\n";
-	cout << "	3. View Requests\n";
-	cout << "	4. Generate Reports\n";
-	cout << "	5. Go back\n";
-	cout << "	0. Exit\n\n";
+	cout << "	1 - Add Section\n";
+	cout << "	2 - Add Resource\n";
+	cout << "	3 - View Requests\n";
+	cout << "	4 - Generate Reports\n";
+	cout << "	5 - Go back\n";
+	cout << "	0 - Exit\n\n";
 	cout << "Enter choice: ";
 	cin >> choice;
 	system("cls");
@@ -556,6 +557,7 @@ void userMenu(int id) {
 	}
 }
 
+//refactorable
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
 	char line[256];
@@ -724,6 +726,7 @@ void makeDepartement(char name[], int owner) {
 	cout << "the department with the id: " << newDep.id << " has been created\n";
 }
 
+//check if changing so using is possible
 int stringToInt(const char str[]) {
 	int number = 0;
 	int i = 0;
@@ -807,6 +810,7 @@ void getDepartmentsMenu(int id) {
 	userMenu(id);
 }
 
+//remove file reading from menu
 void getSectionsMenu(int id) {
 	int Choice = 1;
 	char path[] = "sections.txt";
@@ -1319,6 +1323,7 @@ int DepIDOfOwner(int targetid) {
 
 	while (file.getline(line, 256)) {
 		int level = 0 , depid= 0 , userid =0;
+
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
