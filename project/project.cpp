@@ -53,14 +53,13 @@ struct Resource {
 	char name[NAME_LENGTH];
 	Type type;
 	int price;
+	int cost;
 };
 
 struct Request {
 	Resource res;
 	User user;
 	int id;
-	int number;
-	int time;
 	bool isApproved = false;
 	char name[NAME_LENGTH];
 };
@@ -110,6 +109,7 @@ void approveReq(Request);
 void ViewApprovedReqMenu(int);
 void ReportMenu(int);
 void sortReq(reqcount[], int);
+int calculateProfitPerReq(int targetid);
 
 int main() {
 	int choice;
@@ -460,8 +460,9 @@ void ReportMenu(int userid) {
 
 	sortReq(requestnumber, count);
 	for (int i = 0; requestnumber[i].index != -1; i++) {
-		cout << "request with id: " << requests[requestnumber[i].index].id << " had " << requestnumber[i].count << "\n\n";
+		cout << "request with id: " << requests[requestnumber[i].index].id << " had " << requestnumber[i].count << "requests." << '\n' << "it made " << calculateProfitPerReq(requests[requestnumber[i].index].res.id) * requestnumber[i].count << " profit.\n\n";
 	}
+
 
 	int menustatus =1;
 
@@ -472,6 +473,44 @@ void ReportMenu(int userid) {
 
 	system("cls");
 	OwnerMenu(userid);
+}
+
+int calculateProfitPerReq(int targetid) {
+	ifstream file("resources.txt");
+	char line[256];
+	int profit = 0;
+
+	while (file.getline(line, 256)) {
+		int price = 0, cost = 0 , resid = 0, level = 0;
+
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+
+			switch (level) {
+			case 0:
+				resid = resid * 10 + (line[i] - '0');
+				break;
+			case 3:
+				price = price * 10 + (line[i] - '0');
+				break;
+			case 5:
+				cost = cost * 10 + (line[i] - '0');
+				break;
+			}
+		}
+
+		if (resid == targetid) {
+			profit = price - cost;
+			break;
+		}
+	}
+
+	file.close();
+
+	return profit;
 }
 
 void sortReq(reqcount reqnumber[], int count) {
@@ -695,6 +734,9 @@ void addResourceMenu(int id) {
 	cout << "\nwhat is the price of this resource per time/sample: ";
 	cin >> res.price;
 
+	cout << "\nwhat is the cost of this resource per time/sa,ple for you?";
+	cin >> res.cost;
+
 	res.id = getLastId(path) + 1;  // get an id for the request
 
 	printResourceToFile(path, res);
@@ -704,7 +746,7 @@ void addResourceMenu(int id) {
 
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
-	file << res.id << "|" << res.name << "|" << res.type << "|" << res.price << "|" << res.sec_id << '\n';
+	file << res.id << "|" << res.name << "|" << res.type << "|" << res.price << "|" << res.sec_id << '|' << res.cost << '\n';
 	file.close();
 }
 
