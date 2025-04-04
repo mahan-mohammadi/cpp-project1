@@ -65,7 +65,7 @@ struct Request {
 };
 
 struct reqcount {
-	int index = -1;
+	int resid = -1;
 	int count = 0;
 };
 
@@ -395,6 +395,11 @@ void printUserToFile(User user) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
 
+	if (!file.is_open()) {
+		cerr << "Error opening user database." << endl;
+		return;
+	}
+
 	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
 	file.close();
 }
@@ -447,19 +452,39 @@ void ReportMenu(int userid) {
 	getRequests(userid, requests, count);
 	reqcount* requestnumber = new reqcount[count];
 
+	for (int i = 0; i < count; ++i) {
+		requestnumber[i].resid = -1; // Mark as unused initially
+		requestnumber[i].count = 0;
+	}
+		
 	int targetcount = 0;
+	int uniqueRes = 0;
+
 	for (int i = 0; i < count; i++) {
 
 		int target = depIDOfsec(secIDOfRes(requests[i].res.id));
 		if (target == depid && requests[i].isApproved) {
-			requestnumber[i].index = i;
-			requestnumber[i].count++;
+			int resid = requests[i].res.id;
+			bool found = false;
+			// Check if resource already tracked
+			for (int j = 0; j < uniqueRes; ++j) {
+				if (requestnumber[j].resid == resid) {
+					requestnumber[j].count++;
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				requestnumber[uniqueRes].resid = resid;
+				requestnumber[uniqueRes].count = 1;
+				uniqueRes++;
+			}
 		}
 	}
 
-	sortReq(requestnumber, count);
-	for (int i = 0; requestnumber[i].index != -1; i++) {
-		cout << "request with id: " << requests[requestnumber[i].index].id << " had " << requestnumber[i].count << "requests." << '\n' << "it made " << calculateProfitPerReq(requests[requestnumber[i].index].res.id) * requestnumber[i].count << " profit.\n\n";
+	sortReq(requestnumber, uniqueRes);
+	for (int i = 0; i < uniqueRes; i++) {
+		cout << " resource id: " << requestnumber[i].resid << " had " << requestnumber[i].count << " requests." << '\n' << "it made " << calculateProfitPerReq(requestnumber[i].resid) * requestnumber[i].count << " profit.\n\n";
 	}
 
 
@@ -802,6 +827,12 @@ void concatString(char first[], char second[]) {
 
 void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
+
+	if (!file.is_open()) {
+		cerr << "Error opening department database." << endl;
+		return;
+	}
+
 	file << dep.id << '|' << dep.name << '|' << dep.owner.person.id << '\n';
 	file.close();
 }
@@ -1219,6 +1250,11 @@ void approveReq(Request req) {
 	char line[1000][256];
 	int i = 0;
 
+	if (!inputFile.is_open()) {
+		cerr << "Error opening user database." << endl;
+		return;
+	}
+
 	while (inputFile.getline(line[i], 256)) {
 		i++;
 	}
@@ -1263,13 +1299,21 @@ void approveReq(Request req) {
 
 void getRequests(int userid, Request requests[], int &count) {
 	ifstream file("requests.txt");
+
+	if (!file.is_open()) {
+		cerr << "Error opening user database." << endl;
+		return;
+	}
+
 	char line[256];
 	int  i = 0;
+
 	while (file.getline(line, 256)) {
 		Request req;
 		req.id = 0, req.user.person.id = 0, req.res.id = 0;
 		int nameIndex = 0;
 		int level =0;
+
 		for (int j = 0; line[j]; j++) {
 			if (line[j] == '|') {
 				level++;
