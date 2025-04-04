@@ -315,7 +315,6 @@ void logIn() {
 	char inputPassword[NAME_LENGTH];
 	int inputID;
 	bool valid = false;
-	Acess_Level acessLevel;
 	int acess;
 	while (!valid) {
 		cout << "Enter your user id: ";
@@ -526,7 +525,6 @@ void sortReq(reqcount reqnumber[], int count) {
 
 void AddDepartementMenu(int id) {
 	char name[NAME_LENGTH];
-	char ownerName[NAME_LENGTH];
 
 	cout << "Welcome to the Department defining menu\n\n";
 
