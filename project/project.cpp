@@ -6,6 +6,8 @@ using namespace std;
 const int NAME_LENGTH = 50;
 const int LINE_LENGTH = 256;
 const int MAX_REQUESTS = 100;
+const int MIN_LENGTH_PASS = 8;
+
 
 enum Type {
 	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
@@ -255,7 +257,7 @@ bool isNumber(char c) {
 bool isPasswordValid(char str[]) {
 	bool hasAlpha = false;
 	bool hasNumber = false;
-	if (strLen(str) < 8) {
+	if (strLen(str) < MIN_LENGTH_PASS) {
 		return false;
 	}
 	while (*str) {
@@ -274,10 +276,10 @@ bool isPasswordValid(char str[]) {
 bool isGovIDValid(int targetID ) {
 	char path[] = "users.txt";
 	ifstream file(path);
-	char line[256];
+	char line[LINE_LENGTH];
 	bool found = false;
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int level = 0;
 		int id = 0;
 		for (int i = 0; line[i]; i++) {
@@ -321,8 +323,8 @@ void logIn() {
 			return;
 		}
 
-		char line[256];
-		while (file.getline(line, 256)) {
+		char line[LINE_LENGTH];
+		while (file.getline(line, LINE_LENGTH)) {
 			char targetPassword[NAME_LENGTH] = { 0 };
 			int TargetId = 0;
 			int level = 0;
@@ -494,10 +496,10 @@ void ReportMenu(int userid) {
 
 int calculateProfitPerReq(int targetid) {
 	ifstream file("resources.txt");
-	char line[256];
+	char line[LINE_LENGTH];
 	int profit = 0;
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int price = 0, cost = 0 , resid = 0, level = 0;
 
 		for (int i = 0; line[i]; i++) {
@@ -617,9 +619,9 @@ void userMenu(int id) {
 //refactorable
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
-	char line[256];
+	char line[LINE_LENGTH];
 	
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int reqid =0, userid = 0 , resid =0 , level =0 , nameindex =0;
 		bool isApproved = false;
 		char name[NAME_LENGTH] = { 0 };
@@ -840,8 +842,8 @@ int getLastId(char path[]) {
 		return 0;  // If file doesn't exist or is empty, start from ID 1
 	}
 
-	char line[256];
-	char lastLine[256] = "";  // The last line
+	char line[LINE_LENGTH];
+	char lastLine[LINE_LENGTH] = "";  // The last line
 
 	while (file.getline(line, 256)) {
 		copyString(lastLine, line);  // Keep updating
@@ -882,12 +884,12 @@ void getDepartmentsMenu(int id) {
 void getSectionsMenu(int id) {
 	int Choice = 1;
 	char path[] = "sections.txt";
-	char line[256];
+	char line[LINE_LENGTH];
 
 	ifstream file(path);
 
 	cout << "list of all sections: \n\n";
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 
 		int nameIndex = 0, ownerIndex = 0, level = 0;
 		int id = 0, dep_id = 0;
@@ -935,16 +937,16 @@ void getSectionsMenu(int id) {
 void getResourcesMenu(int userid) {
 	int Choice = 1;
 	char path[] = "resources.txt";
-	char line[256];
+	char line[LINE_LENGTH];
 
 	ifstream file(path);
 
 	cout << "list of all resources: \n\n";
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
 		char name[NAME_LENGTH] = { 0 };
-		char typestr[20];
+		char typestr[NAME_LENGTH];
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
@@ -1006,14 +1008,14 @@ void stringForResourceType(char type[], int intType) {
 
 void printDepToCLI() {
 	char path[] = "Depatement.txt";
-	char line[256];
+	char line[LINE_LENGTH];
 
 
 	ifstream file(path);
 
 	cout << "list of all departments: \n\n";
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 
 		int nameIndex = 0, ownerIndex = 0, level = 0;
 		int id = 0;
@@ -1048,12 +1050,12 @@ void printDepToCLI() {
 
 void printSecToCLI(int targetDep) {
 	char path[] = "sections.txt";
-	char line[256];
+	char line[LINE_LENGTH];
 
 	ifstream file(path);
 
 	cout << "List of sections in department " << targetDep << ":\n\n";
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 
 		int nameIndex = 0, ownerIndex = 0, level = 0;
 		int id = 0, dep_id = 0;
@@ -1096,16 +1098,16 @@ void printSecToCLI(int targetDep) {
 
 void printResToCLI(int targetSec) {
 	char path[] = "resources.txt";
-	char line[256];
+	char line[LINE_LENGTH];
 
 	ifstream file(path);
 
 	cout << "list of all resources: \n\n";
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
 		char name[NAME_LENGTH] = { 0 };
-		char typestr[20];
+		char typestr[NAME_LENGTH];
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
 				level++;
@@ -1244,7 +1246,7 @@ void ViewNonApprovedReqMenu(int userid) {
 
 void approveReq(Request req) {
 	ifstream inputFile("requests.txt");
-	char line[1000][256];
+	char line[MAX_REQUESTS][LINE_LENGTH];
 	int i = 0;
 
 	if (!inputFile.is_open()) {
@@ -1302,10 +1304,10 @@ void getRequests(int userid, Request requests[], int &count) {
 		return;
 	}
 
-	char line[256];
+	char line[LINE_LENGTH];
 	int  i = 0;
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		Request req;
 		req.id = 0, req.user.person.id = 0, req.res.id = 0;
 		int nameIndex = 0;
@@ -1400,9 +1402,9 @@ void printReqToCLI(Request req) {
 
 int DepIDOfOwner(int targetid) {
 	ifstream file("Depatement.txt");
-	char line[256];
+	char line[LINE_LENGTH];
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int level = 0 , depid= 0 , userid =0;
 
 		for (int i = 0; line[i]; i++) {
@@ -1432,9 +1434,9 @@ int DepIDOfOwner(int targetid) {
 
 int secIDOfRes(int targetid) {
 	ifstream file("resources.txt");
-	char line[256];
+	char line[LINE_LENGTH];
 
-	while (file.getline(line , 256)){
+	while (file.getline(line , LINE_LENGTH)){
 		int level = 0 , resid =0 , secid = 0;
 
 		for (int i = 0; line[i]; i++) {
@@ -1463,9 +1465,9 @@ int secIDOfRes(int targetid) {
 
 int depIDOfsec(int targetid) {
 	ifstream file("sections.txt");
-	char line[256];
+	char line[LINE_LENGTH];
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		int secid = 0, depid = 0, level = 0;
 
 		for (int i = 0; line[i]; i++) {
