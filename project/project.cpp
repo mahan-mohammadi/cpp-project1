@@ -8,7 +8,6 @@ const int LINE_LENGTH = 256;
 const int MAX_REQUESTS = 100;
 const int MIN_LENGTH_PASS = 8;
 
-
 enum Type {
 	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
 };
@@ -156,155 +155,6 @@ int main() {
 	return 0;
 }
 
-void AdminMenu() {
-	int choice;
-
-	cout << "welcome to The admin menu:\n";
-	cout << "==========================\n";
-	cout << "	1 - add department\n";
-	cout << "	2 - go back\n";
-	cout << "	0 - exit\n";
-	cout << "==========================\n";
-	cout << "enter your choice: ";
-	cin >> choice;
-
-	system("cls");
-	switch (choice)
-	{
-		case 1:
-			AddDepartementMenu(0);
-			break;
-		case 2:
-			main();
-			break;
-		case 0:
-			exit(0);
-			break;
-		default:
-			cout << "\n***invalid input***\n\n";
-			AdminMenu();
-	}
-}
-
-void signIn() {
-	char path[] = "users.txt";
-	User user;
-
-	char name[NAME_LENGTH];
-	cout << "what is your name: ";
-	cin >> name;
-
-	int gov_id;
-	bool isNotValid = false;
-
-	do {
-		cout << "Enter your goverment id number: ";
-		cin >> gov_id;
-		isNotValid = !isGovIDValid(gov_id);
-		if (isNotValid) {
-			cout << "\n***this id already exist in our database***\n\n";
-		}
-	} while (isNotValid);
-
-	char password[NAME_LENGTH];
-
-	do {
-		cout << "Enter a password that is atleast 8 characthers long and has both numbers and letters: ";
-		cin >> password;
-	} while (!isPasswordValid(password));
-	
-	int id = getLastId(path)+1;
-
-	user.person.id = id;
-	copyString(user.person.name, name);
-	copyString(user.password, password);
-	user.gov_id = gov_id;
-	
-
-	printUserToFile(user);
-	system("cls");
-	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
-	userMenu(id);
-}
-
-int strLen(char str[]) {
-	int count = 0;
-	while (*str) {
-		str++;
-		count++;
-	}
-	return count;
-}
-
-bool isAlpha(char c) {
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-bool isNumber(char c) {
-	if (c >= '0' && c <= '9') {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-bool isPasswordValid(char str[]) {
-	bool hasAlpha = false;
-	bool hasNumber = false;
-	if (strLen(str) < MIN_LENGTH_PASS) {
-		return false;
-	}
-	while (*str) {
-		if (isNumber(*str)) {
-			hasNumber = true;
-		}
-		if (isAlpha(*str)) {
-			hasAlpha = true;
-		}
-		str++;
-	}
-	
-	return hasAlpha && hasNumber;
-}
-
-bool isGovIDValid(int targetID ) {
-	char path[] = "users.txt";
-	ifstream file(path);
-	char line[LINE_LENGTH];
-	bool found = false;
-
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0;
-		int id = 0;
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 2:
-				id = id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (id == targetID) {
-			found = true;
-			break;
-		}
-	}
-	file.close();
-
-	bool isValid = !found;
-	return isValid;
-}
-
 void logIn() {
 	char inputPassword[NAME_LENGTH];
 	int inputID;
@@ -336,7 +186,7 @@ void logIn() {
 					continue;
 				}
 				switch (level) {
-				case 0: 
+				case 0:
 					TargetId = TargetId * 10 + (line[i] - '0');
 					break;
 				case 3:
@@ -369,33 +219,122 @@ void logIn() {
 	}
 }
 
-bool areStringsEqual(char first[] , char second[]) {
-	while (*first != '\0' && *second != '\0') {
+void signIn() {
+	char path[] = "users.txt";
+	User user;
 
-		if (*first != *second)
-			return false;
-		first++;
-		second++;
-	}
-	if (*first == '\0' && *second == '\0') {
-		return true;
-	}
-	else {
-		return false;
+	char name[NAME_LENGTH];
+	cout << "what is your name: ";
+	cin >> name;
+
+	int gov_id;
+	bool isNotValid = false;
+
+	do {
+		cout << "Enter your goverment id number: ";
+		cin >> gov_id;
+		isNotValid = !isGovIDValid(gov_id);
+		if (isNotValid) {
+			cout << "\n***this id already exist in our database***\n\n";
+		}
+	} while (isNotValid);
+
+	char password[NAME_LENGTH];
+
+	do {
+		cout << "Enter a password that is atleast 8 characthers long and has both numbers and letters: ";
+		cin >> password;
+	} while (!isPasswordValid(password));
+
+	int id = getLastId(path) + 1;
+
+	user.person.id = id;
+	copyString(user.person.name, name);
+	copyString(user.password, password);
+	user.gov_id = gov_id;
+
+
+	printUserToFile(user);
+	system("cls");
+	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
+	userMenu(id);
+}
+
+void AdminMenu() {
+	int choice;
+
+	cout << "welcome to The admin menu:\n";
+	cout << "==========================\n";
+	cout << "	1 - add department\n";
+	cout << "	2 - go back\n";
+	cout << "	0 - exit\n";
+	cout << "==========================\n";
+	cout << "enter your choice: ";
+	cin >> choice;
+
+	system("cls");
+	switch (choice)
+	{
+		case 1:
+			AddDepartementMenu(0);
+			break;
+		case 2:
+			main();
+			break;
+		case 0:
+			exit(0);
+			break;
+		default:
+			cout << "\n***invalid input***\n\n";
+			AdminMenu();
 	}
 }
 
-void printUserToFile(User user) {
-	char path[] = "users.txt";
-	ofstream file(path, ios::app);
+void userMenu(int id) {
+	int choice;
 
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
+	cout << "welocme to user menu\n";
+	cout << "===========================\n";
+	cout << "	1. see all Department\n";
+	cout << "	2. see all Section\n";
+	cout << "	3. see all Resource\n";
+	cout << "	4. send a Request\n";
+	cout << "	5. view approved requests\n";
+	cout << "	6. Go back\n";
+	cout << "	0. Exit\n";
+	cout << "===========================\n";
+
+	cout << "Enter choice: ";
+	cin >> choice;
+	system("cls");
+
+	switch (choice) {
+	case 1:
+		getDepartmentsMenu(id);
+		break;
+	case 2:
+		getSectionsMenu(id);
+		break;
+	case 3:
+		getResourcesMenu(id);
+		break;
+	case 4:
+		sendReqMenu(id);
+		break;
+	case 5:
+		ViewApprovedReqMenu(id);
+		break;
+	case 6:
+		main();
+		break;
+	case 0:
+		exit(0);
+		break;
+	default:
+		cout << "***invalid choice*** \n\n";
+		userMenu(id);
+		break;
 	}
-
-	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
-	file.close();
 }
 
 void OwnerMenu(int id) {
@@ -437,6 +376,141 @@ void OwnerMenu(int id) {
 		cout << "***Invalid choice!***\n\n";
 		OwnerMenu(id);
 	}
+}
+
+
+void AddDepartementMenu(int id) {
+	char name[NAME_LENGTH];
+
+	cout << "Welcome to the Department defining menu\n\n";
+
+	cout << "What is the name of the Department: ";
+	cin >> name;
+
+	int ownerid = makeOwner();
+
+	makeDepartement(name, ownerid);
+
+	int number;
+	cout << "\nEnter the number 0 to go back: ";
+
+	while (true) {
+		cin >> number;
+		if (number == 0) {
+			break;
+		}
+	}
+
+	system("cls");
+	AdminMenu();
+}
+
+int strLen(char str[]) {
+	int count = 0;
+	while (*str) {
+		str++;
+		count++;
+	}
+	return count;
+}
+
+bool isAlpha(char c) {
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isNumber(char c) {
+	if (c >= '0' && c <= '9') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isPasswordValid(char str[]) {
+	bool hasAlpha = false;
+	bool hasNumber = false;
+	if (strLen(str) < MIN_LENGTH_PASS) {
+		return false;
+	}
+	while (*str) {
+		if (isNumber(*str)) {
+			hasNumber = true;
+		}
+
+		if (isAlpha(*str)) {
+			hasAlpha = true;
+		}
+		str++;
+	}
+	
+	return hasAlpha && hasNumber;
+}
+
+bool isGovIDValid(int targetID ) {
+	char path[] = "users.txt";
+	ifstream file(path);
+	char line[LINE_LENGTH];
+	bool found = false;
+
+	while (file.getline(line, LINE_LENGTH)) {
+		int level = 0;
+		int id = 0;
+		for (int i = 0; line[i]; i++) {
+			if (line[i] == '|') {
+				level++;
+				continue;
+			}
+			switch (level)
+			{
+			case 2:
+				id = id * 10 + (line[i] - '0');
+				break;
+			}
+		}
+		if (id == targetID) {
+			found = true;
+			break;
+		}
+	}
+	file.close();
+
+	bool isValid = !found;
+	return isValid;
+}
+
+bool areStringsEqual(char first[] , char second[]) {
+	while (*first != '\0' && *second != '\0') {
+
+		if (*first != *second)
+			return false;
+		first++;
+		second++;
+	}
+	if (*first == '\0' && *second == '\0') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void printUserToFile(User user) {
+	char path[] = "users.txt";
+	ofstream file(path, ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
+	file.close();
 }
 
 void ReportMenu(int userid) {
@@ -540,79 +614,6 @@ void sortReq(reqcount reqnumber[], int count) {
 			reqnumber[j + 1] = reqnumber[j];
 			reqnumber[j] = swap;
 		}
-	}
-}
-
-void AddDepartementMenu(int id) {
-	char name[NAME_LENGTH];
-
-	cout << "Welcome to the Department defining menu\n\n";
-
-	cout << "What is the name of the Department: ";
-	cin >> name;
-	
-	int ownerid = makeOwner();
-
-	makeDepartement(name, ownerid);
-
-	int number;
-	cout << "\nEnter the number 0 to go back: ";
-
-	while (true) {
-		cin >> number;
-		if (number == 0) {
-			break;
-		}
-	}
-
-	system("cls");
-	AdminMenu();
-}
-
-void userMenu(int id) {
-	int choice;
-
-	cout << "welocme to user menu\n";
-	cout << "===========================\n";
-	cout << "	1. see all Department\n";
-	cout << "	2. see all Section\n";
-	cout << "	3. see all Resource\n";
-	cout << "	4. send a Request\n";
-	cout << "	5. view approved requests\n";
-	cout << "	6. Go back\n";
-	cout << "	0. Exit\n";
-	cout << "===========================\n";
-
-	cout << "Enter choice: ";
-	cin >> choice;
-	system("cls");
-
-	switch (choice) {
-	case 1:
-		getDepartmentsMenu(id);
-		break;
-	case 2:
-		getSectionsMenu(id);
-		break;
-	case 3:
-		getResourcesMenu(id);
-		break;
-	case 4:
-		sendReqMenu(id);
-		break;
-	case 5:
-		ViewApprovedReqMenu(id);
-		break;
-	case 6:
-		main();
-		break;
-	case 0:
-		exit(0);
-		break;
-	default:
-		cout << "***invalid choice*** \n\n";
-		userMenu(id);
-		break;
 	}
 }
 
