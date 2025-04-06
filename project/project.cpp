@@ -116,11 +116,13 @@ int main() {
 	bool valid = false;
 
 	do {
-		cout << "Welcome to the Resoucre Management System!\n\n";
+		cout << "Welcome to the Resoucre Management System!\n";
+		cout << "==========================================\n";
 		cout << "do you want to:\n\n";
 		cout << "\t1 - log in\n";
 		cout << "\t2 - sign in\n";
-		cout << "\t0 - exit\n\n";
+		cout << "\t0 - exit\n";
+		cout << "==========================================\n";
 		cout << "Enter you choice number: ";
 		cin >> choice;
 		switch (choice)
@@ -144,7 +146,7 @@ int main() {
 			break;
 		default:
 			system("cls");
-			cout << "\ninvalid choice\n\n";
+			cout << "\n***invalid choice***\n\n";
 			break;
 		}
 	} while (!valid);
@@ -155,13 +157,12 @@ int main() {
 void AdminMenu() {
 	int choice;
 
-	cout << " welcome to The admin menu:\n\n";
+	cout << "welcome to The admin menu:\n";
+	cout << "==========================\n";
 	cout << "	1 - add department\n";
-	cout << "	2 - see all Department\n";
-	cout << "	3 - see all Section\n";
-	cout << "	4 - see all Resource\n";
-	cout << "	5 - go back\n";
-	cout << "	0 - exit\n\n";
+	cout << "	2 - go back\n";
+	cout << "	0 - exit\n";
+	cout << "==========================\n";
 	cout << "enter your choice: ";
 	cin >> choice;
 
@@ -172,22 +173,13 @@ void AdminMenu() {
 			AddDepartementMenu(0);
 			break;
 		case 2:
-			getDepartmentsMenu(0);
-			break;
-		case 3:
-			getSectionsMenu(0);
-			break;
-		case 4:
-			getResourcesMenu(0);
-			break;
-		case 5:
 			main();
 			break;
 		case 0:
 			exit(0);
 			break;
 		default:
-			cout << "invalid input";
+			cout << "\n***invalid input***\n\n";
 			AdminMenu();
 	}
 }
@@ -208,7 +200,7 @@ void signIn() {
 		cin >> gov_id;
 		isNotValid = !isGovIDValid(gov_id);
 		if (isNotValid) {
-			cout << "\nthis id already exist in our database\n\n";
+			cout << "\n***this id already exist in our database***\n\n";
 		}
 	} while (isNotValid);
 
@@ -229,7 +221,7 @@ void signIn() {
 
 	printUserToFile(user);
 	system("cls");
-	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
+	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
 	userMenu(id);
 }
 
@@ -325,7 +317,7 @@ void logIn() {
 
 		ifstream file("users.txt");
 		if (!file) {
-			cerr << "Error opening user database." << endl;
+			cerr << "***Error opening user database.***" << endl;
 			return;
 		}
 
@@ -370,7 +362,7 @@ void logIn() {
 
 		file.close();
 		if (!valid) {
-			cout << "Invalid ID or password. Please try again.\n" << endl;
+			cout << "***Invalid ID or password. Please try again.***\n" << endl;
 		}
 	}
 }
@@ -396,7 +388,7 @@ void printUserToFile(User user) {
 	ofstream file(path, ios::app);
 
 	if (!file.is_open()) {
-		cerr << "Error opening user database." << endl;
+		cerr << "***Error opening user database.***" << endl;
 		return;
 	}
 
@@ -407,13 +399,15 @@ void printUserToFile(User user) {
 void OwnerMenu(int id) {
 	int choice;
 
-	cout << "Owner menu:\n\n";
+	cout << "Owner menu:\n";
+	cout << "===========================\n";
 	cout << "	1 - Add Section\n";
 	cout << "	2 - Add Resource\n";
 	cout << "	3 - View Requests\n";
 	cout << "	4 - Generate Reports\n";
 	cout << "	5 - Go back\n";
-	cout << "	0 - Exit\n\n";
+	cout << "	0 - Exit\n";
+	cout << "===========================\n";
 	cout << "Enter choice: ";
 	cin >> choice;
 	system("cls");
@@ -438,7 +432,7 @@ void OwnerMenu(int id) {
 		exit(0);
 		break;
 	default:
-		cout << "Invalid choice!\n\n";
+		cout << "***Invalid choice!***\n\n";
 		OwnerMenu(id);
 	}
 }
@@ -486,7 +480,6 @@ void ReportMenu(int userid) {
 	for (int i = 0; i < uniqueRes; i++) {
 		cout << " resource id: " << requestnumber[i].resid << " had " << requestnumber[i].count << " requests." << '\n' << "it made " << calculateProfitPerReq(requestnumber[i].resid) * requestnumber[i].count << " profit.\n\n";
 	}
-
 
 	int menustatus =1;
 
@@ -577,7 +570,8 @@ void AddDepartementMenu(int id) {
 void userMenu(int id) {
 	int choice;
 
-	cout << "welocme to user menu\n\n";
+	cout << "welocme to user menu\n";
+	cout << "===========================\n";
 	cout << "	1. see all Department\n";
 	cout << "	2. see all Section\n";
 	cout << "	3. see all Resource\n";
@@ -585,6 +579,7 @@ void userMenu(int id) {
 	cout << "	5. view approved requests\n";
 	cout << "	6. Go back\n";
 	cout << "	0. Exit\n";
+	cout << "===========================\n";
 
 	cout << "Enter choice: ";
 	cin >> choice;
@@ -613,7 +608,7 @@ void userMenu(int id) {
 		exit(0);
 		break;
 	default:
-		cout << "invalid choice \n\n";
+		cout << "***invalid choice*** \n\n";
 		userMenu(id);
 		break;
 	}
@@ -656,7 +651,7 @@ void ViewApprovedReqMenu(int targetid) {
 		}
 
 		if (userid == targetid && isApproved) {
-			cout << "your request for resource with id: " << resid << "with request id: " << reqid << " was approved." << "\n\n";
+			cout << "***your request for resource with id: " << resid << "with request id: " << reqid << " was approved.***" << "\n\n";
 		}
 	}
 
@@ -681,7 +676,7 @@ void addSectionMenu(int id) {
 	Section section;
 	char path[] = "sections.txt";
 
-	cout << "Welcom to the section defining menu\n\n";
+	cout << "Welcome to the section defining menu\n\n";
 
 	//add a way to handle this
 	cout << "what is the departement id of this section: ";
@@ -702,7 +697,7 @@ void addSectionMenu(int id) {
 }
 
 void addResourceMenu(int id) {
-	cout << "Welcom to the resource defining menu\n\n";
+	cout << "Welcome to the resource defining menu\n\n";
 
 	char path[] = "resources.txt";
 	Resource res;
@@ -715,15 +710,17 @@ void addResourceMenu(int id) {
 	cout << "What is resource name: ";
 	cin >> res.name;
 
-	cout << "What is the type of this resource:\n\n";
+	cout << "What is the type of this resource:\n";
+	cout << "==================================\n";
 	cout << "	1.HOURLY\n";
 	cout << "	2.DAILY\n";
 	cout << "	3.MOUNTHLY\n";
-	cout << "	4.SAMPLE BASED\n\n";
+	cout << "	4.SAMPLE BASED\n";
+	cout << "==================================\n";
 
 	while (!isValid)
 	{
-		cout << "Enter your choice: ";
+		cout << "\nEnter your choice: ";
 		cin >> choice;
 
 		switch (choice)
@@ -749,7 +746,7 @@ void addResourceMenu(int id) {
 			break;
 
 		default:
-			cout << "Not a valid choice. Try again.";
+			cout << "***Not a valid choice. Try again.***";
 			break;
 		}
 	}
@@ -788,7 +785,7 @@ void makeDepartement(char name[], int owner) {
 	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
 
 	printDepToFile(path, newDep);
-	cout << "the department with the id: " << newDep.id << " has been created\n";
+	cout << "***the department with the id: " << newDep.id << " has been created***\n";
 }
 
 //check if changing so using is possible
@@ -829,7 +826,7 @@ void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
 
 	if (!file.is_open()) {
-		cerr << "Error opening department database." << endl;
+		cerr << "***Error opening department database.***" << endl;
 		return;
 	}
 
@@ -1231,13 +1228,13 @@ void ViewNonApprovedReqMenu(int userid) {
 					approveReq(requests[i]);
 
 					system("cls");
-					cout << "request for id (" << requests[i].id << ") is approved\n\n";
+					cout << "***request for id (" << requests[i].id << ") is approved***\n\n";
 					ViewNonApprovedReqMenu(userid);
 					break;
 				}
 			}
 			if (!found) {
-				cout << "\nid not found";
+				cout << "\n***id not found***";
 			}
 		}
 
@@ -1251,7 +1248,7 @@ void approveReq(Request req) {
 	int i = 0;
 
 	if (!inputFile.is_open()) {
-		cerr << "Error opening user database." << endl;
+		cerr << "***Error opening user database.***" << endl;
 		return;
 	}
 
@@ -1301,7 +1298,7 @@ void getRequests(int userid, Request requests[], int &count) {
 	ifstream file("requests.txt");
 
 	if (!file.is_open()) {
-		cerr << "Error opening user database." << endl;
+		cerr << "***Error opening user database.***" << endl;
 		return;
 	}
 
@@ -1385,7 +1382,7 @@ int makeOwner() {
 	
 	system("cls");
 
-	cout << "your id is (" << id << "). please save it somewhere as you will need it to login\n\n";
+	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
 	return owner.person.id;
 }
 
