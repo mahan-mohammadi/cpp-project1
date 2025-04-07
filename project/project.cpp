@@ -939,6 +939,7 @@ void printSecToCLI(int targetDep) {
 			cout << '\t' << "name: " << name << '\t' << "id: " << secID << '\t' << "department id: " << depID << "\n\n";
 		}
 	}
+}
 
 void printResToCLI(int targetSec) {
 	char path[] = "resources.txt";
@@ -948,95 +949,56 @@ void printResToCLI(int targetSec) {
 
 	cout << "list of all resources: \n\n";
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char typestr[NAME_LENGTH];
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  type
-				type = line[i] - '0';
-				break;
-			case 3:
-				price = price * 10 + (line[i] - '0');
-				break;
-			case 4:
-				sec_id = sec_id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (targetSec == sec_id) {
-			name[nameIndex] = '\0';
-			stringForResourceType(typestr, type);
-			cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
+	int resID = 0, secID = 0, price = 0, cost = 0 , type =0;
+	char name[NAME_LENGTH];
+	char typestr[NAME_LENGTH];
+
+	while (file >> resID >> name >> type >> price >> secID >> cost) {
+		stringForResourceType(typestr, type);
+
+		if (secID == targetSec) {
+			cout << '\t' << "name: " << name << '\t' << "id: " << resID << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << secID << "\n\n";
 		}
 	}
+
+	file.close();
 }
 
 void printRequestToFile(Request req) {
 	ofstream file("requests.txt", ios::app);
-	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '|' << req.user.person.id << '\n'; //number of request
+	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.res.id << ' ' << req.user.person.id << '\n'; //number of request
 }
 
 void approveReq(Request req) {
 	ifstream inputFile("requests.txt");
-	char line[MAX_REQUESTS][LINE_LENGTH];
-	int i = 0;
 
 	if (!inputFile.is_open()) {
 		cerr << "***Error opening user database.***" << endl;
 		return;
 	}
 
-	while (inputFile.getline(line[i], 256)) {
+	Request requests[MAX_REQUESTS];
+	int i = 0;
+
+	while (inputFile >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id) {
 		i++;
 	}
+	
+	int size = i;
+
 	inputFile.close();
 
-	for (int j = 0; j < i; j++) {
-		int level = 0;
-		int reqid = 0;
-		int apporvalIndex = -1;
-
-		for (int k = 0; line[j][k]; k++) {
-			if (line[j][k] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0:
-				reqid = reqid * 10 + (line[j][k] - '0');
-				break;
-
-			case 2:
-				apporvalIndex = k;
-				break;
-			}
-
+	while (i >= 0) {
+		if (req.id == requests[i].id) {
+			requests[i].isApproved = true;
+			break;
 		}
-		if (req.id == reqid) {
-			if (apporvalIndex != -1 && line[j][apporvalIndex] == '0') {
-				line[j][apporvalIndex] = '1';
-				break;
-			}
-		}
+		i--;
 	}
 
 	ofstream outputFile("requests.txt");
-	for (int l = 0; l < i; l++) {
-		outputFile << line[l] << '\n';
+	for (int l = 0; l < size; l++) {
+		outputFile << requests[l].id << ' ' << requests[i].name << ' ' << requests[i].isApproved << ' ' << requests[i].res.id << ' ' << requests[i].user.person.id << '\n';
 	}
 
 	outputFile.close();
