@@ -533,7 +533,7 @@ void addResourceMenu(int id) {
 	cout << "\nwhat is the price of this resource per time/sample: ";
 	cin >> res.price;
 
-	cout << "\nwhat is the cost of this resource per time/sa,ple for you?";
+	cout << "\nwhat is the cost of this resource per time/sample for you?";
 	cin >> res.cost;
 
 	res.id = getLastId(path) + 1;  // get an id for the request
@@ -682,37 +682,13 @@ void getResourcesMenu(int userid) {
 	ifstream file(path);
 
 	cout << "list of all resources: \n\n";
+	int id = 0 , sec_id = 0, price =0; 
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char typestr[NAME_LENGTH];
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  type
-				type = line[i] - '0';
-				break;
-			case 3:
-				price = price * 10 + (line[i] - '0');
-				break;
-			case 4:
-				sec_id = sec_id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		name[nameIndex] = '\0';
+	char name[NAME_LENGTH];
+	int type;
+	char typestr[NAME_LENGTH];
+
+	while (file >> id >> name >> type >> price >> sec_id) {
 		stringForResourceType(typestr, type);
 		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
 	}
@@ -728,45 +704,14 @@ void getResourcesMenu(int userid) {
 //refactorable
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
-	char line[LINE_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int reqid = 0, userid = 0, resid = 0, level = 0, nameindex = 0;
-		bool isApproved = false;
-		char name[NAME_LENGTH] = { 0 };
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-
-			switch (level) {
-			case 0:
-				reqid = reqid * 10 + (line[i] - '0');
-				break;
-			case 1:
-				if (nameindex < NAME_LENGTH - 1)
-					name[nameindex++] = line[i];
-				break;
-			case 2:
-				isApproved = line[i] - '0';
-				break;
-			case 3:
-				resid = resid * 10 + (line[i] - '0');
-				break;
-			case 4:
-				userid = userid * 10 + (line[i] - '0');
-				break;
-			}
-		}
-
-		if (userid == targetid && isApproved) {
-			cout << "***your request for resource with id: " << resid << "with request id: " << reqid << " was approved.***" << "\n\n";
-		}
+	bool status;
+	int reqid = 0, userid = 0, resid = 0;
+	char name[NAME_LENGTH];
+	while (file >> reqid >> name >> status >> resid >> userid) {
+		if(targetid == userid)
+			cout << "***your request for resource with id: " << resid << " with request id: " << reqid << " was approved.***" << "\n\n";
 	}
-
-	file.close();
 
 	int choice;
 	bool canExit = false;
