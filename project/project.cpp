@@ -1008,55 +1008,19 @@ void getRequests(int userid, Request requests[], int& count) {
 	ifstream file("requests.txt");
 
 	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
+		cerr << "***Error opening user database.***" << '\n';
 		return;
 	}
 
-	char line[LINE_LENGTH];
-	int  i = 0;
-
-	while (file.getline(line, LINE_LENGTH)) {
-		Request req;
-		req.id = 0, req.user.person.id = 0, req.res.id = 0;
-		int nameIndex = 0;
-		int level = 0;
-
-		for (int j = 0; line[j]; j++) {
-			if (line[j] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0:
-				req.id = req.id * 10 + (line[j] - '0');
-				break;
-
-			case 1:
-				if (nameIndex < LINE_LENGTH - 1) {
-					req.name[nameIndex++] = line[j];
-				}
-				break;
-
-			case 2:
-				req.isApproved = line[j] - '0';
-				break;
-
-			case 3:
-				req.res.id = req.res.id * 10 + (line[j] - '0');
-				break;
-
-			case 4:
-				req.user.person.id = req.user.person.id * 10 + (line[j] - '0');
-				break;
-
-			}
-		}
-		req.name[nameIndex] = '\0';
-		requests[i] = req;
+	int i = 0;
+	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id) {
 		i++;
 	}
+
+	char line[LINE_LENGTH];
+
 	count = i;
+
 	file.close();
 }
 
