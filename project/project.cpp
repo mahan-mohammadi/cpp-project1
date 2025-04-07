@@ -82,6 +82,7 @@ void concatString(char[], char[]);
 void addSectionMenu(int id);
 int getLastId(char path[]);
 void printSecToFile(char[], Section);
+int stringToInt(const char str[]);
 void addResourceMenu(int id);
 void printResourceToFile(char path[], Resource res);
 void userMenu(int id);
@@ -867,55 +868,7 @@ void ReportMenu(int userid) {
 io functions
 */
 
-int strLen(char str[]) {
-	int count = 0;
-	while (*str) {
-		str++;
-		count++;
-	}
-	return count;
-}
-
-bool isAlpha(char c) {
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-bool isNumber(char c) {
-	if (c >= '0' && c <= '9') {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-bool isPasswordValid(char str[]) {
-	bool hasAlpha = false;
-	bool hasNumber = false;
-
-	if (strLen(str) < MIN_LENGTH_PASS) {
-		return false;
-	}
-	while (*str) {
-		if (isNumber(*str)) {
-			hasNumber = true;
-		}
-
-		if (isAlpha(*str)) {
-			hasAlpha = true;
-		}
-		str++;
-	}
-	
-	return hasAlpha && hasNumber;
-}
-
-bool isGovIDValid(int targetID ) {
+bool isGovIDValid(int targetID) {
 	char path[] = "users.txt";
 	ifstream file(path);
 	char line[LINE_LENGTH];
@@ -948,22 +901,6 @@ bool isGovIDValid(int targetID ) {
 	return isValid;
 }
 
-bool areStringsEqual(char first[] , char second[]) {
-	while (*first != '\0' && *second != '\0') {
-
-		if (*first != *second)
-			return false;
-		first++;
-		second++;
-	}
-	if (*first == '\0' && *second == '\0') {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 void printUserToFile(User user) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
@@ -973,7 +910,7 @@ void printUserToFile(User user) {
 		return;
 	}
 
-	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level <<'|' << user.password << '\n';
+	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level << '|' << user.password << '\n';
 	file.close();
 }
 
@@ -983,7 +920,7 @@ int calculateProfitPerReq(int targetid) {
 	int profit = 0;
 
 	while (file.getline(line, LINE_LENGTH)) {
-		int price = 0, cost = 0 , resid = 0, level = 0;
+		int price = 0, cost = 0, resid = 0, level = 0;
 
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
@@ -1015,17 +952,6 @@ int calculateProfitPerReq(int targetid) {
 	return profit;
 }
 
-void sortReq(reqcount reqnumber[], int count) {
-	for (int i = 0; i < count - 1; i++) {
-		for(int j=0 ; j< count - 1 -i ; j++)
-		if (reqnumber[j + 1].count > reqnumber[j].count) {
-			reqcount swap = reqnumber[j + 1];
-			reqnumber[j + 1] = reqnumber[j];
-			reqnumber[j] = swap;
-		}
-	}
-}
-
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
 	file << res.id << "|" << res.name << "|" << res.type << "|" << res.price << "|" << res.sec_id << '|' << res.cost << '\n';
@@ -1050,40 +976,6 @@ void makeDepartement(char name[], int owner) {
 	cout << "***the department with the id: " << newDep.id << " has been created***\n";
 }
 
-//check if changing so using is possible
-int stringToInt(const char str[]) {
-	int number = 0;
-	int i = 0;
-	while (str[i] != '\0') {
-		number = number * 10 + (str[i] - '0');
-		i++;
-	}
-	return number;
-}
-
-void copyString(char first[], char second[]) {
-	int i = 0;
-	while (second[i]) {
-		first[i] = second[i];
-		i++;
-	}
-	first[i] = '\0';
-}
-
-void concatString(char first[], char second[]) {
-	int i = 0;
-	int j = 0;
-	while (first[i]) {
-		i++;
-	}
-	while (second[j]) {
-		first[i] = second[j];
-		j++;
-		i++;
-	}
-	first[i] = '\0';
-}
-
 void printDepToFile(char path[], Departement dep) {
 	ofstream file(path, ios::app);
 
@@ -1095,6 +987,7 @@ void printDepToFile(char path[], Departement dep) {
 	file << dep.id << '|' << dep.name << '|' << dep.owner.person.id << '\n';
 	file.close();
 }
+
 
 int getLastId(char path[]) {
 	ifstream file(path);
@@ -1125,26 +1018,6 @@ int getLastId(char path[]) {
 	return stringToInt(id);
 }
 
-void stringForResourceType(char type[], int intType) {
-	char hourly[] = "hourly";
-	char daily[] = "daily";
-	char mounthly[] = "mounthly";
-	char sample[] = "sample based";
-
-	switch (intType) {
-	case 1:
-		copyString(type, hourly);
-		break;
-	case 2:
-		copyString(type, daily);
-		break;
-	case 3:
-		copyString(type, mounthly);
-		break;
-	case 4:
-		copyString(type, sample);
-	}
-}
 
 void printDepToCLI() {
 	char path[] = "Depatement.txt";
@@ -1282,18 +1155,8 @@ void printResToCLI(int targetSec) {
 }
 
 void printRequestToFile(Request req) {
-	ofstream file("requests.txt", ios::app );
+	ofstream file("requests.txt", ios::app);
 	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '|' << req.user.person.id << '\n'; //number of request
-}
-
-Request makeReq(int id, char name[], int res_id, int userID) {
-	Request req;
-	req.id = id;
-	req.res.id = res_id;
-	req.user.person.id = userID;
-	copyString(req.name, name);
-	req.isApproved = false;
-	return req;
 }
 
 void approveReq(Request req) {
@@ -1322,13 +1185,13 @@ void approveReq(Request req) {
 				continue;
 			}
 			switch (level) {
-				case 0:
-					reqid = reqid * 10 + (line[j][k] - '0');
-					break;
+			case 0:
+				reqid = reqid * 10 + (line[j][k] - '0');
+				break;
 
-				case 2:
-					apporvalIndex = k;
-					break;
+			case 2:
+				apporvalIndex = k;
+				break;
 			}
 
 		}
@@ -1348,7 +1211,7 @@ void approveReq(Request req) {
 	outputFile.close();
 }
 
-void getRequests(int userid, Request requests[], int &count) {
+void getRequests(int userid, Request requests[], int& count) {
 	ifstream file("requests.txt");
 
 	if (!file.is_open()) {
@@ -1363,7 +1226,7 @@ void getRequests(int userid, Request requests[], int &count) {
 		Request req;
 		req.id = 0, req.user.person.id = 0, req.res.id = 0;
 		int nameIndex = 0;
-		int level =0;
+		int level = 0;
 
 		for (int j = 0; line[j]; j++) {
 			if (line[j] == '|') {
@@ -1372,27 +1235,27 @@ void getRequests(int userid, Request requests[], int &count) {
 			}
 			switch (level)
 			{
-				case 0:
-					req.id = req.id * 10 + (line[j] - '0');
-					break;
+			case 0:
+				req.id = req.id * 10 + (line[j] - '0');
+				break;
 
-				case 1:
-					if (nameIndex < LINE_LENGTH - 1) {
-						req.name[nameIndex++] = line[j];
-					}
-					break;
+			case 1:
+				if (nameIndex < LINE_LENGTH - 1) {
+					req.name[nameIndex++] = line[j];
+				}
+				break;
 
-				case 2:
-					req.isApproved = line[j] - '0';
-					break;
+			case 2:
+				req.isApproved = line[j] - '0';
+				break;
 
-				case 3:
-					req.res.id = req.res.id * 10 + (line[j] - '0');
-					break;
+			case 3:
+				req.res.id = req.res.id * 10 + (line[j] - '0');
+				break;
 
-				case 4:
-					req.user.person.id = req.user.person.id * 10 + (line[j] - '0');
-					break;
+			case 4:
+				req.user.person.id = req.user.person.id * 10 + (line[j] - '0');
+				break;
 
 			}
 		}
@@ -1421,7 +1284,7 @@ int DepIDOfOwner(int targetid) {
 	char line[LINE_LENGTH];
 
 	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0 , depid= 0 , userid =0;
+		int level = 0, depid = 0, userid = 0;
 
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
@@ -1429,14 +1292,14 @@ int DepIDOfOwner(int targetid) {
 				continue;
 			}
 			switch (level)
-			{	
-				case 0:
-					depid = depid * 10 + (line[i] - '0');
-					break;
+			{
+			case 0:
+				depid = depid * 10 + (line[i] - '0');
+				break;
 
-				case 2:
-					userid = userid * 10 + (line[i] - '0');
-					break;
+			case 2:
+				userid = userid * 10 + (line[i] - '0');
+				break;
 			}
 		}
 		if (userid == targetid) {
@@ -1452,8 +1315,8 @@ int secIDOfRes(int targetid) {
 	ifstream file("resources.txt");
 	char line[LINE_LENGTH];
 
-	while (file.getline(line , LINE_LENGTH)){
-		int level = 0 , resid =0 , secid = 0;
+	while (file.getline(line, LINE_LENGTH)) {
+		int level = 0, resid = 0, secid = 0;
 
 		for (int i = 0; line[i]; i++) {
 			if (line[i] == '|') {
@@ -1461,12 +1324,12 @@ int secIDOfRes(int targetid) {
 				continue;
 			}
 			switch (level) {
-				case 0:
-					resid = resid * 10 + (line[i] - '0');
-					break;
-				case 4:
-					secid = secid * 10 + (line[i] - '0');
-					break;
+			case 0:
+				resid = resid * 10 + (line[i] - '0');
+				break;
+			case 4:
+				secid = secid * 10 + (line[i] - '0');
+				break;
 			}
 		}
 		if (targetid == resid) {
@@ -1492,13 +1355,13 @@ int depIDOfsec(int targetid) {
 				continue;
 			}
 			switch (level) {
-				case 0:
-					secid = secid * 10 + (line[i] - '0');
-					break;
+			case 0:
+				secid = secid * 10 + (line[i] - '0');
+				break;
 
-				case 3:
-					depid = depid * 10 + (line[i] - '0');
-					break;
+			case 3:
+				depid = depid * 10 + (line[i] - '0');
+				break;
 			}
 		}
 		if (secid == targetid) {
@@ -1509,4 +1372,145 @@ int depIDOfsec(int targetid) {
 
 	file.close();
 	return 0;
-} 
+}
+
+
+int strLen(char str[]) {
+	int count = 0;
+	while (*str) {
+		str++;
+		count++;
+	}
+	return count;
+}
+
+bool isAlpha(char c) {
+	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isNumber(char c) {
+	if (c >= '0' && c <= '9') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool isPasswordValid(char str[]) {
+	bool hasAlpha = false;
+	bool hasNumber = false;
+
+	if (strLen(str) < MIN_LENGTH_PASS) {
+		return false;
+	}
+	while (*str) {
+		if (isNumber(*str)) {
+			hasNumber = true;
+		}
+
+		if (isAlpha(*str)) {
+			hasAlpha = true;
+		}
+		str++;
+	}
+	
+	return hasAlpha && hasNumber;
+}
+
+bool areStringsEqual(char first[] , char second[]) {
+	while (*first != '\0' && *second != '\0') {
+
+		if (*first != *second)
+			return false;
+		first++;
+		second++;
+	}
+	if (*first == '\0' && *second == '\0') {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void sortReq(reqcount reqnumber[], int count) {
+	for (int i = 0; i < count - 1; i++) {
+		for(int j=0 ; j< count - 1 -i ; j++)
+		if (reqnumber[j + 1].count > reqnumber[j].count) {
+			reqcount swap = reqnumber[j + 1];
+			reqnumber[j + 1] = reqnumber[j];
+			reqnumber[j] = swap;
+		}
+	}
+}
+
+//check if changing so using is possible
+int stringToInt(const char str[]) {
+	int number = 0;
+	int i = 0;
+	while (str[i] != '\0') {
+		number = number * 10 + (str[i] - '0');
+		i++;
+	}
+	return number;
+}
+
+void copyString(char first[], char second[]) {
+	int i = 0;
+	while (second[i]) {
+		first[i] = second[i];
+		i++;
+	}
+	first[i] = '\0';
+}
+
+void concatString(char first[], char second[]) {
+	int i = 0;
+	int j = 0;
+	while (first[i]) {
+		i++;
+	}
+	while (second[j]) {
+		first[i] = second[j];
+		j++;
+		i++;
+	}
+	first[i] = '\0';
+}
+
+void stringForResourceType(char type[], int intType) {
+	char hourly[] = "hourly";
+	char daily[] = "daily";
+	char mounthly[] = "mounthly";
+	char sample[] = "sample based";
+
+	switch (intType) {
+	case 1:
+		copyString(type, hourly);
+		break;
+	case 2:
+		copyString(type, daily);
+		break;
+	case 3:
+		copyString(type, mounthly);
+		break;
+	case 4:
+		copyString(type, sample);
+	}
+}
+
+Request makeReq(int id, char name[], int res_id, int userID) {
+	Request req;
+	req.id = id;
+	req.res.id = res_id;
+	req.user.person.id = userID;
+	copyString(req.name, name);
+	req.isApproved = false;
+	return req;
+}
