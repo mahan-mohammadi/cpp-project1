@@ -567,43 +567,17 @@ void getSectionsMenu(int id) {
 	ifstream file(path);
 
 	cout << "list of all sections: \n\n";
-	while (file.getline(line, LINE_LENGTH)) {
 
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0, dep_id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
+	int sectionid = 0, dep_id = 0;
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			case 3:
-				dep_id = dep_id * 10 + (line[i] - '0');
-				break;
-			}
+	char name[NAME_LENGTH];
+	char owner[NAME_LENGTH];
 
-		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
+	while (file >> sectionid >> name >> owner >> dep_id) {
 
 		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
-
 	}
+	
 	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
 		cin >> Choice;
