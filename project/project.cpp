@@ -571,11 +571,10 @@ void getSectionsMenu(int id) {
 	int sectionid = 0, dep_id = 0;
 
 	char name[NAME_LENGTH];
-	char owner[NAME_LENGTH];
 
-	while (file >> sectionid >> name >> owner >> dep_id) {
+	while (file >> sectionid >> name >> dep_id) {
 
-		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
+		cout << '\t' << "section id: " << sectionid << '\t' << "name: " << name << '\t' << "department id: " << dep_id << "\n\n";
 	}
 	
 	cout << "Enter 0 and enter to return back: ";
@@ -851,7 +850,7 @@ void printResourceToFile(char path[], Resource res) {
 
 void printSecToFile(char path[], Section sec) {
 	ofstream file(path, ios::app);
-	file << sec.id << " " << sec.name << " " << sec.owner << " " << sec.dep_id << '\n';
+	file << sec.id << " " << sec.name << " "  << " " << sec.dep_id << '\n';
 	file.close();
 }
 
@@ -900,7 +899,7 @@ int getLastId(char path[]) {
 
 	char id[20];
 	int j = 0;
-	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != '|'; i++) {
+	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != ' '; i++) {
 		id[j] = lastLine[i]; // just get the id
 		j++;
 	}
@@ -914,41 +913,14 @@ void printDepToCLI() {
 	char path[] = "Depatement.txt";
 	char line[LINE_LENGTH];
 
-
 	ifstream file(path);
 
 	cout << "list of all departments: \n\n";
 
-	while (file.getline(line, LINE_LENGTH)) {
-
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0: // procces ID
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // peocess Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			}
-		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
-
-		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
+	int depID = 0 , ownerid =0;
+	char name[NAME_LENGTH];
+	while (file >> depID >> name >> ownerid) {
+		cout << '\t' << "name: " << name << '\t' << "owner id: " << ownerid << '\t' << "id: " << depID << "\n\n";
 	}
 }
 
@@ -958,47 +930,15 @@ void printSecToCLI(int targetDep) {
 
 	ifstream file(path);
 
+	int secID = 0, depID = 0;
+	char name[NAME_LENGTH];
+
 	cout << "List of sections in department " << targetDep << ":\n\n";
-	while (file.getline(line, LINE_LENGTH)) {
-
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0, dep_id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			case 3:
-				dep_id = dep_id * 10 + (line[i] - '0');
-				break;
-			}
-
+	while (file >> secID >> name >> depID) {
+		if (depID == targetDep) {
+			cout << '\t' << "name: " << name << '\t' << "id: " << secID << '\t' << "department id: " << depID << "\n\n";
 		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
-
-		if (dep_id == targetDep) {
-			cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
-		}
-
 	}
-}
 
 void printResToCLI(int targetSec) {
 	char path[] = "resources.txt";

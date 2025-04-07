@@ -1,7 +1,2 @@
-1|kekwqk|2
-8|mahan|9
-9|1|10
-10|1|11
-11|mohammad|13
-12|kdsja|14
-13|fani|16
+1 kekwqk 2
+
