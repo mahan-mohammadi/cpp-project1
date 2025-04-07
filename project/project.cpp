@@ -792,28 +792,19 @@ bool isGovIDValid(int targetID) {
 	ifstream file(path);
 	char line[LINE_LENGTH];
 	bool found = false;
+	
+	int userid = 0, govid = 0, level = 0;
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0;
-		int id = 0;
+	char name[NAME_LENGTH];
+	char password[NAME_LENGTH];
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 2:
-				id = id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (id == targetID) {
+	while (file >> userid >> name >> govid >> level >> password) {
+		if (govid == targetID) {
 			found = true;
 			break;
 		}
 	}
+
 	file.close();
 
 	bool isValid = !found;
@@ -829,37 +820,18 @@ void printUserToFile(User user) {
 		return;
 	}
 
-	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level << '|' << user.password << '\n';
+	file << user.person.id << ' ' << user.person.name << ' ' << user.gov_id << ' ' << user.level << ' ' << user.password << '\n';
 	file.close();
 }
 
 int calculateProfitPerReq(int targetid) {
 	ifstream file("resources.txt");
-	char line[LINE_LENGTH];
+
 	int profit = 0;
+	int price = 0, resid = 0, type = 0, secid = 0, cost = 0;
+	char name[NAME_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int price = 0, cost = 0, resid = 0, level = 0;
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-
-			switch (level) {
-			case 0:
-				resid = resid * 10 + (line[i] - '0');
-				break;
-			case 3:
-				price = price * 10 + (line[i] - '0');
-				break;
-			case 5:
-				cost = cost * 10 + (line[i] - '0');
-				break;
-			}
-		}
-
+	while (file >> resid >> name >> type >> price >> secid >> cost) {
 		if (resid == targetid) {
 			profit = price - cost;
 			break;
@@ -873,13 +845,13 @@ int calculateProfitPerReq(int targetid) {
 
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
-	file << res.id << "|" << res.name << "|" << res.type << "|" << res.price << "|" << res.sec_id << '|' << res.cost << '\n';
+	file << res.id << " " << res.name << " " << res.type << " " << res.price << " " << res.sec_id << '|' << res.cost << '\n';
 	file.close();
 }
 
 void printSecToFile(char path[], Section sec) {
 	ofstream file(path, ios::app);
-	file << sec.id << "|" << sec.name << "|" << sec.owner << "|" << sec.dep_id << '\n';
+	file << sec.id << " " << sec.name << " " << sec.owner << " " << sec.dep_id << '\n';
 	file.close();
 }
 
@@ -903,7 +875,7 @@ void printDepToFile(char path[], Departement dep) {
 		return;
 	}
 
-	file << dep.id << '|' << dep.name << '|' << dep.owner.person.id << '\n';
+	file << dep.id << ' ' << dep.name << ' ' << dep.owner.person.id << '\n';
 	file.close();
 }
 
