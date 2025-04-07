@@ -180,40 +180,20 @@ void logIn() {
 			return;
 		}
 
-		char line[LINE_LENGTH];
-		while (file.getline(line, LINE_LENGTH)) {
-			char targetPassword[NAME_LENGTH] = { 0 };
-			int TargetId = 0;
-			int level = 0;
-			int passwordIndex = 0;
+		int userID = 0, govID = 0, level = 0;
+		char name[NAME_LENGTH];
+		char targetPassword[NAME_LENGTH];
 
-			for (int i = 0; line[i]; i++) {
-				if (line[i] == '|') {
-					level++;
-					continue;
-				}
-				switch (level) {
-				case 0:
-					TargetId = TargetId * 10 + (line[i] - '0');
-					break;
-				case 3:
-					acess = line[i] - '0';
-					break;
-				case 4:
-					if (passwordIndex < NAME_LENGTH - 1)
-						targetPassword[passwordIndex++] = line[i];
-					break;
-				}
-			}
-
-			if (TargetId == inputID && areStringsEqual(inputPassword, targetPassword)) {
+		while (file >> userID >> name >> govID >> level >> targetPassword) {
+			if (userID == inputID && areStringsEqual(inputPassword, targetPassword)) {
+				file.close();
 				valid = true;
 				system("cls");
-				if (acess == USER) {
-					userMenu(TargetId);
+				if (level == USER) {
+					userMenu(userID);
 				}
-				else if (acess == OWNER) {
-					OwnerMenu(TargetId);
+				else if (level == OWNER) {
+					OwnerMenu(userID);
 				}
 				break; // Exit the file reading loop if a match is found
 			}
@@ -464,9 +444,6 @@ void addSectionMenu(int id) {
 	cout << "What is section name: ";
 	cin >> section.name;
 
-	cout << "who is the sections owner: ";
-	cin >> section.owner;
-
 	section.id = getLastId(path) + 1;
 
 	printSecToFile(path, section);
@@ -533,7 +510,7 @@ void addResourceMenu(int id) {
 	cout << "\nwhat is the price of this resource per time/sample: ";
 	cin >> res.price;
 
-	cout << "\nwhat is the cost of this resource per time/sa,ple for you?";
+	cout << "\nwhat is the cost of this resource per time/sample for you?";
 	cin >> res.cost;
 
 	res.id = getLastId(path) + 1;  // get an id for the request
@@ -567,43 +544,16 @@ void getSectionsMenu(int id) {
 	ifstream file(path);
 
 	cout << "list of all sections: \n\n";
-	while (file.getline(line, LINE_LENGTH)) {
 
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0, dep_id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
+	int sectionid = 0, dep_id = 0;
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			case 3:
-				dep_id = dep_id * 10 + (line[i] - '0');
-				break;
-			}
+	char name[NAME_LENGTH];
 
-		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
+	while (file >> sectionid >> name >> dep_id) {
 
-		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
-
+		cout << '\t' << "section id: " << sectionid << '\t' << "name: " << name << '\t' << "department id: " << dep_id << "\n\n";
 	}
+	
 	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
 		cin >> Choice;
@@ -708,37 +658,13 @@ void getResourcesMenu(int userid) {
 	ifstream file(path);
 
 	cout << "list of all resources: \n\n";
+	int id = 0 , sec_id = 0, price =0; 
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char typestr[NAME_LENGTH];
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  type
-				type = line[i] - '0';
-				break;
-			case 3:
-				price = price * 10 + (line[i] - '0');
-				break;
-			case 4:
-				sec_id = sec_id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		name[nameIndex] = '\0';
+	char name[NAME_LENGTH];
+	int type;
+	char typestr[NAME_LENGTH];
+
+	while (file >> id >> name >> type >> price >> sec_id) {
 		stringForResourceType(typestr, type);
 		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
 	}
@@ -754,45 +680,14 @@ void getResourcesMenu(int userid) {
 //refactorable
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
-	char line[LINE_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int reqid = 0, userid = 0, resid = 0, level = 0, nameindex = 0;
-		bool isApproved = false;
-		char name[NAME_LENGTH] = { 0 };
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-
-			switch (level) {
-			case 0:
-				reqid = reqid * 10 + (line[i] - '0');
-				break;
-			case 1:
-				if (nameindex < NAME_LENGTH - 1)
-					name[nameindex++] = line[i];
-				break;
-			case 2:
-				isApproved = line[i] - '0';
-				break;
-			case 3:
-				resid = resid * 10 + (line[i] - '0');
-				break;
-			case 4:
-				userid = userid * 10 + (line[i] - '0');
-				break;
-			}
-		}
-
-		if (userid == targetid && isApproved) {
-			cout << "***your request for resource with id: " << resid << "with request id: " << reqid << " was approved.***" << "\n\n";
-		}
+	bool isApproved;
+	int reqid = 0, userid = 0, resid = 0;
+	char name[NAME_LENGTH];
+	while (file >> reqid >> name >> isApproved >> resid >> userid) {
+		if(targetid == userid && isApproved == true)
+			cout << "***your request for resource with id: " << resid << " with request id: " << reqid << " was approved.***" << "\n\n";
 	}
-
-	file.close();
 
 	int choice;
 	bool canExit = false;
@@ -873,28 +768,19 @@ bool isGovIDValid(int targetID) {
 	ifstream file(path);
 	char line[LINE_LENGTH];
 	bool found = false;
+	
+	int userid = 0, govid = 0, level = 0;
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0;
-		int id = 0;
+	char name[NAME_LENGTH];
+	char password[NAME_LENGTH];
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 2:
-				id = id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (id == targetID) {
+	while (file >> userid >> name >> govid >> level >> password) {
+		if (govid == targetID) {
 			found = true;
 			break;
 		}
 	}
+
 	file.close();
 
 	bool isValid = !found;
@@ -910,37 +796,18 @@ void printUserToFile(User user) {
 		return;
 	}
 
-	file << user.person.id << '|' << user.person.name << '|' << user.gov_id << '|' << user.level << '|' << user.password << '\n';
+	file << user.person.id << ' ' << user.person.name << ' ' << user.gov_id << ' ' << user.level << ' ' << user.password << '\n';
 	file.close();
 }
 
 int calculateProfitPerReq(int targetid) {
 	ifstream file("resources.txt");
-	char line[LINE_LENGTH];
+
 	int profit = 0;
+	int price = 0, resid = 0, type = 0, secid = 0, cost = 0;
+	char name[NAME_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int price = 0, cost = 0, resid = 0, level = 0;
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-
-			switch (level) {
-			case 0:
-				resid = resid * 10 + (line[i] - '0');
-				break;
-			case 3:
-				price = price * 10 + (line[i] - '0');
-				break;
-			case 5:
-				cost = cost * 10 + (line[i] - '0');
-				break;
-			}
-		}
-
+	while (file >> resid >> name >> type >> price >> secid >> cost) {
 		if (resid == targetid) {
 			profit = price - cost;
 			break;
@@ -954,13 +821,13 @@ int calculateProfitPerReq(int targetid) {
 
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
-	file << res.id << "|" << res.name << "|" << res.type << "|" << res.price << "|" << res.sec_id << '|' << res.cost << '\n';
+	file << res.id << " " << res.name << " " << res.type << " " << res.price << " " << res.sec_id << '|' << res.cost << '\n';
 	file.close();
 }
 
 void printSecToFile(char path[], Section sec) {
 	ofstream file(path, ios::app);
-	file << sec.id << "|" << sec.name << "|" << sec.owner << "|" << sec.dep_id << '\n';
+	file << sec.id << " " << sec.name << " "  << " " << sec.dep_id << '\n';
 	file.close();
 }
 
@@ -984,7 +851,7 @@ void printDepToFile(char path[], Departement dep) {
 		return;
 	}
 
-	file << dep.id << '|' << dep.name << '|' << dep.owner.person.id << '\n';
+	file << dep.id << ' ' << dep.name << ' ' << dep.owner.person.id << '\n';
 	file.close();
 }
 
@@ -1009,7 +876,7 @@ int getLastId(char path[]) {
 
 	char id[20];
 	int j = 0;
-	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != '|'; i++) {
+	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != ' '; i++) {
 		id[j] = lastLine[i]; // just get the id
 		j++;
 	}
@@ -1023,41 +890,14 @@ void printDepToCLI() {
 	char path[] = "Depatement.txt";
 	char line[LINE_LENGTH];
 
-
 	ifstream file(path);
 
 	cout << "list of all departments: \n\n";
 
-	while (file.getline(line, LINE_LENGTH)) {
-
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0: // procces ID
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // peocess Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			}
-		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
-
-		cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "\n\n";
+	int depID = 0 , ownerid =0;
+	char name[NAME_LENGTH];
+	while (file >> depID >> name >> ownerid) {
+		cout << '\t' << "name: " << name << '\t' << "owner id: " << ownerid << '\t' << "id: " << depID << "\n\n";
 	}
 }
 
@@ -1067,45 +907,14 @@ void printSecToCLI(int targetDep) {
 
 	ifstream file(path);
 
+	int secID = 0, depID = 0;
+	char name[NAME_LENGTH];
+
 	cout << "List of sections in department " << targetDep << ":\n\n";
-	while (file.getline(line, LINE_LENGTH)) {
-
-		int nameIndex = 0, ownerIndex = 0, level = 0;
-		int id = 0, dep_id = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char owner[NAME_LENGTH] = { 0 };
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  Owner
-				if (ownerIndex < NAME_LENGTH - 1)
-					owner[ownerIndex++] = line[i];
-				break;
-			case 3:
-				dep_id = dep_id * 10 + (line[i] - '0');
-				break;
-			}
-
+	while (file >> secID >> name >> depID) {
+		if (depID == targetDep) {
+			cout << '\t' << "name: " << name << '\t' << "id: " << secID << '\t' << "department id: " << depID << "\n\n";
 		}
-		name[nameIndex] = '\0';
-		owner[ownerIndex] = '\0';
-
-		if (dep_id == targetDep) {
-			cout << '\t' << "name: " << name << '\t' << "owner: " << owner << '\t' << "id: " << id << '\t' << "department id: " << dep_id << "\n\n";
-		}
-
 	}
 }
 
@@ -1117,95 +926,56 @@ void printResToCLI(int targetSec) {
 
 	cout << "list of all resources: \n\n";
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0, id = 0, nameIndex = 0, sec_id = 0, type = 0, price = 0;
-		char name[NAME_LENGTH] = { 0 };
-		char typestr[NAME_LENGTH];
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0: //process id
-				id = id * 10 + (line[i] - '0');
-				break;
-			case 1: // process Name
-				if (nameIndex < NAME_LENGTH - 1)
-					name[nameIndex++] = line[i];
-				break;
-			case 2: //process  type
-				type = line[i] - '0';
-				break;
-			case 3:
-				price = price * 10 + (line[i] - '0');
-				break;
-			case 4:
-				sec_id = sec_id * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (targetSec == sec_id) {
-			name[nameIndex] = '\0';
-			stringForResourceType(typestr, type);
-			cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << "\n\n";
+	int resID = 0, secID = 0, price = 0, cost = 0 , type =0;
+	char name[NAME_LENGTH];
+	char typestr[NAME_LENGTH];
+
+	while (file >> resID >> name >> type >> price >> secID >> cost) {
+		stringForResourceType(typestr, type);
+
+		if (secID == targetSec) {
+			cout << '\t' << "name: " << name << '\t' << "id: " << resID << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << secID << "\n\n";
 		}
 	}
+
+	file.close();
 }
 
 void printRequestToFile(Request req) {
 	ofstream file("requests.txt", ios::app);
-	file << req.id << '|' << req.name << '|' << req.isApproved << '|' << req.res.id << '|' << req.user.person.id << '\n'; //number of request
+	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.res.id << ' ' << req.user.person.id << '\n'; //number of request
 }
 
 void approveReq(Request req) {
 	ifstream inputFile("requests.txt");
-	char line[MAX_REQUESTS][LINE_LENGTH];
-	int i = 0;
 
 	if (!inputFile.is_open()) {
 		cerr << "***Error opening user database.***" << endl;
 		return;
 	}
 
-	while (inputFile.getline(line[i], 256)) {
+	Request requests[MAX_REQUESTS];
+	int i = 0;
+
+	while (inputFile >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id) {
 		i++;
 	}
+	
+	int size = i;
+
 	inputFile.close();
 
-	for (int j = 0; j < i; j++) {
-		int level = 0;
-		int reqid = 0;
-		int apporvalIndex = -1;
-
-		for (int k = 0; line[j][k]; k++) {
-			if (line[j][k] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0:
-				reqid = reqid * 10 + (line[j][k] - '0');
-				break;
-
-			case 2:
-				apporvalIndex = k;
-				break;
-			}
-
+	while (i >= 0) {
+		if (req.id == requests[i].id) {
+			requests[i].isApproved = true;
+			break;
 		}
-		if (req.id == reqid) {
-			if (apporvalIndex != -1 && line[j][apporvalIndex] == '0') {
-				line[j][apporvalIndex] = '1';
-				break;
-			}
-		}
+		i--;
 	}
 
 	ofstream outputFile("requests.txt");
-	for (int l = 0; l < i; l++) {
-		outputFile << line[l] << '\n';
+	for (int l = 0; l < size; l++) {
+		outputFile << requests[l].id << ' ' << requests[i].name << ' ' << requests[i].isApproved << ' ' << requests[i].res.id << ' ' << requests[i].user.person.id << '\n';
 	}
 
 	outputFile.close();
@@ -1215,55 +985,19 @@ void getRequests(int userid, Request requests[], int& count) {
 	ifstream file("requests.txt");
 
 	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
+		cerr << "***Error opening user database.***" << '\n';
 		return;
 	}
 
-	char line[LINE_LENGTH];
-	int  i = 0;
-
-	while (file.getline(line, LINE_LENGTH)) {
-		Request req;
-		req.id = 0, req.user.person.id = 0, req.res.id = 0;
-		int nameIndex = 0;
-		int level = 0;
-
-		for (int j = 0; line[j]; j++) {
-			if (line[j] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0:
-				req.id = req.id * 10 + (line[j] - '0');
-				break;
-
-			case 1:
-				if (nameIndex < LINE_LENGTH - 1) {
-					req.name[nameIndex++] = line[j];
-				}
-				break;
-
-			case 2:
-				req.isApproved = line[j] - '0';
-				break;
-
-			case 3:
-				req.res.id = req.res.id * 10 + (line[j] - '0');
-				break;
-
-			case 4:
-				req.user.person.id = req.user.person.id * 10 + (line[j] - '0');
-				break;
-
-			}
-		}
-		req.name[nameIndex] = '\0';
-		requests[i] = req;
+	int i = 0;
+	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id) {
 		i++;
 	}
+
+	char line[LINE_LENGTH];
+
 	count = i;
+
 	file.close();
 }
 
@@ -1271,7 +1005,7 @@ void printOwnerToFile(Owner owner) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
 
-	file << owner.person.id << '|' << owner.person.name << '|' << owner.phoneNumber << '|' << owner.level << '|' << owner.password << '\n';
+	file << owner.person.id << ' ' << owner.person.name << ' ' << owner.phoneNumber << ' ' << owner.level << ' ' << owner.password << '\n';
 	file.close();
 }
 
@@ -1281,60 +1015,31 @@ void printReqToCLI(Request req) {
 
 int DepIDOfOwner(int targetid) {
 	ifstream file("Depatement.txt");
-	char line[LINE_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0, depid = 0, userid = 0;
+	int userid = 0, depID = 0;
+	char name[NAME_LENGTH];
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level)
-			{
-			case 0:
-				depid = depid * 10 + (line[i] - '0');
-				break;
-
-			case 2:
-				userid = userid * 10 + (line[i] - '0');
-				break;
-			}
-		}
+	while (file >> depID >> name >> userid) {
 		if (userid == targetid) {
 			file.close();
-			return depid;
+			return depID;
 		}
-
 	}
+
 	file.close();
+	return 0;
 }
 
 int secIDOfRes(int targetid) {
 	ifstream file("resources.txt");
-	char line[LINE_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int level = 0, resid = 0, secid = 0;
+	int resID = 0, secID = 0, price = 0, cost = 0, type = 0;
+	char name[NAME_LENGTH];
 
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0:
-				resid = resid * 10 + (line[i] - '0');
-				break;
-			case 4:
-				secid = secid * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (targetid == resid) {
+	while (file >> resID >> name >> type >> price >> secID >> cost ) {
+		if (targetid == resID) {
 			file.close();
-			return secid;
+			return secID;
 		}
 	}
 
@@ -1344,29 +1049,14 @@ int secIDOfRes(int targetid) {
 
 int depIDOfsec(int targetid) {
 	ifstream file("sections.txt");
-	char line[LINE_LENGTH];
+	
+	int secID = 0, depID = 0;
+	char name[NAME_LENGTH];
 
-	while (file.getline(line, LINE_LENGTH)) {
-		int secid = 0, depid = 0, level = 0;
-
-		for (int i = 0; line[i]; i++) {
-			if (line[i] == '|') {
-				level++;
-				continue;
-			}
-			switch (level) {
-			case 0:
-				secid = secid * 10 + (line[i] - '0');
-				break;
-
-			case 3:
-				depid = depid * 10 + (line[i] - '0');
-				break;
-			}
-		}
-		if (secid == targetid) {
+	while(file >> secID >> name >> depID) {
+		if (secID == targetid) {
 			file.close();
-			return depid;
+			return depID;
 		}
 	}
 
