@@ -189,10 +189,10 @@ void logIn() {
 				file.close();
 				valid = true;
 				system("cls");
-				if (acess == USER) {
+				if (level == USER) {
 					userMenu(userID);
 				}
-				else if (acess == OWNER) {
+				else if (level == OWNER) {
 					OwnerMenu(userID);
 				}
 				break; // Exit the file reading loop if a match is found
@@ -444,9 +444,6 @@ void addSectionMenu(int id) {
 	cout << "What is section name: ";
 	cin >> section.name;
 
-	cout << "who is the sections owner: ";
-	cin >> section.owner;
-
 	section.id = getLastId(path) + 1;
 
 	printSecToFile(path, section);
@@ -684,11 +681,11 @@ void getResourcesMenu(int userid) {
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
 
-	bool status;
+	bool isApproved;
 	int reqid = 0, userid = 0, resid = 0;
 	char name[NAME_LENGTH];
-	while (file >> reqid >> name >> status >> resid >> userid) {
-		if(targetid == userid)
+	while (file >> reqid >> name >> isApproved >> resid >> userid) {
+		if(targetid == userid && isApproved == true)
 			cout << "***your request for resource with id: " << resid << " with request id: " << reqid << " was approved.***" << "\n\n";
 	}
 
