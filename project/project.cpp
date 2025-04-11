@@ -72,6 +72,7 @@ struct Request {
 	bool isApproved = false;
 	char name[NAME_LENGTH];
 	Time time;
+	int intTime;
 };
 
 struct reqcount {
@@ -79,6 +80,9 @@ struct reqcount {
 	int count = 0;
 };
 
+Time hourToTime(int);
+Time dayToTime(int);
+Time monthToTime(int);
 bool isResInStock(int);
 void makeResFile(char[], Type);
 void intToStr(int, char[]);
@@ -109,13 +113,16 @@ void logIn();
 void signIn();
 void printUserToFile(User);
 bool isGovIDValid(int);
-Request makeReq(int id, char name[], int res_id, int userID);
+Request makeReq(int , char[], int , int  , int);
 bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
 void AdminMenu();
 void ViewNonApprovedReqMenu(int);
 void getRequests(int, Request[], int& count);
 int makeOwner();
+int getTypeOfRes(int);
+void getAvailabeDates(int , bool[]);
+void printTime(Time);
 void printOwnerToFile(Owner);
 void printReqToCLI(Request);
 int DepIDOfOwner(int);
@@ -450,8 +457,7 @@ void addSectionMenu(int id) {
 	cout << "Welcome to the section defining menu\n\n";
 
 	//add a way to handle this
-	cout << "what is the departement id of this section: ";
-	cin >> section.dep_id;
+	section.dep_id = DepIDOfOwner(id);
 
 	cout << "What is section name: ";
 	cin >> section.name;
@@ -621,6 +627,64 @@ void sendReqMenu(int userid) {
 		}
 	} while (!isInStock);
 
+	int type = getTypeOfRes(res_id);
+	bool* availableDates = nullptr;
+	int count = 0;
+
+	switch (type){
+		case DAILY:
+			availableDates = new bool[365];
+			count = 365;
+			break;
+		case HOURLY:
+			availableDates = new bool[8760];
+			count = 8760;
+			break;
+		case MOUNTHLY:
+			availableDates = new bool[12];
+			count =  12;
+			break;
+	}
+
+	getAvailabeDates(res_id, availableDates);
+
+	system("cls");
+	cout << "avaiable times: \n";
+
+	for (int i = 0; i < count && count == 365; i++) {
+		if (availableDates[i] == 0) {
+			cout << i << " Avaiable for the time ";
+			printTime(dayToTime(i));
+		}
+	}
+
+	for (int i = 0; i < count && count == 12; i++) {
+		if (availableDates[i]) {
+			cout << i <<" Avaiable for the time ";
+			printTime(monthToTime(i));
+		}
+	}
+
+	for (int i = 0; i < count && count == 8760; i++) {
+		if (availableDates[i]) {
+			cout << i  << " Avaiable for the time ";
+			printTime(hourToTime(i));
+		}
+	}
+
+	int selectedTime;
+
+	if (count != 0) {
+		do {
+			cout << "\nselect the wanted time for your request: ";
+			cin >> selectedTime;
+		} while (availableDates[selectedTime] == 1);
+	}
+	else {
+		selectedTime = -1;
+	}
+	
+	
 	system("cls");
 	cout << "you have selected resource with id: " << res_id << "\n\n";
 
@@ -630,12 +694,61 @@ void sendReqMenu(int userid) {
 
 	int id = getLastId(path) + 1;
 
-	Request req = makeReq(id, name, res_id, userid);
+	Request req = makeReq(id, name, res_id, userid , selectedTime);
 
 	printRequestToFile(req);
 
 	system("cls");
 	userMenu(userid);
+}
+
+void printTime(Time time) {
+	cout << "month: " << time.month << " day: " <<  time.day << " hour : " << time.hour << '\n';
+}
+
+int getTypeOfRes(int targetID) {
+	ifstream file("resources.txt");
+
+	if (!file.is_open()) {
+		cerr << "\n***could not open database***\n";
+	}
+
+	int id, price, sec_id, cost, stock , type;
+	char name[NAME_LENGTH];
+
+	while (file >> id >> name >> type >> price >> sec_id >> cost >> stock) {
+		if (id == targetID) {
+			file.close();
+			return type;
+		}
+	}
+	file.close();
+	return 0;
+}
+
+void getAvailabeDates(int resID , bool availabityArr[]) {
+	char filename[NAME_LENGTH];
+	intToStr(resID, filename);
+	concatString(filename, txtExtension);
+
+	ifstream file(filename);
+
+	if (!file.is_open()) {
+		cerr << "***could not open the database***\n\n";
+		return;
+	}
+
+	int date = 0;
+	bool availabity = false;
+
+	while (file >> date >> availabity) {
+		if (availabity) {
+			availabityArr[date] = true;
+		}
+		else {
+			availabityArr[date] = false;
+		}
+	}
 }
 
 bool isResInStock(int targetid) {
@@ -751,11 +864,12 @@ void getResourcesMenu(int userid) {
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
 
-	bool isApproved;
+	int isApproved;
 	int reqid = 0, userid = 0, resid = 0;
 	char name[NAME_LENGTH];
-	while (file >> reqid >> name >> isApproved >> resid >> userid) {
-		if(targetid == userid && isApproved == true)
+	int intTime;
+	while (file >> reqid >> name >> isApproved >> resid >> userid >> intTime ) {
+		if(targetid == userid && isApproved == 1)
 			cout << "***your request for resource with id: " << resid << " with request id: " << reqid << " was approved.***" << "\n\n";
 	}
 
@@ -895,7 +1009,7 @@ void printResourceToFile(char path[], Resource res) {
 
 void printSecToFile(char path[], Section sec) {
 	ofstream file(path, ios::app);
-	file << sec.id << " " << sec.name << " "  << " " << sec.dep_id << '\n';
+	file << sec.id << " " << sec.name << " " << sec.dep_id << '\n';
 	file.close();
 }
 
@@ -1008,8 +1122,9 @@ void printResToCLI(int targetSec) {
 
 void printRequestToFile(Request req) {
 	ofstream file("requests.txt", ios::app);
-	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.res.id << ' ' << req.user.person.id << '\n'; //number of request
+	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.res.id << ' ' << req.user.person.id << ' ' << req.intTime << '\n'; //number of request
 }
+
 
 void approveReqInFile(Request req) {
 	ifstream inputFile("requests.txt");
@@ -1022,29 +1137,64 @@ void approveReqInFile(Request req) {
 	Request requests[MAX_REQUESTS];
 	int i = 0;
 
-	while (inputFile >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id) {
+	while (inputFile >> requests[i].id
+		>> requests[i].name
+		>> requests[i].isApproved
+		>> requests[i].res.id
+		>> requests[i].user.person.id
+		>> requests[i].intTime) {
 		i++;
 	}
-	
 	int size = i;
-
 	inputFile.close();
 
-	while (i >= 0) {
-		if (req.id == requests[i].id) {
-			requests[i].isApproved = true;
+	bool found = false;
+	for (int j = size - 1; j >= 0; j--) {
+		if (req.id == requests[j].id) {
+			requests[j].isApproved = true;
+			found = true;
 			break;
 		}
-		i--;
+	}
+	if (!found) {
+		cerr << "***Request ID not found in file.***" << endl;
+		return;
 	}
 
 	ofstream outputFile("requests.txt");
 	for (int l = 0; l < size; l++) {
-		outputFile << requests[l].id << ' ' << requests[i].name << ' ' << requests[i].isApproved << ' ' << requests[i].res.id << ' ' << requests[i].user.person.id << '\n';
+		outputFile << requests[l].id << ' '
+			<< requests[l].name << ' '
+			<< requests[l].isApproved << ' '
+			<< requests[l].res.id << ' '
+			<< requests[l].user.person.id << ' '
+			<< requests[l].intTime << '\n';
 	}
-
 	outputFile.close();
+
+	char filename[NAME_LENGTH];
+	intToStr(req.id, filename);
+	concatString(filename, txtExtension);
+
+	ifstream inputResFile(filename);
+	int availibty[10000][2];
+	int k = 0;
+	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
+		// When we find a matching time slot, mark it as available (set to 1).
+		if (availibty[k][0] == req.intTime) {
+			availibty[k][1] = 1;
+		}
+		k++;
+	}
+	inputResFile.close();
+
+	ofstream outputResFile(filename);
+	for (int o = 0; o < k; o++) {
+		outputResFile << availibty[o][0] << ' ' << availibty[o][1] << '\n';
+	}
+	outputResFile.close();
 }
+
 
 void getRequests(int userid, Request requests[], int& count) {
 	ifstream file("requests.txt");
@@ -1055,7 +1205,7 @@ void getRequests(int userid, Request requests[], int& count) {
 	}
 
 	int i = 0;
-	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id) {
+	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id >> requests[i].intTime) {
 		i++;
 	}
 
@@ -1121,10 +1271,10 @@ int DepIDOfOwner(int targetid) {
 int secIDOfRes(int targetid) {
 	ifstream file("resources.txt");
 
-	int resID = 0, secID = 0, price = 0, cost = 0, type = 0;
+	int resID = 0, secID = 0, price = 0, cost = 0, type = 0 , stock=0;
 	char name[NAME_LENGTH];
 
-	while (file >> resID >> name >> type >> price >> secID >> cost ) {
+	while (file >> resID >> name >> type >> price >> secID >> cost >> stock ) {
 		if (targetid == resID) {
 			file.close();
 			return secID;
@@ -1283,13 +1433,14 @@ void stringForResourceType(char type[], int intType) {
 	}
 }
 
-Request makeReq(int id, char name[], int res_id, int userID) {
+Request makeReq(int id, char name[], int res_id, int userID , int time) {
 	Request req;
 	req.id = id;
 	req.res.id = res_id;
 	req.user.person.id = userID;
 	copyString(req.name, name);
 	req.isApproved = false;
+	req.intTime = time;
 	return req;
 }
 
@@ -1324,4 +1475,38 @@ void intToStr(int number, char str[]) {
 	str[i] = '\0';  // Null terminator
 
 	reverseStr(str);
+}
+
+Time hourToTime(int absoluteHour) {
+	Time time;
+	time.hour = absoluteHour % 24;
+
+	int totalDays = absoluteHour / 24;
+
+	time.day = (totalDays % 30) + 1;
+
+	int totalMonths = totalDays / 30;
+	time.month = (totalMonths % 12) + 1;
+
+	return time;
+}
+
+Time dayToTime(int absoluteDay) {
+	Time time;
+	time.hour = 0; 
+
+	time.day = (absoluteDay % 30) + 1;
+
+	int totalMonths = absoluteDay / 30;
+	time.month = (totalMonths % 12) + 1;
+
+	return time;
+}
+
+Time monthToTime(int month){
+	Time time;
+	time.month = month;
+	time.day = 0;
+	time.hour = 0;
+	return time;
 }
