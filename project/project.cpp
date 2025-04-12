@@ -135,7 +135,7 @@ void approveReqInFile(Request);
 void ViewApprovedReqMenu(int);
 void ReportMenu(int);
 void sortReq(reqcount[], int);
-int calculateProfitPerReq(int targetid);
+int calculateProfitPerRes(int targetid);
 
 /*
  primary menus
@@ -151,6 +151,7 @@ int main() {
 		cout << "do you want to:\n\n";
 		cout << "\t1 - log in\n";
 		cout << "\t2 - sign in\n";
+		cout << "\t3 - admin menu (temp)\n";
 		cout << "\t0 - exit\n";
 		cout << "==========================================\n";
 		cout << "Enter you choice number: ";
@@ -656,16 +657,16 @@ void sendReqMenu(int userid) {
 
 	switch (type){
 		case DAILY:
-			availableDates = new bool[360];
-			count = 360;
+			availableDates = new bool[DAYS_IN_YEAR];
+			count = DAYS_IN_YEAR;
 			break;
 		case HOURLY:
-			availableDates = new bool[8760];
-			count = 8760;
+			availableDates = new bool[HOURS_IN_YEAR];
+			count = HOURS_IN_YEAR;
 			break;
 		case MOUNTHLY:
-			availableDates = new bool[12];
-			count =  12;
+			availableDates = new bool[MONTHS_IN_YEAR];
+			count =  MONTHS_IN_YEAR;
 			break;
 	}
 
@@ -674,21 +675,21 @@ void sendReqMenu(int userid) {
 	system("cls");
 	cout << "avaiable times: \n";
 
-	for (int i = 1; i <= count && count == 360; i++) {
+	for (int i = 1; i <= count && count == DAYS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
 			printTime(dayToTime(i));
 		}
 	}
 
-	for (int i = 1; i <= count && count == 12; i++) {
+	for (int i = 1; i <= count && count == MONTHS_IN_YEAR; i++) {
 		if (availableDates[i]) {
 			cout << i <<" Avaiable for the time ";
 			printTime(monthToTime(i));
 		}
 	}
 
-	for (int i = 1; i <= count && count == 8760; i++) {
+	for (int i = 1; i <= count && count == HOURS_IN_YEAR; i++) {
 		if (availableDates[i]) {
 			cout << i  << " Avaiable for the time ";
 			printTime(hourToTime(i));
@@ -951,7 +952,7 @@ void ReportMenu(int userid) {
 
 	sortReq(requestnumber, uniqueRes);
 	for (int i = 0; i < uniqueRes; i++) {
-		cout << " resource id: " << requestnumber[i].resid << " had " << requestnumber[i].count << " requests." << '\n' << "it made " << calculateProfitPerReq(requestnumber[i].resid) * requestnumber[i].count << " profit.\n\n";
+		cout << " resource id: " << requestnumber[i].resid << " had " << requestnumber[i].count << " requests." << '\n' << "it made " << calculateProfitPerRes(requestnumber[i].resid) * requestnumber[i].count << " profit.\n\n";
 	}
 
 	int menustatus = 1;
@@ -1005,7 +1006,7 @@ void printUserToFile(User user) {
 	file.close();
 }
 
-int calculateProfitPerReq(int targetid) {
+int calculateProfitPerRes(int targetid) {
 	ifstream file("resources.txt");
 
 	int profit = 0;
@@ -1254,17 +1255,17 @@ void makeResFile(char path[] , Type type) {
 	switch (type)
 	{
 		case HOURLY:
-			for (int i = 1; i <= 8760; i++) {
+			for (int i = 1; i <= HOURS_IN_YEAR; i++) {
 				file << i << ' ' << 0 << '\n';
 			}
 			break;
 		case DAILY:
-			for (int i = 1; i <= 360; i++) {
+			for (int i = 1; i <= DAYS_IN_YEAR; i++) {
 				file << i << ' ' << 0 << '\n';
 			}
 			break;
 		case MOUNTHLY:
-			for (int i = 1; i <= 12; i++) {
+			for (int i = 1; i <= MONTHS_IN_YEAR; i++) {
 				file << i << ' ' << 0 << '\n';
 			}
 			break;
@@ -1469,20 +1470,24 @@ Request makeReq(int id, char name[], int res_id, int userID , int time) {
 
 // rewrite this with pointers
 void reverseStr(char str[]) {
-	int start = 0;
-	int end = strLen(str) - 1;
-	while (start < end) {
-		char temp = str[start];
-		str[start] = str[end];
-		str[end] = temp;
+	char* start = str;
+
+	while (*str != '\0') {
+		str++;
+	}
+	str--;
+	
+	while (start < str) {
+		char temp = *start;
+		*start = *str;
+		*str = temp;
 		start++;
-		end--;
+		str--;
 	}
 }
 
 void intToStr(int number, char str[]) {
 	int i = 0;
-	int isNegative = 0;
 
 	if (number == 0) {
 		str[i++] = '0';
