@@ -10,6 +10,8 @@ const int MIN_LENGTH_PASS = 8;
 const int DAYS_IN_YEAR = 360;
 const int HOURS_IN_YEAR = 8640;
 const int MONTHS_IN_YEAR = 12;
+const int DAYS_IN_MONTH = 30;
+const int HOURS_IN_DAY = 24;
 char txtExtension[] = ".txt";
 
 enum Type {
@@ -1570,14 +1572,14 @@ void intToStr(int number, char str[]) {
 
 Time hourToTime(int absoluteHour) {
 	Time time;
-	time.hour = absoluteHour % 24;
+	time.hour = absoluteHour % HOURS_IN_DAY;
 
-	int totalDays = absoluteHour / 24;
+	int totalDays = absoluteHour / HOURS_IN_DAY;
 
-	time.day = (totalDays % 30) + 1;
+	time.day = (totalDays % DAYS_IN_MONTH) + 1;
 
-	int totalMonths = totalDays / 30;
-	time.month = (totalMonths % 12) + 1;
+	int totalMonths = totalDays / DAYS_IN_MONTH;
+	time.month = (totalMonths % MONTHS_IN_YEAR) + 1;
 
 	return time;
 }
@@ -1586,10 +1588,10 @@ Time dayToTime(int absoluteDay) {
 	Time time;
 	time.hour = 0;
 
-	time.day = (absoluteDay % 30) + 1;
+	time.day = (absoluteDay % DAYS_IN_MONTH) + 1;
 
-	int totalMonths = absoluteDay / 30;
-	time.month = (totalMonths % 12) + 1;
+	int totalMonths = absoluteDay / DAYS_IN_MONTH;
+	time.month = (totalMonths % MONTHS_IN_YEAR) + 1;
 
 	return time;
 }
