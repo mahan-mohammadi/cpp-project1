@@ -466,7 +466,6 @@ void addSectionMenu(int id) {
 
 	cout << "Welcome to the section defining menu\n\n";
 
-	//add a way to handle this
 	section.dep_id = DepIDOfOwner(id);
 
 	cout << "What is section name: ";
@@ -489,10 +488,14 @@ void addResourceMenu(int id) {
 	int choice;
 	bool isValid = false;
 
-	cout << "what is the section id of this resource: ";
+	cout << "what is the section id of the resource you want to add : \n";
+	printSecToCLI(DepIDOfOwner(id));
+
+	cout << "Enter the section id: ";
 	cin >> res.sec_id;
 
-	cout << "What is resource name: ";
+	cout << "What is resource name: \n";
+
 	cin >> res.name;
 
 	cout << "What is the type of this resource:\n";
@@ -536,11 +539,21 @@ void addResourceMenu(int id) {
 		}
 	}
 
-	cout << "\nwhat is the price of this resource per time/sample: ";
-	cin >> res.price;
+	while (true) {
+		cout << "\nwhat is the price of this resource per time/sample (it should be positive number): ";
+		cin >> res.price;
+		if (res.price > 0) {
+			break;
+		}
+	}
 
-	cout << "\nwhat is the cost of this resource per time/sample for you?";
-	cin >> res.cost;
+	while (true) {
+		cout << "\nwhat is the cost of this resource per time/sample for you? (it should be positive): ";
+		cin >> res.cost;
+		if (res.cost > 0) {
+			break;
+		}
+	}
 
 	cout << "\nwhat is your stock of the resource";
 	isValid = false;
@@ -570,8 +583,8 @@ void getDepartmentsMenu(int id) {
 
 	printDepToCLI();
 
-	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
+		cout << "Enter 0 and enter to return back: ";
 		cin >> Choice;
 	}
 
