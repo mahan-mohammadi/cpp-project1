@@ -7,6 +7,9 @@ const int NAME_LENGTH = 50;
 const int LINE_LENGTH = 256;
 const int MAX_REQUESTS = 100;
 const int MIN_LENGTH_PASS = 8;
+const int DAYS_IN_YEAR = 360;
+const int HOURS_IN_YEAR = 8640;
+const int MONTHS_IN_YEAR = 12;
 char txtExtension[] = ".txt";
 
 enum Type {
@@ -30,7 +33,7 @@ struct Time {
 
 struct Owner {
 	Person person;
-	int phoneNumber;
+	int govID;
 	Acess_Level level = OWNER;
 	char password[NAME_LENGTH];
 };
@@ -234,16 +237,16 @@ void signIn() {
 	cin >> name;
 
 	int gov_id;
-	bool isNotValid = false;
+	bool isValid = false;
 
 	do {
 		cout << "Enter your goverment id number: ";
 		cin >> gov_id;
-		isNotValid = !isGovIDValid(gov_id);
-		if (isNotValid) {
+		isValid = isGovIDValid(gov_id);
+		if (!isValid) {
 			cout << "\n***this id already exist in our database***\n\n";
 		}
-	} while (isNotValid);
+	} while (!isValid);
 
 	char password[NAME_LENGTH];
 
@@ -422,11 +425,18 @@ int makeOwner() {
 	cout << "what is owner's name: ";
 	cin >> name;
 
-	int phoneNumber;
-	bool isNotValid = false;
 
-	cout << "what is owners phone number: ";
-	cin >> phoneNumber;
+	int gov_id;
+	bool isValid = false;
+
+	do {
+		cout << "Enter your goverment id number: ";
+		cin >> gov_id;
+		isValid = isGovIDValid(gov_id);
+		if (!isValid) {
+			cout << "\n***this id already exist in our database***\n\n";
+		}
+	} while (!isValid);
 
 	char password[NAME_LENGTH];
 
@@ -440,7 +450,7 @@ int makeOwner() {
 	owner.person.id = id;
 	copyString(owner.person.name, name);
 	copyString(owner.password, password);
-	owner.phoneNumber = phoneNumber;
+	owner.govID = gov_id;
 
 	printOwnerToFile(owner);
 
@@ -1218,7 +1228,7 @@ void printOwnerToFile(Owner owner) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
 
-	file << owner.person.id << ' ' << owner.person.name << ' ' << owner.phoneNumber << ' ' << owner.level << ' ' << owner.password << '\n';
+	file << owner.person.id << ' ' << owner.person.name << ' ' << owner.govID << ' ' << owner.level << ' ' << owner.password << '\n';
 	file.close();
 }
 
