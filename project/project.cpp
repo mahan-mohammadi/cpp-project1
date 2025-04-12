@@ -633,8 +633,8 @@ void sendReqMenu(int userid) {
 
 	switch (type){
 		case DAILY:
-			availableDates = new bool[365];
-			count = 365;
+			availableDates = new bool[360];
+			count = 360;
 			break;
 		case HOURLY:
 			availableDates = new bool[8760];
@@ -651,21 +651,21 @@ void sendReqMenu(int userid) {
 	system("cls");
 	cout << "avaiable times: \n";
 
-	for (int i = 0; i < count && count == 365; i++) {
+	for (int i = 1; i <= count && count == 360; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
 			printTime(dayToTime(i));
 		}
 	}
 
-	for (int i = 0; i < count && count == 12; i++) {
+	for (int i = 1; i <= count && count == 12; i++) {
 		if (availableDates[i]) {
 			cout << i <<" Avaiable for the time ";
 			printTime(monthToTime(i));
 		}
 	}
 
-	for (int i = 0; i < count && count == 8760; i++) {
+	for (int i = 1; i <= count && count == 8760; i++) {
 		if (availableDates[i]) {
 			cout << i  << " Avaiable for the time ";
 			printTime(hourToTime(i));
@@ -1231,17 +1231,17 @@ void makeResFile(char path[] , Type type) {
 	switch (type)
 	{
 		case HOURLY:
-			for (int i = 0; i <= 8760; i++) {
+			for (int i = 1; i <= 8760; i++) {
 				file << i << ' ' << 0 << '\n';
 			}
 			break;
 		case DAILY:
-			for (int i = 0; i <= 365; i++) {
+			for (int i = 1; i <= 360; i++) {
 				file << i << ' ' << 0 << '\n';
 			}
 			break;
 		case MOUNTHLY:
-			for (int i = 0; i <= 12; i++) {
+			for (int i = 1; i <= 12; i++) {
 				file << i << ' ' << 0 << '\n';
 			}
 			break;
