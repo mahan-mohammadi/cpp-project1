@@ -198,7 +198,7 @@ void logIn() {
 		cin >> inputPassword;
 
 		ifstream file("users.txt");
-		if (!file) {
+		if (!file.is_open()) {
 			cerr << "***Error opening user database.***" << endl;
 			return;
 		}
@@ -474,6 +474,7 @@ void addSectionMenu(int id) {
 
 	section.id = getLastId(path) + 1;
 
+	//should remove path here
 	printSecToFile(path, section);
 
 	system("cls");
@@ -599,6 +600,11 @@ void getSectionsMenu(int id) {
 	char path[] = "sections.txt";
 
 	ifstream file(path);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
 
 	cout << "list of all sections: \n\n";
 
@@ -864,6 +870,11 @@ void getResourcesMenu(int userid) {
 
 	ifstream file(path);
 
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
 	cout << "list of all resources: \n\n";
 	int id = 0 , sec_id = 0, price =0 , cost =0 , stock =0; 
 
@@ -887,6 +898,11 @@ void getResourcesMenu(int userid) {
 //refactorable
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
 
 	int isApproved;
 	int reqid = 0, userid = 0, resid = 0;
@@ -973,6 +989,12 @@ io functions
 bool isGovIDValid(int targetID) {
 	char path[] = "users.txt";
 	ifstream file(path);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return 0;
+	}
+
 	bool found = false;
 	
 	int userid = 0, govid = 0, level = 0;
@@ -1008,6 +1030,11 @@ void printUserToFile(User user) {
 
 int calculateProfitPerRes(int targetid) {
 	ifstream file("resources.txt");
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return 0;
+	}
 
 	int profit = 0;
 	int price = 0, resid = 0, type = 0, secid = 0, cost = 0;
@@ -1111,6 +1138,11 @@ void printSecToCLI(int targetDep) {
 
 	ifstream file(path);
 
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
 	int secID = 0, depID = 0;
 	char name[NAME_LENGTH];
 
@@ -1126,6 +1158,11 @@ void printResToCLI(int targetSec) {
 	char path[] = "resources.txt";
 
 	ifstream file(path);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
 
 	cout << "list of all resources: \n\n";
 
@@ -1146,6 +1183,12 @@ void printResToCLI(int targetSec) {
 
 void printRequestToFile(Request req) {
 	ofstream file("requests.txt", ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
 	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.res.id << ' ' << req.user.person.id << ' ' << req.intTime << '\n'; //number of request
 }
 
@@ -1242,6 +1285,11 @@ void printOwnerToFile(Owner owner) {
 	char path[] = "users.txt";
 	ofstream file(path, ios::app);
 
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
 	file << owner.person.id << ' ' << owner.person.name << ' ' << owner.govID << ' ' << owner.level << ' ' << owner.password << '\n';
 	file.close();
 }
@@ -1278,6 +1326,11 @@ void makeResFile(char path[] , Type type) {
 int DepIDOfOwner(int targetid) {
 	ifstream file("Depatement.txt");
 
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return 0;
+	}
+
 	int userid = 0, depID = 0;
 	char name[NAME_LENGTH];
 
@@ -1295,6 +1348,11 @@ int DepIDOfOwner(int targetid) {
 int secIDOfRes(int targetid) {
 	ifstream file("resources.txt");
 
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return 0;
+	}
+
 	int resID = 0, secID = 0, price = 0, cost = 0, type = 0 , stock=0;
 	char name[NAME_LENGTH];
 
@@ -1311,6 +1369,11 @@ int secIDOfRes(int targetid) {
 
 int depIDOfsec(int targetid) {
 	ifstream file("sections.txt");
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return 0;
+	}
 	
 	int secID = 0, depID = 0;
 	char name[NAME_LENGTH];
