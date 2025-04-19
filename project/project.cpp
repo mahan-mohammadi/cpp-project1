@@ -34,14 +34,18 @@ struct Time {
 };
 
 struct Owner {
-	Person person;
+	//Person person;
+	char name[NAME_LENGTH];
+	int id;
 	int govID;
 	Acess_Level level = OWNER;
 	char password[NAME_LENGTH];
 };
 
 struct User {
-	Person person;
+	//Person person;
+	int id;
+	char name[NAME_LENGTH];
 	int gov_id;
 	Acess_Level level = USER;
 	char password[NAME_LENGTH];
@@ -50,7 +54,8 @@ struct User {
 struct Departement {
 	int id;
 	char name[NAME_LENGTH];
-	Owner owner;
+	//Owner owner;
+	int ownerID;
 };
 
 struct Section {
@@ -71,8 +76,10 @@ struct Resource {
 };
 
 struct Request {
-	Resource res;
-	User user;
+	//Resource res;
+	int resID;
+	//User user;
+	int userID;
 	int id;
 	bool isApproved = false;
 	char name[NAME_LENGTH];
@@ -260,8 +267,8 @@ void signIn() {
 
 	int id = getLastId(path) + 1;
 
-	user.person.id = id;
-	copyString(user.person.name, name);
+	user.id = id;
+	copyString(user.name, name);
 	copyString(user.password, password);
 	user.gov_id = gov_id;
 
@@ -450,8 +457,8 @@ int makeOwner() {
 
 	int id = getLastId(path) + 1;
 
-	owner.person.id = id;
-	copyString(owner.person.name, name);
+	owner.id = id;
+	copyString(owner.name, name);
 	copyString(owner.password, password);
 	owner.govID = gov_id;
 
@@ -460,7 +467,7 @@ int makeOwner() {
 	system("cls");
 
 	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
-	return owner.person.id;
+	return owner.id;
 }
 
 void addSectionMenu(int id) {
@@ -821,7 +828,7 @@ void ViewNonApprovedReqMenu(int userid) {
 	cout << "the list of unapproved requests:\n\n";
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].res.id));
+		int target = depIDOfsec(secIDOfRes(requests[i].id));
 		if (target == depid && requests[i].isApproved == false) {
 			printReqToCLI(requests[i]);
 		}
@@ -840,7 +847,7 @@ void ViewNonApprovedReqMenu(int userid) {
 			bool found = false;
 			for (int i = 0; i < count; i++) {
 				if (requests[i].id == choice && !requests[i].isApproved) {
-					if (!isResInStock(requests[i].res.id)) {
+					if (!isResInStock(requests[i].id)) {
 						cout << "\n***this resource is not in stock***\n";
 
 					}
@@ -948,9 +955,9 @@ void ReportMenu(int userid) {
 
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].res.id));
+		int target = depIDOfsec(secIDOfRes(requests[i].id));
 		if (target == depid && requests[i].isApproved) {
-			int resid = requests[i].res.id;
+			int resid = requests[i].id;
 			bool found = false;
 			// Check if resource already tracked
 			for (int j = 0; j < uniqueRes; ++j) {
@@ -1026,7 +1033,7 @@ void printUserToFile(User user) {
 		return;
 	}
 
-	file << user.person.id << ' ' << user.person.name << ' ' << user.gov_id << ' ' << user.level << ' ' << user.password << '\n';
+	file << user.id << ' ' << user.name << ' ' << user.gov_id << ' ' << user.level << ' ' << user.password << '\n';
 	file.close();
 }
 
@@ -1071,7 +1078,7 @@ void makeDepartement(char name[], int owner) {
 	Departement newDep;
 
 	copyString(newDep.name, name);
-	newDep.owner.person.id = owner;
+	newDep.ownerID = owner;
 	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
 
 	printDepToFile(path, newDep);
@@ -1086,7 +1093,7 @@ void printDepToFile(char path[], Departement dep) {
 		return;
 	}
 
-	file << dep.id << ' ' << dep.name << ' ' << dep.owner.person.id << '\n';
+	file << dep.id << ' ' << dep.name << ' ' << dep.ownerID << '\n';
 	file.close();
 }
 
@@ -1191,7 +1198,7 @@ void printRequestToFile(Request req) {
 		return;
 	}
 
-	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.res.id << ' ' << req.user.person.id << ' ' << req.intTime << '\n'; //number of request
+	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.resID << ' ' << req.userID << ' ' << req.intTime << '\n'; //number of request
 }
 
 
@@ -1209,8 +1216,8 @@ void approveReqInFile(Request req) {
 	while (inputFile >> requests[i].id
 		>> requests[i].name
 		>> requests[i].isApproved
-		>> requests[i].res.id
-		>> requests[i].user.person.id
+		>> requests[i].resID
+		>> requests[i].userID
 		>> requests[i].intTime) {
 		i++;
 	}
@@ -1235,8 +1242,8 @@ void approveReqInFile(Request req) {
 		outputFile << requests[l].id << ' '
 			<< requests[l].name << ' '
 			<< requests[l].isApproved << ' '
-			<< requests[l].res.id << ' '
-			<< requests[l].user.person.id << ' '
+			<< requests[l].resID << ' '
+			<< requests[l].userID << ' '
 			<< requests[l].intTime << '\n';
 	}
 	outputFile.close();
@@ -1274,7 +1281,7 @@ void getRequests(int userid, Request requests[], int& count) {
 	}
 
 	int i = 0;
-	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].res.id >> requests[i].user.person.id >> requests[i].intTime) {
+	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].resID >> requests[i].userID >> requests[i].intTime) {
 		i++;
 	}
 
@@ -1292,12 +1299,12 @@ void printOwnerToFile(Owner owner) {
 		return;
 	}
 
-	file << owner.person.id << ' ' << owner.person.name << ' ' << owner.govID << ' ' << owner.level << ' ' << owner.password << '\n';
+	file << owner.id << ' ' << owner.name << ' ' << owner.govID << ' ' << owner.level << ' ' << owner.password << '\n';
 	file.close();
 }
 
 void printReqToCLI(Request req) {
-	cout << "id: " << req.id << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.res.id << '\t' << "Requester id: " << req.user.person.id << "\n\n";
+	cout << "id: " << req.id << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.resID << '\t' << "Requester id: " << req.userID << "\n\n";
 }
 
 void makeResFile(char path[], Type type) {
@@ -1525,15 +1532,14 @@ void stringForResourceType(char type[], int intType) {
 Request makeReq(int id, char name[], int res_id, int userID, int time) {
 	Request req;
 	req.id = id;
-	req.res.id = res_id;
-	req.user.person.id = userID;
+	req.resID = res_id;
+	req.userID = userID;
 	copyString(req.name, name);
 	req.isApproved = false;
 	req.intTime = time;
 	return req;
 }
 
-// rewrite this with pointers
 void reverseStr(char str[]) {
 	char* start = str;
 
