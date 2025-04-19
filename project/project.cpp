@@ -5,13 +5,14 @@ using namespace std;
 
 const int NAME_LENGTH = 50;
 const int LINE_LENGTH = 256;
-const int MAX_REQUESTS = 100;
+const int MAX_REQUESTS = 1000;
 const int MIN_LENGTH_PASS = 8;
 const int DAYS_IN_YEAR = 360;
 const int HOURS_IN_YEAR = 8640;
 const int MONTHS_IN_YEAR = 12;
 const int DAYS_IN_MONTH = 30;
 const int HOURS_IN_DAY = 24;
+const int MAX_RESOURCES = 1000;
 char txtExtension[] = ".txt";
 
 enum Type {
@@ -34,7 +35,6 @@ struct Time {
 };
 
 struct Owner {
-	//Person person;
 	char name[NAME_LENGTH];
 	int id;
 	int govID;
@@ -43,7 +43,6 @@ struct Owner {
 };
 
 struct User {
-	//Person person;
 	int id;
 	char name[NAME_LENGTH];
 	int gov_id;
@@ -54,7 +53,6 @@ struct User {
 struct Departement {
 	int id;
 	char name[NAME_LENGTH];
-	//Owner owner;
 	int ownerID;
 };
 
@@ -76,9 +74,7 @@ struct Resource {
 };
 
 struct Request {
-	//Resource res;
 	int resID;
-	//User user;
 	int userID;
 	int id;
 	bool isApproved = false;
@@ -363,7 +359,7 @@ void OwnerMenu(int id) {
 	cout << "===========================\n";
 	cout << "	1 - Add Section\n";
 	cout << "	2 - Add Resource\n";
-	cout << "	3 - View Requests\n";
+	cout << "	3 - View Non approved Requests\n";
 	cout << "	4 - Generate Reports\n";
 	cout << "	5 - Go back\n";
 	cout << "	0 - Exit\n";
@@ -791,30 +787,51 @@ void getAvailabeDates(int resID, bool availabityArr[]) {
 }
 
 bool isResInStock(int targetid) {
-	ifstream file("resources.txt");
+	ifstream infile("resources.txt");
+	Resource resources[MAX_RESOURCES];
+	bool isInStock = false;
 
-	if (!file.is_open()) {
+	if (!infile.is_open()) {
 		cerr << "***could not open the database***\n\n";
 		return false;
 	}
 
-	int id, type, price, sec_id, cost, stock;
-	char name[NAME_LENGTH];
-
-	while (file >> id >> name >> type >> price >> sec_id >> cost >> stock) {
-		if (id == targetid) {
-			if (stock > 0) {
-				file.close();
-				return true;
+	int tempType;
+	int i = 0;
+	while (infile >> resources[i].id 
+		>> resources[i].name 
+		>> tempType 
+		>> resources[i].price >>
+		resources[i].sec_id >> 
+		resources[i].cost >> 
+		resources[i].stock) 
+	{
+		resources[i].type = static_cast<Type>(tempType);
+		if (resources[i].id == targetid) {
+			if (resources[i].stock > 0) {
+				resources[i].stock--;
+				isInStock = true;
 			}
 			else {
-				file.close();
 				return false;
 			}
 		}
+		i++;
 	}
-	file.close();
-	return false;
+	infile.close();
+
+	ofstream ofile("resources.txt");
+	
+	for (int j = 0; j < i; j++) {
+		ofile << resources[j].id << ' ' << resources[j].name << ' '
+			<< resources[j].type << ' ' << resources[j].price << ' '
+			<< resources[j].sec_id << ' ' << resources[j].cost << ' '
+			<< resources[j].stock << '\n';
+	}
+
+	ofile.close();
+
+	return isInStock;
 }
 
 void ViewNonApprovedReqMenu(int userid) {
@@ -893,7 +910,12 @@ void getResourcesMenu(int userid) {
 
 	while (file >> id >> name >> type >> price >> sec_id >> cost >> stock) {
 		stringForResourceType(typestr, type);
-		cout << '\t' << "name: " << name << '\t' << "id: " << id << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << sec_id << '\t' << "stock: " << stock << "\n\n";
+		cout << '\t' << "name: " << name << '\t'
+			<< "id: " << id << '\t'
+			<< "resource type: " << typestr << '\t' 
+			<< "price: " << price << '\t' 
+			<< "section id: " << sec_id << '\t' 
+			<< "stock: " << stock << "\n\n";
 	}
 
 	cout << "Enter 0 and enter to return back: ";
@@ -977,7 +999,8 @@ void ReportMenu(int userid) {
 
 	sortReq(requestnumber, uniqueRes);
 	for (int i = 0; i < uniqueRes; i++) {
-		cout << " resource id: " << requestnumber[i].resid << " had " << requestnumber[i].count << " requests." << '\n' << "it made " << calculateProfitPerRes(requestnumber[i].resid) * requestnumber[i].count << " profit.\n\n";
+		cout << " resource id: " << requestnumber[i].resid << " had " << requestnumber[i].count << " requests." 
+			<< '\n' << "it made " << calculateProfitPerRes(requestnumber[i].resid) * requestnumber[i].count << " profit.\n\n";
 	}
 
 	int menustatus = 1;
@@ -1183,7 +1206,12 @@ void printResToCLI(int targetSec) {
 		stringForResourceType(typestr, type);
 
 		if (secID == targetSec) {
-			cout << '\t' << "name: " << name << '\t' << "id: " << resID << '\t' << "resource type: " << typestr << '\t' << "price: " << price << '\t' << "section id: " << secID << '\t' << "stocks: " << stock << "\n\n";
+			cout << '\t' << "name: " << name << '\t'
+				<< "id: " << resID << '\t' 
+				<< "resource type: " << typestr << '\t' 
+				<< "price: " << price << '\t'
+				<< "section id: " << secID << '\t' 
+				<< "stocks: " << stock << "\n\n";
 		}
 	}
 
