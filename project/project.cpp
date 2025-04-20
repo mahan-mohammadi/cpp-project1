@@ -141,6 +141,7 @@ void ViewApprovedReqMenu(int);
 void ReportMenu(int);
 void sortReq(reqcount[], int);
 int calculateProfitPerRes(int);
+void printDivider();
 
 /*
  primary menus
@@ -398,10 +399,9 @@ secondary menus
 */
 
 void AddDepartementMenu(int id) {
-	char name[NAME_LENGTH];
-
 	cout << "Welcome to the Department defining menu\n\n";
 
+	char name[NAME_LENGTH];
 	cout << "What is the name of the Department: ";
 	cin >> name;
 
@@ -479,7 +479,6 @@ void addSectionMenu(int id) {
 
 	section.id = getLastId(path) + 1;
 
-	//should remove path here
 	printSecToFile(path, section);
 
 	system("cls");
@@ -599,7 +598,6 @@ void getDepartmentsMenu(int id) {
 	userMenu(id);
 }
 
-//remove file reading from menu
 void getSectionsMenu(int id) {
 	int Choice = 1;
 	char path[] = "sections.txt";
@@ -619,9 +617,10 @@ void getSectionsMenu(int id) {
 
 	while (file >> sectionid >> name >> dep_id) {
 
-		cout << '\t' << "section id: " << sectionid << '\t' << "name: " << name << '\t' << "department id: " << dep_id << "\n\n";
+		printDivider();
+		cout << '\t' << "section id: " << sectionid << '\t' << "name: " << name << '\t' << "department id: " << dep_id << "\n";
 	}
-
+	printDivider();
 	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
 		cin >> Choice;
@@ -630,37 +629,35 @@ void getSectionsMenu(int id) {
 	userMenu(id);
 }
 
+void printDivider() {
+	cout << "*******************************************************\n";
+}
+
 void sendReqMenu(int userid) {
 	char path[] = "requests.txt";
 
 	printDepToCLI();
 	int dep_id;
+	printDivider();
 	cout << "type the wanted department id: ";
 	cin >> dep_id;
 
 	system("cls");
+
 	printSecToCLI(dep_id);
 	int sec_id;
+	printDivider();
 	cout << "type the wanted section id: ";
 	cin >> sec_id;
 
 	system("cls");
 	printResToCLI(sec_id);
 
-	int res_id;
-	bool isInStock = false;
-	cout << "type the wanted resorce id: ";
+	printDivider();
 
-	do {
-		cin >> res_id;
-		if (!isResInStock(res_id)) {
-			cout << "***this resource is not in stock***\n";
-			cout << "type the wanted resorce id: ";
-		}
-		else {
-			isInStock = true;
-		}
-	} while (!isInStock);
+	int res_id;
+	cout << "type the wanted resorce id: ";
+	cin >> res_id;
 
 	int type = getTypeOfRes(res_id);
 	bool* availableDates = nullptr;
@@ -668,15 +665,15 @@ void sendReqMenu(int userid) {
 
 	switch (type) {
 	case DAILY:
-		availableDates = new bool[DAYS_IN_YEAR];
+		availableDates = new bool[DAYS_IN_YEAR+1];
 		count = DAYS_IN_YEAR;
 		break;
 	case HOURLY:
-		availableDates = new bool[HOURS_IN_YEAR];
+		availableDates = new bool[HOURS_IN_YEAR+1];
 		count = HOURS_IN_YEAR;
 		break;
 	case MOUNTHLY:
-		availableDates = new bool[MONTHS_IN_YEAR];
+		availableDates = new bool[MONTHS_IN_YEAR+1];
 		count = MONTHS_IN_YEAR;
 		break;
 	}
@@ -694,14 +691,14 @@ void sendReqMenu(int userid) {
 	}
 
 	for (int i = 1; i <= count && count == MONTHS_IN_YEAR; i++) {
-		if (availableDates[i]) {
+		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
 			printTime(monthToTime(i));
 		}
 	}
 
 	for (int i = 1; i <= count && count == HOURS_IN_YEAR; i++) {
-		if (availableDates[i]) {
+		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
 			printTime(hourToTime(i));
 		}
@@ -713,7 +710,7 @@ void sendReqMenu(int userid) {
 		do {
 			cout << "\nselect the wanted time for your request: ";
 			cin >> selectedTime;
-		} while (availableDates[selectedTime] == 1);
+		} while (availableDates[selectedTime] == 1 || selectedTime > count);
 	}
 	else {
 		selectedTime = -1;
@@ -738,7 +735,7 @@ void sendReqMenu(int userid) {
 }
 
 void printTime(Time time) {
-	cout << "month: " << time.month << " day: " << time.day << " hour : " << time.hour << '\n';
+	cout << "month: " << time.month << '|' << " day: " << time.day << '|' << " hour : " << time.hour << '\n';
 }
 
 int getTypeOfRes(int targetID) {
@@ -774,10 +771,10 @@ void getAvailabeDates(int resID, bool availabityArr[]) {
 	}
 
 	int date = 0;
-	bool availabity = false;
+	bool isInUse = false;
 
-	while (file >> date >> availabity) {
-		if (availabity) {
+	while (file >> date >> isInUse) {
+		if (isInUse) {
 			availabityArr[date] = true;
 		}
 		else {
@@ -845,7 +842,7 @@ void ViewNonApprovedReqMenu(int userid) {
 	cout << "the list of unapproved requests:\n\n";
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].id));
+		int target = depIDOfsec(secIDOfRes(requests[i].resID));
 		if (target == depid && requests[i].isApproved == false) {
 			printReqToCLI(requests[i]);
 		}
@@ -864,8 +861,9 @@ void ViewNonApprovedReqMenu(int userid) {
 			bool found = false;
 			for (int i = 0; i < count; i++) {
 				if (requests[i].id == choice && !requests[i].isApproved) {
-					if (!isResInStock(requests[i].id)) {
+					if (!isResInStock(requests[i].resID)) {
 						cout << "\n***this resource is not in stock***\n";
+						found = true;
 
 					}
 					else {
@@ -910,6 +908,9 @@ void getResourcesMenu(int userid) {
 
 	while (file >> id >> name >> type >> price >> sec_id >> cost >> stock) {
 		stringForResourceType(typestr, type);
+
+		printDivider();
+
 		cout << '\t' << "name: " << name << '\t'
 			<< "id: " << id << '\t'
 			<< "resource type: " << typestr << '\t' 
@@ -918,6 +919,7 @@ void getResourcesMenu(int userid) {
 			<< "stock: " << stock << "\n\n";
 	}
 
+	printDivider();
 	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
 		cin >> Choice;
@@ -926,7 +928,6 @@ void getResourcesMenu(int userid) {
 	userMenu(userid);
 }
 
-//refactorable
 void ViewApprovedReqMenu(int targetid) {
 	ifstream file("requests.txt");
 
@@ -977,9 +978,9 @@ void ReportMenu(int userid) {
 
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].id));
+		int target = depIDOfsec(secIDOfRes(requests[i].resID));
 		if (target == depid && requests[i].isApproved) {
-			int resid = requests[i].id;
+			int resid = requests[i].resID;
 			bool found = false;
 			// Check if resource already tracked
 			for (int j = 0; j < uniqueRes; ++j) {
@@ -1069,10 +1070,10 @@ int calculateProfitPerRes(int targetid) {
 	}
 
 	int profit = 0;
-	int price = 0, resid = 0, type = 0, secid = 0, cost = 0;
+	int price = 0, resid = 0, type = 0, secid = 0, cost = 0, stock =0;
 	char name[NAME_LENGTH];
 
-	while (file >> resid >> name >> type >> price >> secid >> cost) {
+	while (file >> resid >> name >> type >> price >> secid >> cost >> stock) {
 		if (resid == targetid) {
 			profit = price - cost;
 			break;
@@ -1161,6 +1162,7 @@ void printDepToCLI() {
 	int depID = 0, ownerid = 0;
 	char name[NAME_LENGTH];
 	while (file >> depID >> name >> ownerid) {
+		printDivider();
 		cout << '\t' << "name: " << name << '\t' << "owner id: " << ownerid << '\t' << "id: " << depID << "\n\n";
 	}
 }
@@ -1181,6 +1183,7 @@ void printSecToCLI(int targetDep) {
 	cout << "List of sections in department " << targetDep << ":\n\n";
 	while (file >> secID >> name >> depID) {
 		if (depID == targetDep) {
+			printDivider();
 			cout << '\t' << "name: " << name << '\t' << "id: " << secID << '\t' << "department id: " << depID << "\n\n";
 		}
 	}
@@ -1206,6 +1209,7 @@ void printResToCLI(int targetSec) {
 		stringForResourceType(typestr, type);
 
 		if (secID == targetSec) {
+			printDivider();
 			cout << '\t' << "name: " << name << '\t'
 				<< "id: " << resID << '\t' 
 				<< "resource type: " << typestr << '\t' 
@@ -1277,12 +1281,12 @@ void approveReqInFile(Request req) {
 	outputFile.close();
 
 	char filename[NAME_LENGTH];
-	intToStr(req.id, filename);
+	intToStr(req.resID, filename);
 	concatString(filename, txtExtension);
 
 	ifstream inputResFile(filename);
-	int availibty[10000][2];
-	int k = 0;
+	int availibty[MAX_REQUESTS][2];
+	int k = 1;
 	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
 		// When we find a matching time slot, mark it as available (set to 1).
 		if (availibty[k][0] == req.intTime) {
@@ -1293,7 +1297,7 @@ void approveReqInFile(Request req) {
 	inputResFile.close();
 
 	ofstream outputResFile(filename);
-	for (int o = 0; o < k; o++) {
+	for (int o = 1; o < k; o++) {
 		outputResFile << availibty[o][0] << ' ' << availibty[o][1] << '\n';
 	}
 	outputResFile.close();
@@ -1332,7 +1336,8 @@ void printOwnerToFile(Owner owner) {
 }
 
 void printReqToCLI(Request req) {
-	cout << "id: " << req.id << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.resID << '\t' << "Requester id: " << req.userID << "\n\n";
+	printDivider();
+	cout << "id: " << req.id << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.resID << '\t' << "Requester id: " << req.userID <<'\t' << "time: " << req.intTime << "\n\n";
 }
 
 void makeResFile(char path[], Type type) {
