@@ -1,6 +1,48 @@
 #include <iostream>
 #include <fstream>
 
+class Dep {
+protected:
+	int Depid;
+	char depName[NAME_LENGTH];
+	Owner owner;
+};
+
+class Owner :public Person {
+protected:
+	Acess_Level level = OWNER;
+
+};
+
+class User {
+protected:
+	Acess_Level level = USER;
+};
+
+class Person {
+protected:
+	int personid;
+	char name[NAME_LENGTH];
+	Acess_Level level;
+	int govid;
+};
+
+class Section :public Dep {
+protected:
+	int id;
+	char secname[NAME_LENGTH];
+};
+
+class Resource : public Section {
+protected:
+	int id;
+	char ResName[NAME_LENGTH];
+	Type type;
+	int price;
+	int cost;
+	int stock;
+};
+
 using namespace std;
 
 const int NAME_LENGTH = 50;
@@ -310,7 +352,7 @@ void userMenu(int id) {
 	int choice;
 
 	cout << "welocme to user menu\n";
-	cout << "===========================\n";
+	cout << "================================\n";
 	cout << "	1. see all Department\n";
 	cout << "	2. see all Section\n";
 	cout << "	3. see all Resource\n";
@@ -318,7 +360,7 @@ void userMenu(int id) {
 	cout << "	5. view approved requests\n";
 	cout << "	6. Go back\n";
 	cout << "	0. Exit\n";
-	cout << "===========================\n";
+	cout << "===============================\n";
 
 	cout << "Enter choice: ";
 	cin >> choice;
@@ -570,10 +612,10 @@ void addResourceMenu(int id) {
 		}
 	} while (!isValid);
 
-	res.id = getLastId(path) + 1;  // get an id for the request
+	res.id = getLastId(path) + 1; 
 
 	char idFileName[NAME_LENGTH];
-	intToStr(res.id, idFileName); // convert the id to string
+	intToStr(res.id, idFileName);
 	concatString(idFileName, txtExtension);
 	makeResFile(idFileName, res.type);
 
@@ -621,10 +663,12 @@ void getSectionsMenu(int id) {
 		cout << '\t' << "section id: " << sectionid << '\t' << "name: " << name << '\t' << "department id: " << dep_id << "\n";
 	}
 	printDivider();
+
 	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
 		cin >> Choice;
 	}
+
 	system("cls");
 	userMenu(id);
 }
@@ -735,7 +779,7 @@ void sendReqMenu(int userid) {
 }
 
 void printTime(Time time) {
-	cout << "month: " << time.month << '|' << " day: " << time.day << '|' << " hour : " << time.hour << '\n';
+	cout << "Month: " << time.month << '|' << " Day: " << time.day << '|' << " Hour : " << time.hour << '\n';
 }
 
 int getTypeOfRes(int targetID) {
@@ -978,11 +1022,11 @@ void ReportMenu(int userid) {
 
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].resID));
-		if (target == depid && requests[i].isApproved) {
+		int target = depIDOfsec(secIDOfRes(requests[i].resID)); 
+		if (target == depid && requests[i].isApproved) { //  check if the depid of there resources are equal to our dep id we got erlier
 			int resid = requests[i].resID;
 			bool found = false;
-			// Check if resource already tracked
+			
 			for (int j = 0; j < uniqueRes; ++j) {
 				if (requestnumber[j].resid == resid) {
 					requestnumber[j].count++;
@@ -1131,7 +1175,7 @@ int getLastId(char path[]) {
 	char line[LINE_LENGTH];
 	char lastLine[LINE_LENGTH] = "";  // The last line
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		copyString(lastLine, line);  // Keep updating
 	}
 	file.close();
@@ -1140,7 +1184,7 @@ int getLastId(char path[]) {
 		return 0;  // If file was empty
 	}
 
-	char id[20];
+	char id[LINE_LENGTH];
 	int j = 0;
 	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != ' '; i++) {
 		id[j] = lastLine[i]; // just get the id
@@ -1507,7 +1551,6 @@ void sortReq(reqcount reqnumber[], int count) {
 	}
 }
 
-//check if changing so using is possible
 int stringToInt(const char str[]) {
 	int number = 0;
 	int i = 0;
