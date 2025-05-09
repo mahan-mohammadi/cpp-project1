@@ -1,47 +1,6 @@
+//add get AND SET TYPOE AND LEVEL and time
 #include <iostream>
 #include <fstream>
-
-class Dep {
-protected:
-	int Depid;
-	char depName[NAME_LENGTH];
-	Owner owner;
-};
-
-class Owner :public Person {
-protected:
-	Acess_Level level = OWNER;
-
-};
-
-class User {
-protected:
-	Acess_Level level = USER;
-};
-
-class Person {
-protected:
-	int personid;
-	char name[NAME_LENGTH];
-	Acess_Level level;
-	int govid;
-};
-
-class Section :public Dep {
-protected:
-	int id;
-	char secname[NAME_LENGTH];
-};
-
-class Resource : public Section {
-protected:
-	int id;
-	char ResName[NAME_LENGTH];
-	Type type;
-	int price;
-	int cost;
-	int stock;
-};
 
 using namespace std;
 
@@ -63,6 +22,102 @@ enum Type {
 
 enum Acess_Level {
 	ADMIN = 1, OWNER, USER
+};
+
+class Dep {
+protected:
+	int Depid;
+	char depName[NAME_LENGTH];
+	Owner owner;
+public:
+	Dep();
+	void setDepID(int);
+	void setName(char[]);
+	int getDepID();
+	void getDepName(char[]);
+};
+
+class Owner :public Person {
+protected:
+	Acess_Level level = OWNER;
+
+};
+
+class User {
+protected:
+	Acess_Level level = USER;
+};
+
+class Person {
+protected:
+	int personid;
+	char name[NAME_LENGTH];
+	Acess_Level level;
+	int govid;
+public:
+	Person();
+	int getPersonID();
+	int getGovID();
+	void getPersonName(char[]);
+	void setPersonid(int);
+	void setPersonName(char[]);
+	void setGovID();
+
+};
+
+class Section :public Dep {
+protected:
+	int sectionid;
+	char secname[NAME_LENGTH];
+public:
+	Section();
+	int getSectionID();
+	void getSectionName(char[]);
+	void setSectionName(char[]);
+	void setSectioID(int);
+};
+
+class Resource : public Section {
+protected:
+	int Resourceid;
+	char ResName[NAME_LENGTH];
+	Type type;
+	int price;
+	int cost;
+	int stock;
+public:
+	Resource();
+	int getResourceID();
+	int getPrice();
+	int getStock();
+	int getCost();
+
+};
+
+class Date {
+private:
+	int Month;
+	int day;
+	int hour;
+public:
+	Date();
+	int getMonth();
+	int getDay();
+	int Hour();
+};
+
+class Request {
+private:
+	int reqid;
+	Resource res;
+	User user;
+	bool isApproved;
+	Time time;
+public:
+	Request();
+	int getReqID();
+	bool getApproval();
+
 };
 
 struct Person {
