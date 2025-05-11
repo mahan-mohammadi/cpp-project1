@@ -117,6 +117,22 @@ public:
 	void setSectioID(int);
 };
 
+int Section::getSectionID() {
+	return sectionid;
+}
+
+void Section::setSectioID(int input) {
+	sectionid = input;
+}
+
+void Section::getSectionName(char output[]) {
+	copyString(output, secname);
+}
+
+void Section::setSectionName(char input[]) {
+	copyString(secname, input);
+}
+
 class Resource : public Section {
 protected:
 	int Resourceid;
