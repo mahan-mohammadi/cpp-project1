@@ -81,8 +81,17 @@ public:
 	void setPersonid(int);
 	void setPersonName(char[]);
 	void setGovID(int);
-
+	void setLevel(int);
+	void getLevel();
 };
+
+void Person::getPass(char output[]) {
+	copyString(output, password);
+}
+
+void Person::setPass(char input[]) {
+	copyString(password, input);
+}
 
 int Person::getPersonID() {
 	return personid;
@@ -156,6 +165,8 @@ public:
 	void setStock(int);
 	void setCost(int);
 	void setResname(char[]);
+	Type getType();
+	void setType(int);
 };
 
 void Resource::getResName(char output[]) {
@@ -250,8 +261,24 @@ public:
 	int getReqID();
 	bool getApproval();
 	void setReqid(int);
-	bool setApproval(bool);
+	void Approve();
 };
+
+void Request::setReqid(int input) {
+	reqid = input;
+}
+
+int Request::getReqID() {
+	return reqid;
+}
+
+bool Request::getApproval() {
+	return isApproved;
+}
+
+void Request::Approve() {
+	isApproved = true;
+}
 
 /*struct Person {
 	int id;
@@ -755,22 +782,22 @@ void addResourceMenu(int id) {
 		{
 		case HOURLY:
 			isValid = true;
-			res.type = HOURLY;
+			res.setType(HOURLY);
 			break;
 
 		case DAILY:
 			isValid = true;
-			res.type = DAILY;
+			res.setType(DAILY);
 			break;
 
 		case MOUNTHLY:
 			isValid = true;
-			res.type = MOUNTHLY;
+			res.setType(MOUNTHLY);
 			break;
 
 		case SAMPLE:
 			isValid = true;
-			res.type = SAMPLE;
+			res.setType(SAMPLE);
 			break;
 
 		default:
@@ -809,7 +836,7 @@ void addResourceMenu(int id) {
 	char idFileName[NAME_LENGTH];
 	intToStr(res.getResourceID(), idFileName);
 	concatString(idFileName, txtExtension);
-	makeResFile(idFileName, res.type);
+	makeResFile(idFileName, res.getType());
 
 	printResourceToFile(path, res);
 
@@ -1293,7 +1320,7 @@ void printUserToFile(User user) {
 		return;
 	}
 
-	file << user.getPersonID() << ' ' << user.name << ' ' << user.getGovID() << ' ' << user.level << ' ' << user.getPass() << '\n';
+	file << user.getPersonID() << ' ' << user.name << ' ' << user.getGovID() << ' ' << user.getLevel() << ' ' << user.getPass() << '\n';
 	file.close();
 }
 
@@ -1323,7 +1350,7 @@ int calculateProfitPerRes(int targetid) {
 
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
-	file << res.getResourceID() << " " << res.name << " " << res.type << " " << res.getPrice() << " " << res.getSectionID() << ' ' << res.getCost() << ' ' << res.getStock() << '\n';
+	file << res.getResourceID() << " " << res.name << " " << res.getType() << " " << res.getPrice() << " " << res.getSectionID() << ' ' << res.getCost() << ' ' << res.getStock() << '\n';
 	file.close();
 }
 
@@ -1339,13 +1366,13 @@ void makeDepartement(char name[], int owner) {
 
 	newDep.setName(name);
 	newDep.ownerID = owner;
-	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
+	newDep.setDepID(getLastId(path) + 1);
 
 	printDepToFile(path, newDep);
-	cout << "***the department with the id: " << newDep.id << " has been created***\n";
+	cout << "***the department with the id: " << newDep.getDepID() << " has been created***\n";
 }
 
-void printDepToFile(char path[], Departement dep) {
+void printDepToFile(char path[], Dep dep) {
 	ofstream file(path, ios::app);
 
 	if (!file.is_open()) {
@@ -1353,7 +1380,7 @@ void printDepToFile(char path[], Departement dep) {
 		return;
 	}
 
-	file << dep.id << ' ' << dep.name << ' ' << dep.ownerID << '\n';
+	file << dep.getDepID() << ' ' << dep.name << ' ' << dep.ownerID << '\n';
 	file.close();
 }
 
@@ -1567,7 +1594,7 @@ void printOwnerToFile(Owner owner) {
 		return;
 	}
 
-	file << owner.getPersonID() << ' ' << owner.name << ' ' << owner.getGovID() << ' ' << owner.level << ' ' << owner.getPass() << '\n';
+	file << owner.getPersonID() << ' ' << owner.name << ' ' << owner.getGovID() << ' ' << owner.getLevel() << ' ' << owner.getPass() << '\n';
 	file.close();
 }
 
