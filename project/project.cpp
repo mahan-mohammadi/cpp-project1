@@ -143,12 +143,57 @@ protected:
 	int stock;
 public:
 	Resource();
+	void getResName(char[]);
 	int getResourceID();
 	int getPrice();
 	int getStock();
 	int getCost();
-
+	void setResourceID(int);
+	void setPrice(int);
+	void setStock(int);
+	void setCost(int);
+	void setResname(char[]);
 };
+
+void Resource::getResName(char output[]) {
+	copyString(output, ResName);
+}
+
+void Resource::setResname(char input[]) {
+	copyString(ResName, input);
+}
+
+int Resource::getResourceID() {
+	return Resourceid;
+}
+
+int Resource::getPrice() {
+	return price;
+}
+
+int Resource::getStock() {
+	return stock;
+}
+
+int Resource::getCost() {
+	return cost;
+}
+
+void Resource::setResourceID(int input) {
+	Resourceid = input;
+}
+
+void Resource::setCost(int input) {
+	cost = input;
+}
+
+void Resource::setPrice(int input) {
+	price = input;
+}
+
+void Resource::setStock(int input) {
+	stock = input;
+}
 
 class Date {
 private:
