@@ -223,7 +223,20 @@ public:
 	void setMonth(int);
 	void setDay(int);
 	void setHour(int);
+	void print();
 };
+
+void Date::print() {
+	cout << "Month: " << Month << "| Day: " << day << "| Hour : " << hour << '\n';
+}
+
+Date::Date() {
+	Month = 0, day = 0, hour = 0;
+}
+
+Date::Date(int Month, int day, int hour) {
+	this->Month = Month, this->day = day, this->hour = hour;
+}
 
 int Date::getDay() {
 	return day;
@@ -1869,4 +1882,24 @@ void intToStr(int number, char str[]) {
 	str[i] = '\0';  // Null terminator
 
 	reverseStr(str);
+}
+
+Date hourToDate(int absoluteHour) {
+	int h = absoluteHour % HOURS_IN_DAY;
+	int totalDays = absoluteHour / HOURS_IN_DAY;
+	int d = (totalDays % DAYS_IN_MONTH) + 1;
+	int totalMonths = totalDays / DAYS_IN_MONTH;
+	int m = (totalMonths % MONTHS_IN_YEAR) + 1;
+	return Date(m, d, h);
+}
+
+Date dayToDate(int absoluteDay) {
+	int d = (absoluteDay % DAYS_IN_MONTH) + 1;
+	int totalMonths = absoluteDay / DAYS_IN_MONTH;
+	int m = (totalMonths % MONTHS_IN_YEAR) + 1;
+	return Date(m, d, 0);
+}
+
+Date monthToDate(int monthNum) {
+	return Date(monthNum, 0, 0);
 }
