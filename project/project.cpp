@@ -1,4 +1,4 @@
-//add get AND SET TYPOE AND LEVEL and time
+//add get AND SET TYPOE AND LEVEL and time  check if time ints are correct
 #include <iostream>
 #include <fstream>
 
@@ -202,10 +202,38 @@ private:
 	int hour;
 public:
 	Date();
+	Date(int,int,int);
 	int getMonth();
 	int getDay();
-	int Hour();
+	int getHour();
+	void setMonth(int);
+	void setDay(int);
+	void setHour(int);
 };
+
+int Date::getDay() {
+	return day;
+}
+
+int Date::getHour() {
+	return hour;
+}
+
+int Date::getMonth() {
+	return Month;
+}
+
+void Date::setMonth(int input) {
+	Month = input;
+}
+
+void Date::setHour(int input) {
+	hour = input;
+}
+
+void Date::setDay(int input) {
+	day = input;
+}
 
 class Request {
 private:
@@ -213,7 +241,7 @@ private:
 	Resource res;
 	User user;
 	bool isApproved;
-	Time time;
+	Date date;
 public:
 	Request();
 	int getReqID();
