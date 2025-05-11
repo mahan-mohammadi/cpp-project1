@@ -90,7 +90,12 @@ void Person::getPass(char output[]) {
 }
 
 void Person::setPass(char input[]) {
-	copyString(password, input);
+	if (isPasswordValid(input)) {
+		copyString(password, input);
+	}
+	else {
+		cout << "***Password does not meet criteria. Not set.***" << '\n';
+	}
 }
 
 int Person::getPersonID() {
