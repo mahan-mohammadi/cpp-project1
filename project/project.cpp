@@ -37,6 +37,22 @@ public:
 	void getDepName(char[]);
 };
 
+void Dep::setDepID(int inputid) {
+	Depid = inputid;
+}
+
+void Dep::setName(char inputname[]) {
+	copyString(depName, inputname);
+}
+
+int Dep::getDepID() {
+	return Depid;
+}
+
+void Dep::getDepName(char nameoutput[]) {
+	copyString(nameoutput, depName);
+}
+
 class Owner :public Person {
 protected:
 	Acess_Level level = OWNER;
@@ -51,7 +67,7 @@ protected:
 class Person {
 protected:
 	int personid;
-	char name[NAME_LENGTH];
+	char Personname[NAME_LENGTH];
 	Acess_Level level;
 	int govid;
 public:
@@ -61,9 +77,33 @@ public:
 	void getPersonName(char[]);
 	void setPersonid(int);
 	void setPersonName(char[]);
-	void setGovID();
+	void setGovID(int);
 
 };
+
+int Person::getPersonID() {
+	return personid;
+}
+
+int Person::getGovID() {
+	return govid;
+}
+
+void Person::getPersonName(char output[]) {
+	copyString(output, Personname);
+}
+
+void Person::setPersonid(int input) {
+	personid = input;
+}
+
+void Person::setGovID(int input) {
+	govid = input;
+}
+
+void Person::setPersonName(char input[]) {
+	copyString(Personname, input);
+}
 
 class Section :public Dep {
 protected:
@@ -120,7 +160,7 @@ public:
 
 };
 
-struct Person {
+/*struct Person {
 	int id;
 	char name[NAME_LENGTH];
 };
@@ -183,7 +223,7 @@ struct Request {
 struct reqcount {
 	int resid = -1;
 	int count = 0;
-};
+};*/
 
 Time hourToTime(int);
 Time dayToTime(int);
