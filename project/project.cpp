@@ -632,13 +632,13 @@ int main() {
 
 	do {
 		cout << "Welcome to the Resoucre Management System!\n";
-		cout << "==========================================\n";
+		printDivider();
 		cout << "do you want to:\n\n";
 		cout << "\t1 - log in\n";
 		cout << "\t2 - sign in\n";
 		cout << "\t3 - admin menu (temp)\n";
 		cout << "\t0 - exit\n";
-		cout << "==========================================\n";
+		printDivider();
 		cout << "Enter you choice number: ";
 		cin >> choice;
 		switch (choice)
