@@ -1437,6 +1437,8 @@ void ViewApprovedReqMenu(int targetid) {
 	int choice;
 	bool canExit = false;
 
+	printDivider();
+
 	do {
 		cout << "Enter 0 to go back: ";
 		cin >> choice;
@@ -1453,6 +1455,12 @@ void ReportMenu(int userid) {
 	Request requests[MAX_REQUESTS];
 	int count = 0;
 	int depid = DepIDOfOwner(userid);
+	if (depid == 0) { 
+		OwnerMenu(userid);
+		return;
+	}
+	cout << "report for the department id : " << depid << endl;
+	printDivider();
 
 	getRequests(userid, requests, count);
 	reqcount* requestnumber = new reqcount[count];
@@ -1467,9 +1475,9 @@ void ReportMenu(int userid) {
 
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].resID)); 
-		if (target == depid && requests[i].isApproved) { //  check if the depid of there resources are equal to our dep id we got erlier
-			int resid = requests[i].resID;
+		int target = depIDOfsec(secIDOfRes(requests[i].getResid())); 
+		if (target == depid && requests[i].getApproval()) { //  check if the depid of there resources are equal to our dep id we got erlier
+			int resid = requests[i].getResid();
 			bool found = false;
 			
 			for (int j = 0; j < uniqueRes; ++j) {
