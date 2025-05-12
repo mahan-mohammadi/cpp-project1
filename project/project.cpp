@@ -478,17 +478,77 @@ void Date::setDay(int input) {
 class Request {
 private:
 	int reqid;
-	Resource res;
-	User user;
+	char reqname[NAME_LENGTH];
+	int resid;
+	int userid;
 	bool isApproved;
-	Date date;
+	int timeint;
 public:
 	Request();
+	Request(int, char[], int, int, int);
 	int getReqID();
+	int getResid();
+	int getUserid();
+	int getTimeInt();
+	void getReqName(char[]);
+	void setReqName(char[]);
+	void setResid(int);
+	void setUserid(int);
+	void setTimeint(int);
 	bool getApproval();
 	void setReqid(int);
 	void Approve();
+	void display();
 };
+
+void Request::display() {
+	cout << "Request ID: " << reqid << ", Name: " << reqname
+		<< ", Resource ID: " << resid << ", User ID: " << userid
+		<< ", Approved: " << (isApproved ? "Yes" : "No")
+		<< ", Time Value: " << timeint << endl;
+}
+
+void Request::setReqName(char input[]) {
+	copyString(reqname, input);
+}
+
+void Request::setResid(int id) {
+	resid = id;
+}
+
+void Request::setUserid(int id) {
+	userid = id;
+}
+
+void Request::setTimeint(int time) {
+	timeint = time;
+}
+
+int Request::getResid() {
+	return resid;
+}
+
+int Request::getUserid() {
+	return userid;
+}
+
+int Request::getTimeInt() {
+	return timeint;
+}
+
+void Request::getReqName(char output[]) {
+	copyString(output, reqname);
+}
+
+Request::Request() {
+	reqid = 0, resid = 0, userid = 0, isApproved = false, timeint = 0;
+	reqname[0] = '\0';
+}
+
+Request::Request(int id , char name[], int userid, int resid, int timeint) {
+	reqid = id, this->userid = userid, this->resid = resid, this->timeint = timeint;
+	copyString(reqname, name);
+}
 
 void Request::setReqid(int input) {
 	reqid = input;
@@ -505,6 +565,11 @@ bool Request::getApproval() {
 void Request::Approve() {
 	isApproved = true;
 }
+
+struct ReqCount {
+	int resourceId = -1;
+	int count =0;
+};
 
 /*struct Person {
 	int id;
