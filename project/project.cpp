@@ -277,14 +277,16 @@ void Section::setSectionName(char input[]) {
 
 class Resource {
 protected:
-	int Resourceid;
+	int resourceid;
 	char ResName[NAME_LENGTH];
 	Type type;
 	int price;
 	int cost;
 	int stock;
+	int sectionid;
 public:
 	Resource();
+	Resource(int, Type, char[], int, int, int, int);
 	void getResName(char[]);
 	int getResourceID();
 	int getPrice();
@@ -297,7 +299,88 @@ public:
 	void setResname(char[]);
 	Type getType();
 	void setType(int);
+	void setType(Type);
+	void setSectionid(int);
+	int getSectionid();
+	int profitPerRes();
+	bool isAvaiable();
+	void buy();
+	void display();
 };
+
+void Resource::display() {
+	cout << "Resource ID: " << resourceid << ", Name: " << ResName
+		<< ", Type: " << type << ", Price: " << price << ", Cost: " << cost
+		<< ", Stock: " << stock << ", Section ID: " << sectionid << endl;
+}
+
+void Resource::buy() {
+	if (stock > 0) {
+		stock--;
+	}
+	else {
+		cout << "notavaiable";
+	}
+}
+
+int Resource::profitPerRes() {
+	return price - cost;
+}
+
+bool Resource::isAvaiable() {
+	if (stock > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void Resource::setType(Type type) {
+	this->type = type;
+}
+
+void Resource::setSectionid(int id) {
+	sectionid = id;
+}
+
+int Resource::getSectionid() {
+	return sectionid;
+}
+
+Type Resource::getType() {
+	return type;
+}
+
+void Resource::setType(int type) {
+	switch (type)
+	{
+	case DAILY:
+		this->type = DAILY;
+		break;
+	case MOUNTHLY:
+		this->type = MOUNTHLY;
+		break;
+	case HOURLY:
+		this->type = HOURLY;
+		break;
+	case SAMPLE:
+		this->type = SAMPLE;
+	default:
+		cout << "invalid";
+		break;
+	}
+}
+
+Resource::Resource() {
+	resourceid = 0, type = SAMPLE, price = 0, cost = 0, stock = 0, sectionid = 0;
+	ResName[0] = '\0';
+}
+
+Resource::Resource(int resid, Type type, char name[], int price, int cost, int stock, int secid) {
+	resourceid = resid, this->type = type, this->price = price, this->cost = cost, this->stock = stock, this->sectionid = secid;
+	copyString(ResName, name);
+}
 
 void Resource::getResName(char output[]) {
 	copyString(output, ResName);
@@ -308,7 +391,7 @@ void Resource::setResname(char input[]) {
 }
 
 int Resource::getResourceID() {
-	return Resourceid;
+	return resourceid;
 }
 
 int Resource::getPrice() {
@@ -324,7 +407,7 @@ int Resource::getCost() {
 }
 
 void Resource::setResourceID(int input) {
-	Resourceid = input;
+	resourceid = input;
 }
 
 void Resource::setCost(int input) {
@@ -798,13 +881,13 @@ secondary menus
 void AddDepartementMenu(int id) {
 	cout << "Welcome to the Department defining menu\n\n";
 
-	char name[NAME_LENGTH];
+	char depname[NAME_LENGTH];
 	cout << "What is the name of the Department: ";
-	cin >> name;
+	cin >> depname;
 
 	int ownerid = makeOwner();
 
-	makeDepartement(name, ownerid); //this needs to be changed
+	makeDepartement(depname, ownerid); //this needs to be changed
 
 	int number;
 	cout << "\nEnter the number 0 to go back: ";
