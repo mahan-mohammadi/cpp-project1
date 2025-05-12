@@ -836,15 +836,15 @@ void userMenu(int id) {
 void OwnerMenu(int id) {
 	int choice;
 
-	cout << "Owner menu:\n";
-	cout << "===========================\n";
+	cout << "Owner menu: (Owner id is " << id << ')' << "\n";
+	printDivider();
 	cout << "	1 - Add Section\n";
 	cout << "	2 - Add Resource\n";
 	cout << "	3 - View Non approved Requests\n";
 	cout << "	4 - Generate Reports\n";
 	cout << "	5 - Go back\n";
 	cout << "	0 - Exit\n";
-	cout << "===========================\n";
+	printDivider();
 	cout << "Enter choice: ";
 	cin >> choice;
 	system("cls");
