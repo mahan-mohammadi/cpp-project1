@@ -953,12 +953,12 @@ void addSectionMenu(int id) {
 
 	cout << "Welcome to the section defining menu\n\n";
 
-	section.setDepID(DepIDOfOwner(id));
+	section.setdepid(DepIDOfOwner(id));
 
 	cout << "What is section name: ";
 	cin >> name;
 
-	section.setName(name);
+	section.setSectionName(name);
 
 	section.setSectionID(getLastId(path) + 1);
 
