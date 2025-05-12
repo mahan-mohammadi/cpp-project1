@@ -216,17 +216,48 @@ void User::displayUser() {
 
 }
 	
-class Section :public Dep {
+class Section {
 protected:
 	int sectionid;
 	char secname[NAME_LENGTH];
+	int depid;
 public:
 	Section();
+	Section(int, char[], int);
 	int getSectionID();
 	void getSectionName(char[]);
 	void setSectionName(char[]);
 	void setSectionID(int);
+	int getdepid();
+	void setdepid(int);
+	void display();
 };
+
+Section::Section(int secid, char name[], int depid) {
+	sectionid = secid;
+	copyString(secname, name);
+	this->depid = depid;
+}
+
+void Section::setdepid(int depid) {
+	this->depid = depid;
+
+}
+
+int Section::getdepid() {
+	return depid;
+}
+
+Section::Section() {
+	sectionid = 0;
+	depid = 0;
+	secname[0] = '\0';
+}
+
+void Section::display() {
+	cout << "Section ID: " << sectionid << ", Name: " << secname
+		<< ", Department ID: " << depid << endl;
+}
 
 int Section::getSectionID() {
 	return sectionid;
@@ -244,7 +275,7 @@ void Section::setSectionName(char input[]) {
 	copyString(secname, input);
 }
 
-class Resource : public Section {
+class Resource {
 protected:
 	int Resourceid;
 	char ResName[NAME_LENGTH];
