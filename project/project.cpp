@@ -40,6 +40,8 @@ public:
 
 	void setDepID(int);
 	void setName(char[]);
+	void setOwnerid(int);
+	int getOwnerid();
 	int getDepID();
 	void getDepName(char[]);
 	void displayDetails() const {
@@ -47,6 +49,14 @@ public:
 			<< ", Owner ID: " << ownerid << '\n';
 	}
 };
+
+int Dep::getOwnerid() {
+	return ownerid;
+}
+
+void Dep::setOwnerid(int id) {
+	ownerid = id;
+}
 
 void Dep::setDepID(int inputid) {
 	Depid = inputid;
@@ -1561,7 +1571,11 @@ void printUserToFile(User user) {
 		return;
 	}
 
-	file << user.getPersonID() << ' ' << user.name << ' ' << user.getGovID() << ' ' << user.getLevel() << ' ' << user.getPass() << '\n';
+	char name[NAME_LENGTH];
+	char pass[NAME_LENGTH];
+	user.getPersonName(name);
+	user.getPass(pass);
+	file << user.getPersonID() << ' ' << name << ' ' << user.getGovID() << ' ' << user.getLevel() << ' ' << pass << '\n';
 	file.close();
 }
 
@@ -1591,13 +1605,17 @@ int calculateProfitPerRes(int targetid) {
 
 void printResourceToFile(char path[], Resource res) {
 	ofstream file(path, ios::app);
-	file << res.getResourceID() << " " << res.name << " " << res.getType() << " " << res.getPrice() << " " << res.getSectionID() << ' ' << res.getCost() << ' ' << res.getStock() << '\n';
+	char name[NAME_LENGTH];
+	res.getResName(name);
+	file << res.getResourceID() << " " << name << " " << res.getType() << " " << res.getPrice() << " " << res.getSectionid() << ' ' << res.getCost() << ' ' << res.getStock() << '\n';
 	file.close();
 }
 
 void printSecToFile(char path[], Section sec) {
 	ofstream file(path, ios::app);
-	file << sec.getSectionID() << " " << sec.name << " " << sec.getDepID() << '\n';
+	char name[NAME_LENGTH];
+	sec.getSectionName(name);
+	file << sec.getSectionID() << " " << name << " " << sec.getdepid() << '\n';
 	file.close();
 }
 
@@ -1606,7 +1624,7 @@ void makeDepartement(char name[], int owner) {
 	Dep newDep;
 
 	newDep.setName(name);
-	newDep.ownerID = owner;
+	newDep.setOwnerid(owner);
 	newDep.setDepID(getLastId(path) + 1);
 
 	printDepToFile(path, newDep);
@@ -1621,7 +1639,9 @@ void printDepToFile(char path[], Dep dep) {
 		return;
 	}
 
-	file << dep.getDepID() << ' ' << dep.name << ' ' << dep.ownerID << '\n';
+	char name[NAME_LENGTH];
+	dep.getDepName(name);
+	file << dep.getDepID() << ' ' << name << ' ' << dep.getOwnerid() << '\n';
 	file.close();
 }
 
@@ -1734,7 +1754,9 @@ void printRequestToFile(Request req) {
 		return;
 	}
 
-	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.resID << ' ' << req.userID << ' ' << req.intTime << '\n'; //number of request
+	char name[NAME_LENGTH];
+	req.getReqName(name);
+	file << req.getReqID() << ' ' << name << ' ' << req.getApproval() << ' ' << req.getResid() << ' ' << req.getUserid() << ' ' << req.getTimeInt() << '\n'; //number of request
 }
 
 
@@ -1762,8 +1784,8 @@ void approveReqInFile(Request req) {
 
 	bool found = false;
 	for (int j = size - 1; j >= 0; j--) {
-		if (req.id == requests[j].id) {
-			requests[j].isApproved = true;
+		if (req.getReqID() == requests[j].getReqID()) {
+			requests[j].Approve();
 			found = true;
 			break;
 		}
@@ -1793,7 +1815,7 @@ void approveReqInFile(Request req) {
 	int k = 1;
 	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
 		// When we find a matching time slot, mark it as available (set to 1).
-		if (availibty[k][0] == req.intTime) {
+		if (availibty[k][0] == req.getTimeInt()) {
 			availibty[k][1] = 1;
 		}
 		k++;
@@ -1835,13 +1857,19 @@ void printOwnerToFile(Owner owner) {
 		return;
 	}
 
-	file << owner.getPersonID() << ' ' << owner.name << ' ' << owner.getGovID() << ' ' << owner.getLevel() << ' ' << owner.getPass() << '\n';
+	char name[NAME_LENGTH];
+	char pass[NAME_LENGTH];
+	owner.getPersonName(name);
+	owner.getPass(pass);
+	file << owner.getPersonID() << ' ' << name << ' ' << owner.getGovID() << ' ' << owner.getLevel() << ' ' << pass << '\n';
 	file.close();
 }
 
 void printReqToCLI(Request req) {
+	char name[NAME_LENGTH];
+	req.getReqName(name);
 	printDivider();
-	cout << "id: " << req.getReqID() << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.resID << '\t' << "Requester id: " << req.userID <<'\t' << "time: " << req.intTime << "\n\n";
+	cout << "id: " << req.getReqID() << '\t' << "Request title: " << name << '\t' << "Resource: " << req.getResid() << '\t' << "Requester id: " << req.getUserid() <<'\t' << "time: " << req.getTimeInt() << "\n\n";
 }
 
 void makeResFile(char path[], Type type) {
@@ -2068,11 +2096,10 @@ void stringForResourceType(char type[], int intType) {
 Request makeReq(int id, char name[], int res_id, int userID, int time) {
 	Request req;
 	req.setReqid(id);
-	req.resID = res_id;
-	req.userID = userID;
-	copyString(req.name, name);
-	req.isApproved = false;
-	req.intTime = time;
+	req.setResid(res_id);
+	req.setUserid(userID);
+	req.setReqName(name);
+	req.setTimeint(time);
 	return req;
 }
 
