@@ -28,13 +28,24 @@ class Dep {
 protected:
 	int Depid;
 	char depName[NAME_LENGTH];
-	Owner owner;
+	int ownerid;
+
 public:
-	Dep();
+	Dep() : Depid(0), ownerid(0) {
+		depName[0] = '\0';
+	}
+	Dep(int id, char name[], int ownId) : Depid(id), ownerid(ownId) {
+		copyString(depName, name);
+	}
+
 	void setDepID(int);
 	void setName(char[]);
 	int getDepID();
 	void getDepName(char[]);
+	void displayDetails() const {
+		cout << "Department ID: " << Depid << ", Name: " << depName
+			<< ", Owner ID: " << ownerid << '\n';
+	}
 };
 
 void Dep::setDepID(int inputid) {
@@ -53,17 +64,6 @@ void Dep::getDepName(char nameoutput[]) {
 	copyString(nameoutput, depName);
 }
 
-class Owner :public Person {
-protected:
-	Acess_Level level = OWNER;
-
-};
-
-class User : public Person {
-protected:
-	Acess_Level level = USER;
-};
-
 class Person {
 protected:
 	int personid;
@@ -73,6 +73,7 @@ protected:
 	char password[NAME_LENGTH];
 public:
 	Person();
+	Person(int, char[], Acess_Level, int, char[]);
 	void getPass(char[]);
 	int getPersonID();
 	int getGovID();
@@ -82,8 +83,65 @@ public:
 	void setPersonName(char[]);
 	void setGovID(int);
 	void setLevel(int);
-	void getLevel();
+	void setLevel(Acess_Level);
+	Acess_Level getLevel();
+	void printDetails();
 };
+
+void Person::printDetails() {
+	cout << "ID: " << personid << ", Name: " << Personname
+		<< ", Gov ID: " << govid << ", Level: " << level;
+}
+
+Acess_Level Person::getLevel() {
+	return level;
+}
+
+void Person::setLevel(int level) {
+	switch (level)
+	{
+	case ADMIN:
+		this->level = ADMIN;
+		break;
+	case OWNER:
+		this->level = OWNER;
+		break;
+	case USER:
+		this->level = USER;
+		break;
+	default:
+		cout << "not valid \n";
+		break;
+	}
+}
+
+void Person::setLevel(Acess_Level level) {
+	switch (level)
+	{
+	case ADMIN:
+		this->level = ADMIN;
+		break;
+	case OWNER:
+		this->level = OWNER;
+		break;
+	case USER:
+		this->level = USER;
+		break;
+	default:
+		cout << "not valid \n";
+		break;
+	}
+}
+
+Person::Person(int id, char name[], Acess_Level level, int gid, char pass[]) {
+	personid = id, this->level = level, govid = gid;
+	copyString(password, pass);
+	copyString(Personname, name);
+}
+
+Person::Person() {
+	personid = 0, govid = 0, Personname[0] = '\0', password[0] = '\0';
+}
 
 void Person::getPass(char output[]) {
 	copyString(output, password);
@@ -122,6 +180,42 @@ void Person::setPersonName(char input[]) {
 	copyString(Personname, input);
 }
 
+class Owner :public Person {
+public:
+	Owner() : Person() {
+		level = OWNER;
+	}
+	Owner(int id, char name[], int gid, char pass[])
+		: Person(id, name, OWNER, gid, pass) {
+	}
+	void displayOwner();
+
+};
+
+void Owner::displayOwner() {
+	cout << "Owner Details - ";
+	cout << "ID: " << personid << ", Name: " << Personname
+		<< ", Gov ID: " << govid << ", Level: " << level;
+	cout << '\n';
+}
+
+class User : public Person {
+public:
+	User() : Person() {
+		level = USER;
+	};
+	User(int id, char name[], int gid, char pass[]) : Person(id, name, USER, gid, pass) {};
+	void displayUser();
+};
+
+void User::displayUser() {
+	cout << "User Details - ";
+	cout << "ID: " << personid << ", Name: " << Personname
+		<< ", Gov ID: " << govid << ", Level: " << level;
+	cout << '\n';
+
+}
+	
 class Section :public Dep {
 protected:
 	int sectionid;
