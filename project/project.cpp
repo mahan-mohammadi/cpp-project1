@@ -970,6 +970,7 @@ void addSectionMenu(int id) {
 
 void addResourceMenu(int id) {
 	cout << "Welcome to the resource defining menu\n\n";
+	cout << "Sections in your Department (ID: " << id << "):\n";
 
 	char path[] = "resources.txt";
 	char name[NAME_LENGTH];
@@ -984,12 +985,12 @@ void addResourceMenu(int id) {
 	cout << "Enter the section id: ";
 	cin >> sec_id;
 
-	res.setSectionID(sec_id);
+	res.setSectionid(sec_id);
 
 	cout << "What is resource name: \n";
 	cin >> name;
 
-	res.setName(name);
+	res.setResname(name);
 
 	cout << "What is the type of this resource:\n";
 	cout << "==================================\n";
@@ -1034,28 +1035,34 @@ void addResourceMenu(int id) {
 
 	while (true) {
 		cout << "\nwhat is the price of this resource per time/sample (it should be positive number): ";
-		cin >> res.price;
-		if (res.price > 0) {
+		int price;
+		cin >> price;
+		if (price > 0) {
+			res.setPrice(price);
 			break;
 		}
 	}
 
 	while (true) {
 		cout << "\nwhat is the cost of this resource per time/sample for you? (it should be positive): ";
-		cin >> res.cost;
-		if (res.cost > 0) {
+		int cost;
+		cin >> cost;
+		if (cost > 0) {
+			res.setCost(cost);
 			break;
 		}
 	}
 
 	cout << "\nwhat is your stock of the resource";
 	isValid = false;
+	int stock;
 	do {
-		cin >> res.stock;
-		if (res.stock > 0) {
+		cin >> stock;
+		if (stock > 0) {
 			isValid = true;
 		}
 	} while (!isValid);
+	res.setStock(stock);
 
 	res.setResourceID(getLastId(path) + 1);
 
@@ -1331,7 +1338,7 @@ void ViewNonApprovedReqMenu(int userid) {
 	cout << "the list of unapproved requests:\n\n";
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].res.getResourceID()));
+		int target = depIDOfsec(secIDOfRes(requests[i].getResid()));
 		if (target == depid && requests[i].getApproval() == false) {
 			printReqToCLI(requests[i]);
 		}
@@ -1350,13 +1357,13 @@ void ViewNonApprovedReqMenu(int userid) {
 			bool found = false;
 			for (int i = 0; i < count; i++) {
 				if (requests[i].getReqID() == choice && !requests[i].getApproval()) {
-					if (!isResInStock(requests[i].resID)) {
+					if (!isResInStock(requests[i].getResid())) {
 						cout << "\n***this resource is not in stock***\n";
 						found = true;
 
 					}
 					else {
-						requests[i].setApproval(true);
+						requests[i].Approve();
 						found = true;
 
 						approveReqInFile(requests[i]);
