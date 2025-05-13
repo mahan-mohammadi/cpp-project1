@@ -1,4 +1,4 @@
-//add get AND SET TYPOE AND LEVEL and time  check if time ints are correct  add printtofile to classes functions like depid of owner need to be classified
+// time  check if time ints are correct  add printtofile to classes functions like depid of owner need to be classified
 #include <iostream>
 #include <fstream>
 
@@ -799,8 +799,10 @@ void AdminMenu() {
 void userMenu(int id) {
 	int choice;
 
+	
 	cout << "welocme to user menu\n";
-	cout << "================================\n";
+	cout << "your user id is " << id << endl;
+	printDivider();
 	cout << "	1. see all Department\n";
 	cout << "	2. see all Section\n";
 	cout << "	3. see all Resource\n";
@@ -808,7 +810,7 @@ void userMenu(int id) {
 	cout << "	5. view approved requests\n";
 	cout << "	6. Go back\n";
 	cout << "	0. Exit\n";
-	cout << "===============================\n";
+	printDivider();
 
 	cout << "Enter choice: ";
 	cin >> choice;
@@ -1192,21 +1194,21 @@ void sendReqMenu(int userid) {
 	for (int i = 1; i <= count && count == DAYS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
-			printTime(dayToTime(i));
+			printTime(dayToDate(i));
 		}
 	}
 
 	for (int i = 1; i <= count && count == MONTHS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
-			printTime(monthToTime(i));
+			printTime(monthToDate(i));
 		}
 	}
 
 	for (int i = 1; i <= count && count == HOURS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
-			printTime(hourToTime(i));
+			printTime(hourToDate(i));
 		}
 	}
 
