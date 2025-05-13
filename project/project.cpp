@@ -16,6 +16,8 @@ const int HOURS_IN_DAY = 24;
 const int MAX_RESOURCES = 1000;
 char txtExtension[] = ".txt";
 
+void copyString(char[], char[]);
+
 enum Type {
 	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
 };
@@ -73,6 +75,7 @@ int Dep::getDepID() {
 void Dep::getDepName(char nameoutput[]) {
 	copyString(nameoutput, depName);
 }
+bool isPasswordValid(char[]);
 
 class Person {
 protected:
@@ -485,6 +488,10 @@ void Date::setDay(int input) {
 	day = input;
 }
 
+Date dayToDate(int);
+Date hourToDate(int);
+Date monthToDate(int);
+
 class Request {
 private:
 	int reqid;
@@ -509,7 +516,13 @@ public:
 	void setReqid(int);
 	void Approve();
 	void display();
+	void setApproval(bool);
 };
+
+
+void Request::setApproval(bool approval) {
+	isApproved = approval;
+}
 
 void Request::display() {
 	cout << "Request ID: " << reqid << ", Name: " << reqname
@@ -581,6 +594,8 @@ struct reqcount {
 	int count = 0;
 };
 
+void printTime(Date);
+
 bool isResInStock(int);
 void makeResFile(char[], Type);
 void intToStr(int, char[]);
@@ -641,15 +656,15 @@ int main() {
 	bool valid = false;
 
 	do {
-		cout << "Welcome to the Resoucre Management System!\n";
+		cout << "Welcome to the Resoucre Management System!\n\n";
 		printDivider();
-		cout << "do you want to:\n\n";
+		cout << "\ndo you want to:\n\n";
 		cout << "\t1 - log in\n";
 		cout << "\t2 - sign in\n";
 		cout << "\t3 - admin menu (temp)\n";
-		cout << "\t0 - exit\n";
+		cout << "\t0 - exit\n\n";
 		printDivider();
-		cout << "Enter you choice number: ";
+		cout << "\nEnter you choice number: ";
 		cin >> choice;
 		switch (choice)
 		{
@@ -1301,20 +1316,27 @@ bool isResInStock(int targetid) {
 		return false;
 	}
 
+	int id, price, sec_id, cost, stock;
 	int tempType;
+	char name[NAME_LENGTH];
 	int i = 0;
-	while (infile >> resources[i].id 
-		>> resources[i].name 
+	while (infile >> id 
+		>> name 
 		>> tempType 
-		>> resources[i].price >>
-		resources[i].sec_id >> 
-		resources[i].cost >> 
-		resources[i].stock) 
-	{
-		resources[i].type = static_cast<Type>(tempType);
+		>> price
+		>> sec_id 
+		>> cost
+		>> stock) {
+		resources[i].setType(tempType);
+		resources[i].setResourceID(id);
+		resources[i].setResname(name);
+		resources[i].setPrice(price);
+		resources[i].setSectionid(sec_id);
+		resources[i].setCost(cost);
+		resources[i].setStock(stock);
 		if (resources[i].getResourceID() == targetid) {
 			if (resources[i].getStock() > 0) {
-				resources[i].setStock(resources[i].getStock() - 1);
+				resources[i].buy();
 				isInStock = true;
 			}
 			else {
@@ -1328,10 +1350,12 @@ bool isResInStock(int targetid) {
 	ofstream ofile("resources.txt");
 	
 	for (int j = 0; j < i; j++) {
-		ofile << resources[j].id << ' ' << resources[j].name << ' '
-			<< resources[j].type << ' ' << resources[j].price << ' '
-			<< resources[j].sec_id << ' ' << resources[j].cost << ' '
-			<< resources[j].stock << '\n';
+		char name[NAME_LENGTH];
+		resources[j].getResName(name);
+		ofile << resources[j].getResourceID() << ' ' << name << ' '
+			<< resources[j].getType() << ' ' << resources[j].getPrice() << ' '
+			<< resources[j].getSectionid() << ' ' << resources[j].getCost() << ' '
+			<< resources[j].getStock() << '\n';
 	}
 
 	ofile.close();
@@ -1773,12 +1797,20 @@ void approveReqInFile(Request req) {
 	Request requests[MAX_REQUESTS];
 	int i = 0;
 
-	while (inputFile >> requests[i].id
-		>> requests[i].name
-		>> requests[i].isApproved
-		>> requests[i].resID
-		>> requests[i].userID
-		>> requests[i].intTime) {
+	int id, resid, userid, inttime;
+	bool isapproved;
+	char name[NAME_LENGTH];
+	while (inputFile >>id
+		>> name
+		>> isapproved
+		>> resid
+		>> userid
+		>> inttime) {
+		requests[i].setReqid(id);
+		requests[i].setReqName(name);
+		requests[i].setResid(resid);
+		requests[i].setUserid(userid);
+		requests[i].setTimeint(inttime);
 		i++;
 	}
 	int size = i;
@@ -1799,17 +1831,19 @@ void approveReqInFile(Request req) {
 
 	ofstream outputFile("requests.txt");
 	for (int l = 0; l < size; l++) {
-		outputFile << requests[l].id << ' '
-			<< requests[l].name << ' '
-			<< requests[l].isApproved << ' '
-			<< requests[l].resID << ' '
-			<< requests[l].userID << ' '
-			<< requests[l].intTime << '\n';
+		char name[NAME_LENGTH];
+		requests[l].getReqName(name);
+		outputFile << requests[l].getReqID() << ' '
+			<< name << ' '
+			<< requests[l].getApproval() << ' '
+			<< requests[l].getResid() << ' '
+			<< requests[l].getUserid() << ' '
+			<< requests[l].getTimeInt() << '\n';
 	}
 	outputFile.close();
 
 	char filename[NAME_LENGTH];
-	intToStr(req.resID, filename);
+	intToStr(req.getReqID(), filename);
 	concatString(filename, txtExtension);
 
 	ifstream inputResFile(filename);
@@ -1841,7 +1875,16 @@ void getRequests(int userid, Request requests[], int& count) {
 	}
 
 	int i = 0;
-	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].resID >> requests[i].userID >> requests[i].intTime) {
+	int id, resid, userID, inttime;
+	bool isapproved;
+	char name[NAME_LENGTH];
+	while (file >> id >> name >> isapproved >> resid >> userID >> inttime) {
+		requests[i].setReqid(id);
+		requests[i].setReqName(name);
+		requests[i].setApproval(isapproved);
+		requests[i].setResid(resid);
+		requests[i].setUserid(userID);
+		requests[i].setTimeint(inttime);
 		i++;
 	}
 
