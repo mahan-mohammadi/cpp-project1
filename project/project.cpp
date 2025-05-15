@@ -319,7 +319,20 @@ public:
 	bool isAvaiable();
 	void buy();
 	void display();
+	void operator=(Resource);
 };
+
+void Resource::operator=(Resource next) {
+	 resourceid = next.getResourceID();
+	 char temp[NAME_LENGTH];
+	 next.getResName(temp);
+	 copyString(ResName , temp);
+	 type = next.getType();
+	 price = next.getPrice();
+	 cost = next.getPrice();
+	 stock = next.getStock();
+	 sectionid = next.getSectionid();
+}
 
 void Resource::display() {
 	cout << "Resource ID: " << resourceid << ", Name: " << ResName
@@ -379,6 +392,7 @@ void Resource::setType(int type) {
 		break;
 	case SAMPLE:
 		this->type = SAMPLE;
+		break;
 	default:
 		cout << "invalid";
 		break;
@@ -571,6 +585,7 @@ Request::Request() {
 Request::Request(int id , char name[], int userid, int resid, int timeint) {
 	reqid = id, this->userid = userid, this->resid = resid, this->timeint = timeint;
 	copyString(reqname, name);
+	isApproved = false;
 }
 
 void Request::setReqid(int input) {
@@ -681,9 +696,11 @@ int main() {
 		case 3:
 			system("cls");
 			AdminMenu();
+			valid = true;
 			break;
 		case 0:
 			exit(0);
+			valid = true;
 			break;
 		default:
 			system("cls");
@@ -742,7 +759,6 @@ void logIn() {
 
 void signIn() {
 	char path[] = "users.txt";
-	User user;
 
 	char name[NAME_LENGTH];
 	cout << "what is your name: ";
@@ -769,11 +785,7 @@ void signIn() {
 
 	int id = getLastId(path) + 1;
 
-	//user.id = id;
-	user.setPersonid(id);
-	user.setPersonName(name);
-	user.setPass(password);
-	user.setGovID(gov_id);
+	User user(id, name, gov_id, password);
 
 	printUserToFile(user);
 	system("cls");
@@ -785,11 +797,11 @@ void AdminMenu() {
 	int choice;
 
 	cout << "welcome to The admin menu:\n";
-	cout << "==========================\n";
+	printDivider();
 	cout << "	1 - add department\n";
 	cout << "	2 - go back\n";
 	cout << "	0 - exit\n";
-	cout << "==========================\n";
+	printDivider();
 	cout << "enter your choice: ";
 	cin >> choice;
 
@@ -914,7 +926,7 @@ void AddDepartementMenu(int id) {
 
 	int ownerid = makeOwner();
 
-	makeDepartement(depname, ownerid); //this needs to be changed
+	makeDepartement(depname, ownerid);
 
 	int number;
 	cout << "\nEnter the number 0 to go back: ";
@@ -932,7 +944,6 @@ void AddDepartementMenu(int id) {
 
 int makeOwner() {
 	char path[] = "users.txt";
-	Owner owner;
 
 	char name[NAME_LENGTH];
 	cout << "what is owner's name: ";
@@ -960,11 +971,7 @@ int makeOwner() {
 
 	int id = getLastId(path) + 1;
 
-	owner.setPersonid(id);
-	owner.setPersonName(name);
-	owner.setPass(password);
-	owner.setGovID(gov_id);
-
+	Owner owner(id, name, gov_id, password);
 	printOwnerToFile(owner);
 
 	system("cls");
@@ -1008,6 +1015,7 @@ void addResourceMenu(int id) {
 
 	cout << "what is the section id of the resource you want to add : \n";
 	printSecToCLI(DepIDOfOwner(id));
+	
 
 	cout << "Enter the section id: ";
 	cin >> sec_id;
@@ -1249,7 +1257,7 @@ void sendReqMenu(int userid) {
 
 	int id = getLastId(path) + 1;
 
-	Request req = makeReq(id, name, res_id, userid, selectedTime);
+	Request req(id, name, res_id, userid, selectedTime);
 
 	printRequestToFile(req);
 
@@ -1327,13 +1335,9 @@ bool isResInStock(int targetid) {
 		>> sec_id 
 		>> cost
 		>> stock) {
-		resources[i].setType(tempType);
-		resources[i].setResourceID(id);
-		resources[i].setResname(name);
-		resources[i].setPrice(price);
-		resources[i].setSectionid(sec_id);
-		resources[i].setCost(cost);
-		resources[i].setStock(stock);
+
+		Type type = static_cast<Type>(tempType);
+		resources[i] = Resource(id, type , name , price , cost , stock , sec_id );
 		if (resources[i].getResourceID() == targetid) {
 			if (resources[i].getStock() > 0) {
 				resources[i].buy();
@@ -1806,11 +1810,9 @@ void approveReqInFile(Request req) {
 		>> resid
 		>> userid
 		>> inttime) {
-		requests[i].setReqid(id);
-		requests[i].setReqName(name);
-		requests[i].setResid(resid);
-		requests[i].setUserid(userid);
-		requests[i].setTimeint(inttime);
+
+		requests[i] = Request(id , name , userid , resid , inttime);
+		requests[i].setApproval(isapproved);
 		i++;
 	}
 	int size = i;
@@ -1879,12 +1881,9 @@ void getRequests(int userid, Request requests[], int& count) {
 	bool isapproved;
 	char name[NAME_LENGTH];
 	while (file >> id >> name >> isapproved >> resid >> userID >> inttime) {
-		requests[i].setReqid(id);
-		requests[i].setReqName(name);
+
+		requests[i] = Request(id, name , userID , resid , inttime );
 		requests[i].setApproval(isapproved);
-		requests[i].setResid(resid);
-		requests[i].setUserid(userID);
-		requests[i].setTimeint(inttime);
 		i++;
 	}
 
@@ -2136,16 +2135,6 @@ void stringForResourceType(char type[], int intType) {
 	case 4:
 		copyString(type, sample);
 	}
-}
-
-Request makeReq(int id, char name[], int res_id, int userID, int time) {
-	Request req;
-	req.setReqid(id);
-	req.setResid(res_id);
-	req.setUserid(userID);
-	req.setReqName(name);
-	req.setTimeint(time);
-	return req;
 }
 
 void reverseStr(char str[]) {
