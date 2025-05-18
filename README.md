@@ -1,8 +1,8 @@
 # bugs:
-the see resource function still works if no resource exists
+the program will not comile at all!
 # to do:   
-add date functionality
-add a way to handle dep id error handling
-
+add constructors and remaining methods and operators
+check if the reqcount struct count is written correctly
+add an option to get total profit
 
 

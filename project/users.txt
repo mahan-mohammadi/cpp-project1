@@ -1,3 +1,5 @@
 2 keki 12736 2 mahan1384
 3 keki 1000000 3 mahan1384
 4 mahan 939 2 mahan1384
+5 mahan 199 2 mahan1384
+6 mahan 127466 3 mahan1384

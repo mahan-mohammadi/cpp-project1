@@ -1,5 +1,9 @@
+// time  check if time ints are correct  add printtofile to classes functions like depid of owner need to be classified
 #include <iostream>
 #include <fstream>
+
+void intToStr(int, char[]);
+void concatString(char[], char[]);
 
 using namespace std;
 
@@ -15,6 +19,8 @@ const int HOURS_IN_DAY = 24;
 const int MAX_RESOURCES = 1000;
 char txtExtension[] = ".txt";
 
+void copyString(char[], char[]);
+
 enum Type {
 	HOURLY = 1, DAILY, MOUNTHLY, SAMPLE
 };
@@ -23,92 +29,727 @@ enum Acess_Level {
 	ADMIN = 1, OWNER, USER
 };
 
-struct Person {
-	int id;
-	char name[NAME_LENGTH];
+class Dep {
+protected:
+	int Depid;
+	char depName[NAME_LENGTH];
+	int ownerid;
+
+public:
+	Dep() : Depid(0), ownerid(0) {
+		depName[0] = '\0';
+	}
+	Dep(int id, char name[], int ownId) : Depid(id), ownerid(ownId) {
+		copyString(depName, name);
+	}
+
+	void setDepID(int);
+	void setName(char[]);
+	void setOwnerid(int);
+	int getOwnerid();
+	int getDepID();
+	void getDepName(char[]);
+	void printDepToFile();
+	void displayDetails() {
+		cout << "Department ID: " << Depid << ", Name: " << depName
+			<< ", Owner ID: " << ownerid << '\n';
+	}
 };
 
-struct Time {
-	int month;
-	int day;
-	int hour;
-};
+void Dep::printDepToFile() {
+	ofstream file("Depatement.txt", ios::app);
 
-struct Owner {
-	char name[NAME_LENGTH];
-	int id;
-	int govID;
-	Acess_Level level = OWNER;
+	if (!file.is_open()) {
+		cerr << "***Error opening department database.***" << endl;
+		return;
+	}
+
+	file << Depid << ' ' << depName << ' ' << ownerid << '\n';
+	file.close();
+}
+
+int Dep::getOwnerid() {
+	return ownerid;
+}
+
+void Dep::setOwnerid(int id) {
+	ownerid = id;
+}
+
+void Dep::setDepID(int inputid) {
+	Depid = inputid;
+}
+
+void Dep::setName(char inputname[]) {
+	copyString(depName, inputname);
+}
+
+int Dep::getDepID() {
+	return Depid;
+}
+
+void Dep::getDepName(char nameoutput[]) {
+	copyString(nameoutput, depName);
+}
+bool isPasswordValid(char[]);
+
+class Person {
+protected:
+	int personid;
+	char Personname[NAME_LENGTH];
+	Acess_Level level;
+	int govid;
 	char password[NAME_LENGTH];
+public:
+	Person();
+	Person(int, char[], Acess_Level, int, char[]);
+	void getPass(char[]);
+	int getPersonID();
+	int getGovID();
+	void getPersonName(char[]);
+	void setPass(char[]);
+	void setPersonid(int);
+	void setPersonName(char[]);
+	void setGovID(int);
+	void setLevel(int);
+	void setLevel(Acess_Level);
+	Acess_Level getLevel();
+	void printDetails();
+	void printPersonToFile();
 };
 
-struct User {
-	int id;
-	char name[NAME_LENGTH];
-	int gov_id;
-	Acess_Level level = USER;
-	char password[NAME_LENGTH];
+void Person::printPersonToFile() {
+	char path[] = "users.txt";
+	ofstream file(path, ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	file << personid << ' ' << Personname << ' ' << govid << ' ' << level << ' ' << password << '\n';
+	file.close();
+}
+
+void Person::printDetails() {
+	cout << "ID: " << personid << ", Name: " << Personname
+		<< ", Gov ID: " << govid << ", Level: " << level;
+}
+
+Acess_Level Person::getLevel() {
+	return level;
+}
+
+void Person::setLevel(int level) {
+	switch (level)
+	{
+	case ADMIN:
+		this->level = ADMIN;
+		break;
+	case OWNER:
+		this->level = OWNER;
+		break;
+	case USER:
+		this->level = USER;
+		break;
+	default:
+		cout << "not valid \n";
+		break;
+	}
+}
+
+void Person::setLevel(Acess_Level level) {
+	switch (level)
+	{
+	case ADMIN:
+		this->level = ADMIN;
+		break;
+	case OWNER:
+		this->level = OWNER;
+		break;
+	case USER:
+		this->level = USER;
+		break;
+	default:
+		cout << "not valid \n";
+		break;
+	}
+}
+
+Person::Person(int id, char name[], Acess_Level level, int gid, char pass[]) {
+	personid = id, this->level = level, govid = gid;
+	copyString(password, pass);
+	copyString(Personname, name);
+}
+
+Person::Person() {
+	personid = 0, govid = 0, Personname[0] = '\0', password[0] = '\0';
+}
+
+void Person::getPass(char output[]) {
+	copyString(output, password);
+}
+
+void Person::setPass(char input[]) {
+	if (isPasswordValid(input)) {
+		copyString(password, input);
+	}
+	else {
+		cout << "***Password does not meet criteria. Not set.***" << '\n';
+	}
+}
+
+int Person::getPersonID() {
+	return personid;
+}
+
+int Person::getGovID() {
+	return govid;
+}
+
+void Person::getPersonName(char output[]) {
+	copyString(output, Personname);
+}
+
+void Person::setPersonid(int input) {
+	personid = input;
+}
+
+void Person::setGovID(int input) {
+	govid = input;
+}
+
+void Person::setPersonName(char input[]) {
+	copyString(Personname, input);
+}
+
+class Owner :public Person {
+public:
+	Owner() : Person() {
+		level = OWNER;
+	}
+	Owner(int id, char name[], int gid, char pass[])
+		: Person(id, name, OWNER, gid, pass) {
+	}
+	void displayOwner();
+
 };
 
-struct Departement {
-	int id;
-	char name[NAME_LENGTH];
-	int ownerID;
+void Owner::displayOwner() {
+	cout << "Owner Details - ";
+	cout << "ID: " << personid << ", Name: " << Personname
+		<< ", Gov ID: " << govid << ", Level: " << level;
+	cout << '\n';
+}
+
+class User : public Person {
+public:
+	User() : Person() {
+		level = USER;
+	};
+	User(int id, char name[], int gid, char pass[]) : Person(id, name, USER, gid, pass) {};
+	void displayUser();
 };
 
-struct Section {
-	int id;
-	int dep_id;
-	char name[NAME_LENGTH];
-	char owner[NAME_LENGTH];
+void User::displayUser() {
+	cout << "User Details - ";
+	cout << "ID: " << personid << ", Name: " << Personname
+		<< ", Gov ID: " << govid << ", Level: " << level;
+	cout << '\n';
+
+}
+	
+class Section {
+protected:
+	int sectionid;
+	char secname[NAME_LENGTH];
+	int depid;
+public:
+	Section();
+	Section(int, char[], int);
+	int getSectionID();
+	void getSectionName(char[]);
+	void setSectionName(char[]);
+	void setSectionID(int);
+	int getdepid();
+	void setdepid(int);
+	void display();
+	void printSecToFile();
 };
 
-struct Resource {
-	int id;
-	int sec_id;
-	char name[NAME_LENGTH];
+void Section::printSecToFile() {
+	ofstream file("sections.txt", ios::app);
+
+	file << sectionid << " " << secname << " " << depid << '\n';
+	file.close();
+}
+
+Section::Section(int secid, char name[], int depid) {
+	sectionid = secid;
+	copyString(secname, name);
+	this->depid = depid;
+}
+
+void Section::setdepid(int depid) {
+	this->depid = depid;
+
+}
+
+int Section::getdepid() {
+	return depid;
+}
+
+Section::Section() {
+	sectionid = 0;
+	depid = 0;
+	secname[0] = '\0';
+}
+
+void Section::display() {
+	cout << "Section ID: " << sectionid << ", Name: " << secname
+		<< ", Department ID: " << depid << endl;
+}
+
+int Section::getSectionID() {
+	return sectionid;
+}
+
+void Section::setSectionID(int input) {
+	sectionid = input;
+}
+
+void Section::getSectionName(char output[]) {
+	copyString(output, secname);
+}
+
+void Section::setSectionName(char input[]) {
+	copyString(secname, input);
+}
+
+class Resource {
+protected:
+	int resourceid;
+	char ResName[NAME_LENGTH];
 	Type type;
 	int price;
 	int cost;
 	int stock;
+	int sectionid;
+public:
+	Resource();
+	Resource(int, Type, char[], int, int, int, int);
+	void getResName(char[]);
+	int getResourceID();
+	int getPrice();
+	int getStock();
+	int getCost();
+	void setResourceID(int);
+	void setPrice(int);
+	void setStock(int);
+	void setCost(int);
+	void setResname(char[]);
+	Type getType();
+	void setType(int);
+	void setType(Type);
+	void setSectionid(int);
+	int getSectionid();
+	int profitPerRes();
+	bool isAvaiable();
+	void buy();
+	void display();
+	void operator=(Resource);
+	void printResToFIle();
 };
 
-struct Request {
-	int resID;
-	int userID;
-	int id;
-	bool isApproved = false;
-	char name[NAME_LENGTH];
-	Time time;
-	int intTime;
+void Resource::printResToFIle() {
+	ofstream file("resources.txt", ios::app);
+	file << resourceid << " " << ResName << " " << type << " " << price << " " << sectionid << ' ' << cost << ' ' << stock << '\n';
+	file.close();
+}
+
+void Resource::operator=(Resource next) {
+	 resourceid = next.getResourceID();
+	 char temp[NAME_LENGTH];
+	 next.getResName(temp);
+	 copyString(ResName , temp);
+	 type = next.getType();
+	 price = next.getPrice();
+	 cost = next.getCost();
+	 stock = next.getStock();
+	 sectionid = next.getSectionid();
+}
+
+void Resource::display() {
+	cout << "Resource ID: " << resourceid << ", Name: " << ResName
+		<< ", Type: " << type << ", Price: " << price << ", Cost: " << cost
+		<< ", Stock: " << stock << ", Section ID: " << sectionid << endl;
+}
+
+void Resource::buy() {
+	if (stock > 0) {
+		stock--;
+	}
+	else {
+		cout << "notavaiable";
+	}
+}
+
+int Resource::profitPerRes() {
+	return price - cost;
+}
+
+bool Resource::isAvaiable() {
+	if (stock > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void Resource::setType(Type type) {
+	this->type = type;
+}
+
+void Resource::setSectionid(int id) {
+	sectionid = id;
+}
+
+int Resource::getSectionid() {
+	return sectionid;
+}
+
+Type Resource::getType() {
+	return type;
+}
+
+void Resource::setType(int type) {
+	switch (type)
+	{
+	case DAILY:
+		this->type = DAILY;
+		break;
+	case MOUNTHLY:
+		this->type = MOUNTHLY;
+		break;
+	case HOURLY:
+		this->type = HOURLY;
+		break;
+	case SAMPLE:
+		this->type = SAMPLE;
+		break;
+	default:
+		cout << "invalid";
+		break;
+	}
+}
+
+Resource::Resource() {
+	resourceid = 0, type = SAMPLE, price = 0, cost = 0, stock = 0, sectionid = 0;
+	ResName[0] = '\0';
+}
+
+Resource::Resource(int resid, Type type, char name[], int price, int cost, int stock, int secid) {
+	resourceid = resid, this->type = type, this->price = price, this->cost = cost, this->stock = stock, this->sectionid = secid;
+	copyString(ResName, name);
+}
+
+void Resource::getResName(char output[]) {
+	copyString(output, ResName);
+}
+
+void Resource::setResname(char input[]) {
+	copyString(ResName, input);
+}
+
+int Resource::getResourceID() {
+	return resourceid;
+}
+
+int Resource::getPrice() {
+	return price;
+}
+
+int Resource::getStock() {
+	return stock;
+}
+
+int Resource::getCost() {
+	return cost;
+}
+
+void Resource::setResourceID(int input) {
+	resourceid = input;
+}
+
+void Resource::setCost(int input) {
+	cost = input;
+}
+
+void Resource::setPrice(int input) {
+	price = input;
+}
+
+void Resource::setStock(int input) {
+	stock = input;
+}
+
+class Date {
+private:
+	int Month;
+	int day;
+	int hour;
+public:
+	Date();
+	Date(int,int,int);
+	int getMonth();
+	int getDay();
+	int getHour();
+	void setMonth(int);
+	void setDay(int);
+	void setHour(int);
+	void print();
 };
+
+void Date::print() {
+	cout << "Month: " << Month << "| Day: " << day << "| Hour : " << hour << '\n';
+}
+
+Date::Date() {
+	Month = 0, day = 0, hour = 0;
+}
+
+Date::Date(int Month, int day, int hour) {
+	this->Month = Month, this->day = day, this->hour = hour;
+}
+
+int Date::getDay() {
+	return day;
+}
+
+int Date::getHour() {
+	return hour;
+}
+
+int Date::getMonth() {
+	return Month;
+}
+
+void Date::setMonth(int input) {
+	Month = input;
+}
+
+void Date::setHour(int input) {
+	hour = input;
+}
+
+void Date::setDay(int input) {
+	day = input;
+}
+
+Date dayToDate(int);
+Date hourToDate(int);
+Date monthToDate(int);
+
+class Request {
+private:
+	int reqid;
+	char reqname[NAME_LENGTH];
+	int resid;
+	int userid;
+	bool isApproved;
+	int timeint;
+public:
+	Request();
+	Request(int, char[], int, int, int);
+	int getReqID();
+	int getResid();
+	int getUserid();
+	int getTimeInt();
+	void getReqName(char[]);
+	void setReqName(char[]);
+	void setResid(int);
+	void setUserid(int);
+	void setTimeint(int);
+	bool getApproval();
+	void setReqid(int);
+	void Approve();
+	void display();
+	void setApproval(bool);
+	void printRes();
+};
+
+void Request::printRes() {
+	ofstream file("requests.txt", ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	file << reqid << ' ' << reqname << ' ' << isApproved << ' ' << resid << ' ' << userid << ' ' << timeint << '\n';
+}
+
+void Request::setApproval(bool approval) {
+	isApproved = approval;
+}
+
+void Request::display() {
+	cout << "Request ID: " << reqid << ", Name: " << reqname
+		<< ", Resource ID: " << resid << ", User ID: " << userid
+		<< ", Approved: " << (isApproved ? "Yes" : "No")
+		<< ", Time Value: " << timeint << endl;
+}
+
+void Request::setReqName(char input[]) {
+	copyString(reqname, input);
+}
+
+void Request::setResid(int id) {
+	resid = id;
+}
+
+void Request::setUserid(int id) {
+	userid = id;
+}
+
+void Request::setTimeint(int time) {
+	timeint = time;
+}
+
+int Request::getResid() {
+	return resid;
+}
+
+int Request::getUserid() {
+	return userid;
+}
+
+int Request::getTimeInt() {
+	return timeint;
+}
+
+void Request::getReqName(char output[]) {
+	copyString(output, reqname);
+}
+
+Request::Request() {
+	reqid = 0, resid = 0, userid = 0, isApproved = false, timeint = 0;
+	reqname[0] = '\0';
+}
+
+Request::Request(int id , char name[], int userid, int resid, int timeint) {
+	reqid = id, this->userid = userid, this->resid = resid, this->timeint = timeint;
+	copyString(reqname, name);
+	isApproved = false;
+}
+
+void Request::setReqid(int input) {
+	reqid = input;
+}
+
+int Request::getReqID() {
+	return reqid;
+}
+
+bool Request::getApproval() {
+	return isApproved;
+}
+
+void Request::Approve() {
+	ifstream inputFile("requests.txt");
+
+	if (!inputFile.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	Request requests[MAX_REQUESTS];
+	int i = 0;
+
+	int id, resid, userid, inttime;
+	bool isapproved;
+	char name[NAME_LENGTH];
+	while (inputFile >> id
+		>> name
+		>> isapproved
+		>> resid
+		>> userid
+		>> inttime) {
+
+		requests[i] = Request(id, name, userid, resid, inttime);
+		requests[i].setApproval(isapproved);
+		i++;
+	}
+	int size = i;
+	inputFile.close();
+
+	bool found = false;
+	for (int j = size - 1; j >= 0; j--) {
+		if (reqid == requests[j].getReqID()) {
+			requests[j].setApproval(true);
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		cerr << "***Request ID not found in file.***" << endl;
+		return;
+	}
+
+	ofstream outputFile("requests.txt");
+	for (int l = 0; l < size; l++) {
+		char name[NAME_LENGTH];
+		requests[l].getReqName(name);
+		outputFile << requests[l].getReqID() << ' '
+			<< name << ' '
+			<< requests[l].getApproval() << ' '
+			<< requests[l].getResid() << ' '
+			<< requests[l].getUserid() << ' '
+			<< requests[l].getTimeInt() << '\n';
+	}
+	outputFile.close();
+
+	char filename[NAME_LENGTH];
+	intToStr(reqid, filename);
+	concatString(filename, txtExtension);
+
+	ifstream inputResFile(filename);
+	int availibty[MAX_REQUESTS][2];
+	int k = 1;
+	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
+		// When we find a matching time slot, mark it as available (set to 1).
+		if (availibty[k][0] == timeint) {
+			availibty[k][1] = 1;
+		}
+		k++;
+	}
+	inputResFile.close();
+
+	ofstream outputResFile(filename);
+	for (int o = 1; o < k; o++) {
+		outputResFile << availibty[o][0] << ' ' << availibty[o][1] << '\n';
+	}
+	outputResFile.close();
+}
 
 struct reqcount {
 	int resid = -1;
 	int count = 0;
 };
 
-Time hourToTime(int);
-Time dayToTime(int);
-Time monthToTime(int);
+void printTime(Date);
 bool isResInStock(int);
 void makeResFile(char[], Type);
-void intToStr(int, char[]);
-void printRequestToFile(Request);
 void printResToCLI(int);
 void OwnerMenu(int id);
 void AddDepartementMenu(int id);
 void makeDepartement(char[], int);
 void copyString(char[], char[]);
-void printDepToFile(char[], Departement);
-void intToStr(int, char[]);
-void concatString(char[], char[]);
 void addSectionMenu(int);
 int getLastId(char[]);
-void printSecToFile(char[], Section);
 int stringToInt(const char[]);
 void addResourceMenu(int);
-void printResourceToFile(char[], Resource);
 void userMenu(int);
 void getDepartmentsMenu(int);
 void getSectionsMenu(int);
@@ -119,9 +760,7 @@ void printDepToCLI();
 void printSecToCLI(int);
 void logIn();
 void signIn();
-void printUserToFile(User);
 bool isGovIDValid(int);
-Request makeReq(int, char[], int, int, int);
 bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
 void AdminMenu();
@@ -130,13 +769,10 @@ void getRequests(int, Request[], int&);
 int makeOwner();
 int getTypeOfRes(int);
 void getAvailabeDates(int, bool[]);
-void printTime(Time);
-void printOwnerToFile(Owner);
 void printReqToCLI(Request);
 int DepIDOfOwner(int);
 int secIDOfRes(int);
 int depIDOfsec(int);
-void approveReqInFile(Request);
 void ViewApprovedReqMenu(int);
 void ReportMenu(int);
 void sortReq(reqcount[], int);
@@ -152,15 +788,15 @@ int main() {
 	bool valid = false;
 
 	do {
-		cout << "Welcome to the Resoucre Management System!\n";
-		cout << "==========================================\n";
-		cout << "do you want to:\n\n";
+		cout << "Welcome to the Resoucre Management System!\n\n";
+		printDivider();
+		cout << "\ndo you want to:\n\n";
 		cout << "\t1 - log in\n";
 		cout << "\t2 - sign in\n";
 		cout << "\t3 - admin menu (temp)\n";
-		cout << "\t0 - exit\n";
-		cout << "==========================================\n";
-		cout << "Enter you choice number: ";
+		cout << "\t0 - exit\n\n";
+		printDivider();
+		cout << "\nEnter you choice number: ";
 		cin >> choice;
 		switch (choice)
 		{
@@ -177,9 +813,11 @@ int main() {
 		case 3:
 			system("cls");
 			AdminMenu();
+			valid = true;
 			break;
 		case 0:
 			exit(0);
+			valid = true;
 			break;
 		default:
 			system("cls");
@@ -192,6 +830,7 @@ int main() {
 }
 
 void logIn() {
+	Person p;
 	char inputPassword[NAME_LENGTH];
 	int inputID;
 	bool valid = false;
@@ -237,7 +876,6 @@ void logIn() {
 
 void signIn() {
 	char path[] = "users.txt";
-	User user;
 
 	char name[NAME_LENGTH];
 	cout << "what is your name: ";
@@ -264,13 +902,9 @@ void signIn() {
 
 	int id = getLastId(path) + 1;
 
-	user.id = id;
-	copyString(user.name, name);
-	copyString(user.password, password);
-	user.gov_id = gov_id;
+	User user(id, name, gov_id, password);
 
-
-	printUserToFile(user);
+	user.printPersonToFile();
 	system("cls");
 	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
 	userMenu(id);
@@ -280,11 +914,11 @@ void AdminMenu() {
 	int choice;
 
 	cout << "welcome to The admin menu:\n";
-	cout << "==========================\n";
+	printDivider();
 	cout << "	1 - add department\n";
 	cout << "	2 - go back\n";
 	cout << "	0 - exit\n";
-	cout << "==========================\n";
+	printDivider();
 	cout << "enter your choice: ";
 	cin >> choice;
 
@@ -309,8 +943,10 @@ void AdminMenu() {
 void userMenu(int id) {
 	int choice;
 
+	
 	cout << "welocme to user menu\n";
-	cout << "===========================\n";
+	cout << "your user id is " << id << endl;
+	printDivider();
 	cout << "	1. see all Department\n";
 	cout << "	2. see all Section\n";
 	cout << "	3. see all Resource\n";
@@ -318,7 +954,7 @@ void userMenu(int id) {
 	cout << "	5. view approved requests\n";
 	cout << "	6. Go back\n";
 	cout << "	0. Exit\n";
-	cout << "===========================\n";
+	printDivider();
 
 	cout << "Enter choice: ";
 	cin >> choice;
@@ -356,15 +992,15 @@ void userMenu(int id) {
 void OwnerMenu(int id) {
 	int choice;
 
-	cout << "Owner menu:\n";
-	cout << "===========================\n";
+	cout << "Owner menu: (Owner id is " << id << ')' << "\n";
+	printDivider();
 	cout << "	1 - Add Section\n";
 	cout << "	2 - Add Resource\n";
 	cout << "	3 - View Non approved Requests\n";
 	cout << "	4 - Generate Reports\n";
 	cout << "	5 - Go back\n";
 	cout << "	0 - Exit\n";
-	cout << "===========================\n";
+	printDivider();
 	cout << "Enter choice: ";
 	cin >> choice;
 	system("cls");
@@ -401,13 +1037,13 @@ secondary menus
 void AddDepartementMenu(int id) {
 	cout << "Welcome to the Department defining menu\n\n";
 
-	char name[NAME_LENGTH];
+	char depname[NAME_LENGTH];
 	cout << "What is the name of the Department: ";
-	cin >> name;
+	cin >> depname;
 
 	int ownerid = makeOwner();
 
-	makeDepartement(name, ownerid);
+	makeDepartement(depname, ownerid);
 
 	int number;
 	cout << "\nEnter the number 0 to go back: ";
@@ -425,7 +1061,6 @@ void AddDepartementMenu(int id) {
 
 int makeOwner() {
 	char path[] = "users.txt";
-	Owner owner;
 
 	char name[NAME_LENGTH];
 	cout << "what is owner's name: ";
@@ -453,33 +1088,32 @@ int makeOwner() {
 
 	int id = getLastId(path) + 1;
 
-	owner.id = id;
-	copyString(owner.name, name);
-	copyString(owner.password, password);
-	owner.govID = gov_id;
-
-	printOwnerToFile(owner);
+	Owner owner(id, name, gov_id, password);
+	owner.printPersonToFile();
 
 	system("cls");
 
 	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
-	return owner.id;
+	return owner.getPersonID();
 }
 
 void addSectionMenu(int id) {
 	Section section;
 	char path[] = "sections.txt";
+	char name[NAME_LENGTH];
 
 	cout << "Welcome to the section defining menu\n\n";
 
-	section.dep_id = DepIDOfOwner(id);
+	section.setdepid(DepIDOfOwner(id));
 
 	cout << "What is section name: ";
-	cin >> section.name;
+	cin >> name;
 
-	section.id = getLastId(path) + 1;
+	section.setSectionName(name);
 
-	printSecToFile(path, section);
+	section.setSectionID(getLastId(path) + 1);
+
+	section.printSecToFile();
 
 	system("cls");
 	OwnerMenu(id);
@@ -487,22 +1121,28 @@ void addSectionMenu(int id) {
 
 void addResourceMenu(int id) {
 	cout << "Welcome to the resource defining menu\n\n";
+	cout << "Sections in your Department (ID: " << id << "):\n";
 
 	char path[] = "resources.txt";
-
+	char name[NAME_LENGTH];
 	Resource res;
 	int choice;
 	bool isValid = false;
+	int sec_id;
 
 	cout << "what is the section id of the resource you want to add : \n";
 	printSecToCLI(DepIDOfOwner(id));
+	
 
 	cout << "Enter the section id: ";
-	cin >> res.sec_id;
+	cin >> sec_id;
+
+	res.setSectionid(sec_id);
 
 	cout << "What is resource name: \n";
+	cin >> name;
 
-	cin >> res.name;
+	res.setResname(name);
 
 	cout << "What is the type of this resource:\n";
 	cout << "==================================\n";
@@ -521,22 +1161,22 @@ void addResourceMenu(int id) {
 		{
 		case HOURLY:
 			isValid = true;
-			res.type = HOURLY;
+			res.setType(HOURLY);
 			break;
 
 		case DAILY:
 			isValid = true;
-			res.type = DAILY;
+			res.setType(DAILY);
 			break;
 
 		case MOUNTHLY:
 			isValid = true;
-			res.type = MOUNTHLY;
+			res.setType(MOUNTHLY);
 			break;
 
 		case SAMPLE:
 			isValid = true;
-			res.type = SAMPLE;
+			res.setType(SAMPLE);
 			break;
 
 		default:
@@ -547,37 +1187,43 @@ void addResourceMenu(int id) {
 
 	while (true) {
 		cout << "\nwhat is the price of this resource per time/sample (it should be positive number): ";
-		cin >> res.price;
-		if (res.price > 0) {
+		int price;
+		cin >> price;
+		if (price > 0) {
+			res.setPrice(price);
 			break;
 		}
 	}
 
 	while (true) {
 		cout << "\nwhat is the cost of this resource per time/sample for you? (it should be positive): ";
-		cin >> res.cost;
-		if (res.cost > 0) {
+		int cost;
+		cin >> cost;
+		if (cost > 0) {
+			res.setCost(cost);
 			break;
 		}
 	}
 
 	cout << "\nwhat is your stock of the resource";
 	isValid = false;
+	int stock;
 	do {
-		cin >> res.stock;
-		if (res.stock > 0) {
+		cin >> stock;
+		if (stock > 0) {
 			isValid = true;
 		}
 	} while (!isValid);
+	res.setStock(stock);
 
-	res.id = getLastId(path) + 1;  // get an id for the request
+	res.setResourceID(getLastId(path) + 1);
 
 	char idFileName[NAME_LENGTH];
-	intToStr(res.id, idFileName); // convert the id to string
+	intToStr(res.getResourceID(), idFileName);
 	concatString(idFileName, txtExtension);
-	makeResFile(idFileName, res.type);
+	makeResFile(idFileName, res.getType());
 
-	printResourceToFile(path, res);
+	res.printResToFIle();
 
 	system("cls");
 	OwnerMenu(id);
@@ -621,10 +1267,12 @@ void getSectionsMenu(int id) {
 		cout << '\t' << "section id: " << sectionid << '\t' << "name: " << name << '\t' << "department id: " << dep_id << "\n";
 	}
 	printDivider();
+
 	cout << "Enter 0 and enter to return back: ";
 	while (Choice) {
 		cin >> Choice;
 	}
+
 	system("cls");
 	userMenu(id);
 }
@@ -686,21 +1334,21 @@ void sendReqMenu(int userid) {
 	for (int i = 1; i <= count && count == DAYS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
-			printTime(dayToTime(i));
+			printTime(dayToDate(i));
 		}
 	}
 
 	for (int i = 1; i <= count && count == MONTHS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
-			printTime(monthToTime(i));
+			printTime(monthToDate(i));
 		}
 	}
 
 	for (int i = 1; i <= count && count == HOURS_IN_YEAR; i++) {
 		if (availableDates[i] == 0) {
 			cout << i << " Avaiable for the time ";
-			printTime(hourToTime(i));
+			printTime(hourToDate(i));
 		}
 	}
 
@@ -726,16 +1374,16 @@ void sendReqMenu(int userid) {
 
 	int id = getLastId(path) + 1;
 
-	Request req = makeReq(id, name, res_id, userid, selectedTime);
+	Request req(id, name, res_id, userid, selectedTime);
 
-	printRequestToFile(req);
+	req.printRes();
 
 	system("cls");
 	userMenu(userid);
 }
 
-void printTime(Time time) {
-	cout << "month: " << time.month << '|' << " day: " << time.day << '|' << " hour : " << time.hour << '\n';
+void printTime(Date date) {
+	cout << "Month: " << date.getMonth() << '|' << " Day: " << date.getDay() << '|' << " Hour : " << date.getHour() << '\n';
 }
 
 int getTypeOfRes(int targetID) {
@@ -793,20 +1441,23 @@ bool isResInStock(int targetid) {
 		return false;
 	}
 
+	int id, price, sec_id, cost, stock;
 	int tempType;
+	char name[NAME_LENGTH];
 	int i = 0;
-	while (infile >> resources[i].id 
-		>> resources[i].name 
+	while (infile >> id 
+		>> name 
 		>> tempType 
-		>> resources[i].price >>
-		resources[i].sec_id >> 
-		resources[i].cost >> 
-		resources[i].stock) 
-	{
-		resources[i].type = static_cast<Type>(tempType);
-		if (resources[i].id == targetid) {
-			if (resources[i].stock > 0) {
-				resources[i].stock--;
+		>> price
+		>> sec_id 
+		>> cost
+		>> stock) {
+
+		Type type = static_cast<Type>(tempType);
+		resources[i] = Resource(id, type , name , price , cost , stock , sec_id );
+		if (resources[i].getResourceID() == targetid) {
+			if (resources[i].getStock() > 0) {
+				resources[i].buy();
 				isInStock = true;
 			}
 			else {
@@ -820,10 +1471,12 @@ bool isResInStock(int targetid) {
 	ofstream ofile("resources.txt");
 	
 	for (int j = 0; j < i; j++) {
-		ofile << resources[j].id << ' ' << resources[j].name << ' '
-			<< resources[j].type << ' ' << resources[j].price << ' '
-			<< resources[j].sec_id << ' ' << resources[j].cost << ' '
-			<< resources[j].stock << '\n';
+		char name[NAME_LENGTH];
+		resources[j].getResName(name);
+		ofile << resources[j].getResourceID() << ' ' << name << ' '
+			<< resources[j].getType() << ' ' << resources[j].getPrice() << ' '
+			<< resources[j].getSectionid() << ' ' << resources[j].getCost() << ' '
+			<< resources[j].getStock() << '\n';
 	}
 
 	ofile.close();
@@ -842,8 +1495,8 @@ void ViewNonApprovedReqMenu(int userid) {
 	cout << "the list of unapproved requests:\n\n";
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].resID));
-		if (target == depid && requests[i].isApproved == false) {
+		int target = depIDOfsec(secIDOfRes(requests[i].getResid()));
+		if (target == depid && requests[i].getApproval() == false) {
 			printReqToCLI(requests[i]);
 		}
 	}
@@ -860,20 +1513,18 @@ void ViewNonApprovedReqMenu(int userid) {
 		else {
 			bool found = false;
 			for (int i = 0; i < count; i++) {
-				if (requests[i].id == choice && !requests[i].isApproved) {
-					if (!isResInStock(requests[i].resID)) {
+				if (requests[i].getReqID() == choice && !requests[i].getApproval()) {
+					if (!isResInStock(requests[i].getResid())) {
 						cout << "\n***this resource is not in stock***\n";
 						found = true;
 
 					}
 					else {
-						requests[i].isApproved = true;
+						requests[i].Approve();
 						found = true;
 
-						approveReqInFile(requests[i]);
-
 						system("cls");
-						cout << "***request for id (" << requests[i].id << ") is approved***\n\n";
+						cout << "***request for id (" << requests[i].getReqID() << ") is approved***\n\n";
 						ViewNonApprovedReqMenu(userid);
 						break;
 					}
@@ -948,6 +1599,8 @@ void ViewApprovedReqMenu(int targetid) {
 	int choice;
 	bool canExit = false;
 
+	printDivider();
+
 	do {
 		cout << "Enter 0 to go back: ";
 		cin >> choice;
@@ -964,6 +1617,12 @@ void ReportMenu(int userid) {
 	Request requests[MAX_REQUESTS];
 	int count = 0;
 	int depid = DepIDOfOwner(userid);
+	if (depid == 0) { 
+		OwnerMenu(userid);
+		return;
+	}
+	cout << "report for the department id : " << depid << endl;
+	printDivider();
 
 	getRequests(userid, requests, count);
 	reqcount* requestnumber = new reqcount[count];
@@ -978,11 +1637,11 @@ void ReportMenu(int userid) {
 
 	for (int i = 0; i < count; i++) {
 
-		int target = depIDOfsec(secIDOfRes(requests[i].resID));
-		if (target == depid && requests[i].isApproved) {
-			int resid = requests[i].resID;
+		int target = depIDOfsec(secIDOfRes(requests[i].getResid())); 
+		if (target == depid && requests[i].getApproval()) { //  check if the depid of there resources are equal to our dep id we got erlier
+			int resid = requests[i].getResid();
 			bool found = false;
-			// Check if resource already tracked
+			
 			for (int j = 0; j < uniqueRes; ++j) {
 				if (requestnumber[j].resid == resid) {
 					requestnumber[j].count++;
@@ -1048,19 +1707,6 @@ bool isGovIDValid(int targetID) {
 	return isValid;
 }
 
-void printUserToFile(User user) {
-	char path[] = "users.txt";
-	ofstream file(path, ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	file << user.id << ' ' << user.name << ' ' << user.gov_id << ' ' << user.level << ' ' << user.password << '\n';
-	file.close();
-}
-
 int calculateProfitPerRes(int targetid) {
 	ifstream file("resources.txt");
 
@@ -1085,42 +1731,17 @@ int calculateProfitPerRes(int targetid) {
 	return profit;
 }
 
-void printResourceToFile(char path[], Resource res) {
-	ofstream file(path, ios::app);
-	file << res.id << " " << res.name << " " << res.type << " " << res.price << " " << res.sec_id << ' ' << res.cost << ' ' << res.stock << '\n';
-	file.close();
-}
-
-void printSecToFile(char path[], Section sec) {
-	ofstream file(path, ios::app);
-	file << sec.id << " " << sec.name << " " << sec.dep_id << '\n';
-	file.close();
-}
-
 void makeDepartement(char name[], int owner) {
 	char path[] = "Depatement.txt";
-	Departement newDep;
+	Dep newDep;
 
-	copyString(newDep.name, name);
-	newDep.ownerID = owner;
-	newDep.id = getLastId(path) + 1; // the new id has to be +1 of the last id
+	newDep.setName(name);
+	newDep.setOwnerid(owner);
+	newDep.setDepID(getLastId(path) + 1);
 
-	printDepToFile(path, newDep);
-	cout << "***the department with the id: " << newDep.id << " has been created***\n";
+	newDep.printDepToFile();
+	cout << "***the department with the id: " << newDep.getDepID() << " has been created***\n";
 }
-
-void printDepToFile(char path[], Departement dep) {
-	ofstream file(path, ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening department database.***" << endl;
-		return;
-	}
-
-	file << dep.id << ' ' << dep.name << ' ' << dep.ownerID << '\n';
-	file.close();
-}
-
 
 int getLastId(char path[]) {
 	ifstream file(path);
@@ -1131,7 +1752,7 @@ int getLastId(char path[]) {
 	char line[LINE_LENGTH];
 	char lastLine[LINE_LENGTH] = "";  // The last line
 
-	while (file.getline(line, 256)) {
+	while (file.getline(line, LINE_LENGTH)) {
 		copyString(lastLine, line);  // Keep updating
 	}
 	file.close();
@@ -1140,7 +1761,7 @@ int getLastId(char path[]) {
 		return 0;  // If file was empty
 	}
 
-	char id[20];
+	char id[LINE_LENGTH];
 	int j = 0;
 	for (int i = 0; lastLine[i] != '\0' && lastLine[i] != ' '; i++) {
 		id[j] = lastLine[i]; // just get the id
@@ -1222,88 +1843,6 @@ void printResToCLI(int targetSec) {
 	file.close();
 }
 
-void printRequestToFile(Request req) {
-	ofstream file("requests.txt", ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	file << req.id << ' ' << req.name << ' ' << req.isApproved << ' ' << req.resID << ' ' << req.userID << ' ' << req.intTime << '\n'; //number of request
-}
-
-
-void approveReqInFile(Request req) {
-	ifstream inputFile("requests.txt");
-
-	if (!inputFile.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	Request requests[MAX_REQUESTS];
-	int i = 0;
-
-	while (inputFile >> requests[i].id
-		>> requests[i].name
-		>> requests[i].isApproved
-		>> requests[i].resID
-		>> requests[i].userID
-		>> requests[i].intTime) {
-		i++;
-	}
-	int size = i;
-	inputFile.close();
-
-	bool found = false;
-	for (int j = size - 1; j >= 0; j--) {
-		if (req.id == requests[j].id) {
-			requests[j].isApproved = true;
-			found = true;
-			break;
-		}
-	}
-	if (!found) {
-		cerr << "***Request ID not found in file.***" << endl;
-		return;
-	}
-
-	ofstream outputFile("requests.txt");
-	for (int l = 0; l < size; l++) {
-		outputFile << requests[l].id << ' '
-			<< requests[l].name << ' '
-			<< requests[l].isApproved << ' '
-			<< requests[l].resID << ' '
-			<< requests[l].userID << ' '
-			<< requests[l].intTime << '\n';
-	}
-	outputFile.close();
-
-	char filename[NAME_LENGTH];
-	intToStr(req.resID, filename);
-	concatString(filename, txtExtension);
-
-	ifstream inputResFile(filename);
-	int availibty[MAX_REQUESTS][2];
-	int k = 1;
-	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
-		// When we find a matching time slot, mark it as available (set to 1).
-		if (availibty[k][0] == req.intTime) {
-			availibty[k][1] = 1;
-		}
-		k++;
-	}
-	inputResFile.close();
-
-	ofstream outputResFile(filename);
-	for (int o = 1; o < k; o++) {
-		outputResFile << availibty[o][0] << ' ' << availibty[o][1] << '\n';
-	}
-	outputResFile.close();
-}
-
-
 void getRequests(int userid, Request requests[], int& count) {
 	ifstream file("requests.txt");
 
@@ -1313,7 +1852,13 @@ void getRequests(int userid, Request requests[], int& count) {
 	}
 
 	int i = 0;
-	while (file >> requests[i].id >> requests[i].name >> requests[i].isApproved >> requests[i].resID >> requests[i].userID >> requests[i].intTime) {
+	int id, resid, userID, inttime;
+	bool isapproved;
+	char name[NAME_LENGTH];
+	while (file >> id >> name >> isapproved >> resid >> userID >> inttime) {
+
+		requests[i] = Request(id, name , userID , resid , inttime );
+		requests[i].setApproval(isapproved);
 		i++;
 	}
 
@@ -1322,22 +1867,11 @@ void getRequests(int userid, Request requests[], int& count) {
 	file.close();
 }
 
-void printOwnerToFile(Owner owner) {
-	char path[] = "users.txt";
-	ofstream file(path, ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	file << owner.id << ' ' << owner.name << ' ' << owner.govID << ' ' << owner.level << ' ' << owner.password << '\n';
-	file.close();
-}
-
 void printReqToCLI(Request req) {
+	char name[NAME_LENGTH];
+	req.getReqName(name);
 	printDivider();
-	cout << "id: " << req.id << '\t' << "Request title: " << req.name << '\t' << "Resource: " << req.resID << '\t' << "Requester id: " << req.userID <<'\t' << "time: " << req.intTime << "\n\n";
+	cout << "id: " << req.getReqID() << '\t' << "Request title: " << name << '\t' << "Resource: " << req.getResid() << '\t' << "Requester id: " << req.getUserid() <<'\t' << "time: " << req.getTimeInt() << "\n\n";
 }
 
 void makeResFile(char path[], Type type) {
@@ -1507,7 +2041,6 @@ void sortReq(reqcount reqnumber[], int count) {
 	}
 }
 
-//check if changing so using is possible
 int stringToInt(const char str[]) {
 	int number = 0;
 	int i = 0;
@@ -1562,17 +2095,6 @@ void stringForResourceType(char type[], int intType) {
 	}
 }
 
-Request makeReq(int id, char name[], int res_id, int userID, int time) {
-	Request req;
-	req.id = id;
-	req.resID = res_id;
-	req.userID = userID;
-	copyString(req.name, name);
-	req.isApproved = false;
-	req.intTime = time;
-	return req;
-}
-
 void reverseStr(char str[]) {
 	char* start = str;
 
@@ -1609,36 +2131,29 @@ void intToStr(int number, char str[]) {
 	reverseStr(str);
 }
 
-Time hourToTime(int absoluteHour) {
-	Time time;
-	time.hour = absoluteHour % HOURS_IN_DAY;
-
+Date hourToDate(int absoluteHour) {
+	int h = absoluteHour % HOURS_IN_DAY;
 	int totalDays = absoluteHour / HOURS_IN_DAY;
-
-	time.day = (totalDays % DAYS_IN_MONTH) + 1;
-
+	int d = (totalDays % DAYS_IN_MONTH) + 1;
 	int totalMonths = totalDays / DAYS_IN_MONTH;
-	time.month = (totalMonths % MONTHS_IN_YEAR) + 1;
-
-	return time;
+	int m = (totalMonths % MONTHS_IN_YEAR) + 1;
+	return Date(m, d, h);
 }
 
-Time dayToTime(int absoluteDay) {
-	Time time;
-	time.hour = 0;
-
-	time.day = (absoluteDay % DAYS_IN_MONTH) + 1;
-
-	int totalMonths = absoluteDay / DAYS_IN_MONTH;
-	time.month = (totalMonths % MONTHS_IN_YEAR) + 1;
-
-	return time;
+Date dayToDate(int absoluteDay) {
+	if (absoluteDay <= 0) {
+		return Date(0, 0, 0);
+	}
+	int zeroIndexedDay = absoluteDay - 1;
+	int d = (zeroIndexedDay % DAYS_IN_MONTH) + 1;
+	int totalMonths = zeroIndexedDay / DAYS_IN_MONTH;
+	int m = (totalMonths % MONTHS_IN_YEAR) + 1;
+	return Date(m, d, 0);
 }
 
-Time monthToTime(int month) {
-	Time time;
-	time.month = month;
-	time.day = 0;
-	time.hour = 0;
-	return time;
+Date monthToDate(int monthNum) { 
+	if (monthNum < 1 || monthNum > MONTHS_IN_YEAR) {
+		return Date(0, 0, 0); 
+	}
+	return Date(monthNum, 1, 0); 
 }
