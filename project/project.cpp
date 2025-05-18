@@ -1,3 +1,4 @@
+//c style project code
 #include <iostream>
 #include <fstream>
 
