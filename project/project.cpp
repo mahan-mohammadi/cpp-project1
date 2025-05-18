@@ -2,6 +2,9 @@
 #include <iostream>
 #include <fstream>
 
+void intToStr(int, char[]);
+void concatString(char[], char[]);
+
 using namespace std;
 
 const int NAME_LENGTH = 50;
@@ -46,11 +49,24 @@ public:
 	int getOwnerid();
 	int getDepID();
 	void getDepName(char[]);
-	void displayDetails() const {
+	void printDepToFile();
+	void displayDetails() {
 		cout << "Department ID: " << Depid << ", Name: " << depName
 			<< ", Owner ID: " << ownerid << '\n';
 	}
 };
+
+void Dep::printDepToFile() {
+	ofstream file("Depatement.txt", ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening department database.***" << endl;
+		return;
+	}
+
+	file << Depid << ' ' << depName << ' ' << ownerid << '\n';
+	file.close();
+}
 
 int Dep::getOwnerid() {
 	return ownerid;
@@ -99,7 +115,21 @@ public:
 	void setLevel(Acess_Level);
 	Acess_Level getLevel();
 	void printDetails();
+	void printPersonToFile();
 };
+
+void Person::printPersonToFile() {
+	char path[] = "users.txt";
+	ofstream file(path, ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	file << personid << ' ' << Personname << ' ' << govid << ' ' << level << ' ' << password << '\n';
+	file.close();
+}
 
 void Person::printDetails() {
 	cout << "ID: " << personid << ", Name: " << Personname
@@ -244,7 +274,15 @@ public:
 	int getdepid();
 	void setdepid(int);
 	void display();
+	void printSecToFile();
 };
+
+void Section::printSecToFile() {
+	ofstream file("sections.txt", ios::app);
+
+	file << sectionid << " " << secname << " " << depid << '\n';
+	file.close();
+}
 
 Section::Section(int secid, char name[], int depid) {
 	sectionid = secid;
@@ -320,7 +358,14 @@ public:
 	void buy();
 	void display();
 	void operator=(Resource);
+	void printResToFIle();
 };
+
+void Resource::printResToFIle() {
+	ofstream file("resources.txt", ios::app);
+	file << resourceid << " " << ResName << " " << type << " " << price << " " << sectionid << ' ' << cost << ' ' << stock << '\n';
+	file.close();
+}
 
 void Resource::operator=(Resource next) {
 	 resourceid = next.getResourceID();
@@ -531,8 +576,19 @@ public:
 	void Approve();
 	void display();
 	void setApproval(bool);
+	void printRes();
 };
 
+void Request::printRes() {
+	ofstream file("requests.txt", ios::app);
+
+	if (!file.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	file << reqid << ' ' << reqname << ' ' << isApproved << ' ' << resid << ' ' << userid << ' ' << timeint << '\n';
+}
 
 void Request::setApproval(bool approval) {
 	isApproved = approval;
@@ -601,7 +657,80 @@ bool Request::getApproval() {
 }
 
 void Request::Approve() {
-	isApproved = true;
+	ifstream inputFile("requests.txt");
+
+	if (!inputFile.is_open()) {
+		cerr << "***Error opening user database.***" << endl;
+		return;
+	}
+
+	Request requests[MAX_REQUESTS];
+	int i = 0;
+
+	int id, resid, userid, inttime;
+	bool isapproved;
+	char name[NAME_LENGTH];
+	while (inputFile >> id
+		>> name
+		>> isapproved
+		>> resid
+		>> userid
+		>> inttime) {
+
+		requests[i] = Request(id, name, userid, resid, inttime);
+		requests[i].setApproval(isapproved);
+		i++;
+	}
+	int size = i;
+	inputFile.close();
+
+	bool found = false;
+	for (int j = size - 1; j >= 0; j--) {
+		if (reqid == requests[j].getReqID()) {
+			requests[j].setApproval(true);
+			found = true;
+			break;
+		}
+	}
+	if (!found) {
+		cerr << "***Request ID not found in file.***" << endl;
+		return;
+	}
+
+	ofstream outputFile("requests.txt");
+	for (int l = 0; l < size; l++) {
+		char name[NAME_LENGTH];
+		requests[l].getReqName(name);
+		outputFile << requests[l].getReqID() << ' '
+			<< name << ' '
+			<< requests[l].getApproval() << ' '
+			<< requests[l].getResid() << ' '
+			<< requests[l].getUserid() << ' '
+			<< requests[l].getTimeInt() << '\n';
+	}
+	outputFile.close();
+
+	char filename[NAME_LENGTH];
+	intToStr(reqid, filename);
+	concatString(filename, txtExtension);
+
+	ifstream inputResFile(filename);
+	int availibty[MAX_REQUESTS][2];
+	int k = 1;
+	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
+		// When we find a matching time slot, mark it as available (set to 1).
+		if (availibty[k][0] == timeint) {
+			availibty[k][1] = 1;
+		}
+		k++;
+	}
+	inputResFile.close();
+
+	ofstream outputResFile(filename);
+	for (int o = 1; o < k; o++) {
+		outputResFile << availibty[o][0] << ' ' << availibty[o][1] << '\n';
+	}
+	outputResFile.close();
 }
 
 struct reqcount {
@@ -610,25 +739,17 @@ struct reqcount {
 };
 
 void printTime(Date);
-
 bool isResInStock(int);
 void makeResFile(char[], Type);
-void intToStr(int, char[]);
-void printRequestToFile(Request);
 void printResToCLI(int);
 void OwnerMenu(int id);
 void AddDepartementMenu(int id);
 void makeDepartement(char[], int);
 void copyString(char[], char[]);
-void printDepToFile(char[], Dep);
-void intToStr(int, char[]);
-void concatString(char[], char[]);
 void addSectionMenu(int);
 int getLastId(char[]);
-void printSecToFile(char[], Section);
 int stringToInt(const char[]);
 void addResourceMenu(int);
-void printResourceToFile(char[], Resource);
 void userMenu(int);
 void getDepartmentsMenu(int);
 void getSectionsMenu(int);
@@ -639,9 +760,7 @@ void printDepToCLI();
 void printSecToCLI(int);
 void logIn();
 void signIn();
-void printUserToFile(User);
 bool isGovIDValid(int);
-Request makeReq(int, char[], int, int, int);
 bool areStringsEqual(char[], char[]);
 bool isPasswordValid(char str[]);
 void AdminMenu();
@@ -650,12 +769,10 @@ void getRequests(int, Request[], int&);
 int makeOwner();
 int getTypeOfRes(int);
 void getAvailabeDates(int, bool[]);
-void printOwnerToFile(Owner);
 void printReqToCLI(Request);
 int DepIDOfOwner(int);
 int secIDOfRes(int);
 int depIDOfsec(int);
-void approveReqInFile(Request);
 void ViewApprovedReqMenu(int);
 void ReportMenu(int);
 void sortReq(reqcount[], int);
@@ -787,7 +904,7 @@ void signIn() {
 
 	User user(id, name, gov_id, password);
 
-	printUserToFile(user);
+	user.printPersonToFile();
 	system("cls");
 	cout << "***your id is (" << id << "). please save it somewhere as you will need it to login***\n\n";
 	userMenu(id);
@@ -972,7 +1089,7 @@ int makeOwner() {
 	int id = getLastId(path) + 1;
 
 	Owner owner(id, name, gov_id, password);
-	printOwnerToFile(owner);
+	owner.printPersonToFile();
 
 	system("cls");
 
@@ -996,7 +1113,7 @@ void addSectionMenu(int id) {
 
 	section.setSectionID(getLastId(path) + 1);
 
-	printSecToFile(path, section);
+	section.printSecToFile();
 
 	system("cls");
 	OwnerMenu(id);
@@ -1106,7 +1223,7 @@ void addResourceMenu(int id) {
 	concatString(idFileName, txtExtension);
 	makeResFile(idFileName, res.getType());
 
-	printResourceToFile(path, res);
+	res.printResToFIle();
 
 	system("cls");
 	OwnerMenu(id);
@@ -1259,7 +1376,7 @@ void sendReqMenu(int userid) {
 
 	Request req(id, name, res_id, userid, selectedTime);
 
-	printRequestToFile(req);
+	req.printRes();
 
 	system("cls");
 	userMenu(userid);
@@ -1406,7 +1523,7 @@ void ViewNonApprovedReqMenu(int userid) {
 						requests[i].Approve();
 						found = true;
 
-						approveReqInFile(requests[i]);
+						requests[i].Approve();
 
 						system("cls");
 						cout << "***request for id (" << requests[i].getReqID() << ") is approved***\n\n";
@@ -1592,23 +1709,6 @@ bool isGovIDValid(int targetID) {
 	return isValid;
 }
 
-void printUserToFile(User user) {
-	char path[] = "users.txt";
-	ofstream file(path, ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	char name[NAME_LENGTH];
-	char pass[NAME_LENGTH];
-	user.getPersonName(name);
-	user.getPass(pass);
-	file << user.getPersonID() << ' ' << name << ' ' << user.getGovID() << ' ' << user.getLevel() << ' ' << pass << '\n';
-	file.close();
-}
-
 int calculateProfitPerRes(int targetid) {
 	ifstream file("resources.txt");
 
@@ -1633,22 +1733,6 @@ int calculateProfitPerRes(int targetid) {
 	return profit;
 }
 
-void printResourceToFile(char path[], Resource res) {
-	ofstream file(path, ios::app);
-	char name[NAME_LENGTH];
-	res.getResName(name);
-	file << res.getResourceID() << " " << name << " " << res.getType() << " " << res.getPrice() << " " << res.getSectionid() << ' ' << res.getCost() << ' ' << res.getStock() << '\n';
-	file.close();
-}
-
-void printSecToFile(char path[], Section sec) {
-	ofstream file(path, ios::app);
-	char name[NAME_LENGTH];
-	sec.getSectionName(name);
-	file << sec.getSectionID() << " " << name << " " << sec.getdepid() << '\n';
-	file.close();
-}
-
 void makeDepartement(char name[], int owner) {
 	char path[] = "Depatement.txt";
 	Dep newDep;
@@ -1657,24 +1741,9 @@ void makeDepartement(char name[], int owner) {
 	newDep.setOwnerid(owner);
 	newDep.setDepID(getLastId(path) + 1);
 
-	printDepToFile(path, newDep);
+	newDep.printDepToFile();
 	cout << "***the department with the id: " << newDep.getDepID() << " has been created***\n";
 }
-
-void printDepToFile(char path[], Dep dep) {
-	ofstream file(path, ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening department database.***" << endl;
-		return;
-	}
-
-	char name[NAME_LENGTH];
-	dep.getDepName(name);
-	file << dep.getDepID() << ' ' << name << ' ' << dep.getOwnerid() << '\n';
-	file.close();
-}
-
 
 int getLastId(char path[]) {
 	ifstream file(path);
@@ -1776,98 +1845,6 @@ void printResToCLI(int targetSec) {
 	file.close();
 }
 
-void printRequestToFile(Request req) {
-	ofstream file("requests.txt", ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	char name[NAME_LENGTH];
-	req.getReqName(name);
-	file << req.getReqID() << ' ' << name << ' ' << req.getApproval() << ' ' << req.getResid() << ' ' << req.getUserid() << ' ' << req.getTimeInt() << '\n'; //number of request
-}
-
-
-void approveReqInFile(Request req) {
-	ifstream inputFile("requests.txt");
-
-	if (!inputFile.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	Request requests[MAX_REQUESTS];
-	int i = 0;
-
-	int id, resid, userid, inttime;
-	bool isapproved;
-	char name[NAME_LENGTH];
-	while (inputFile >>id
-		>> name
-		>> isapproved
-		>> resid
-		>> userid
-		>> inttime) {
-
-		requests[i] = Request(id , name , userid , resid , inttime);
-		requests[i].setApproval(isapproved);
-		i++;
-	}
-	int size = i;
-	inputFile.close();
-
-	bool found = false;
-	for (int j = size - 1; j >= 0; j--) {
-		if (req.getReqID() == requests[j].getReqID()) {
-			requests[j].Approve();
-			found = true;
-			break;
-		}
-	}
-	if (!found) {
-		cerr << "***Request ID not found in file.***" << endl;
-		return;
-	}
-
-	ofstream outputFile("requests.txt");
-	for (int l = 0; l < size; l++) {
-		char name[NAME_LENGTH];
-		requests[l].getReqName(name);
-		outputFile << requests[l].getReqID() << ' '
-			<< name << ' '
-			<< requests[l].getApproval() << ' '
-			<< requests[l].getResid() << ' '
-			<< requests[l].getUserid() << ' '
-			<< requests[l].getTimeInt() << '\n';
-	}
-	outputFile.close();
-
-	char filename[NAME_LENGTH];
-	intToStr(req.getReqID(), filename);
-	concatString(filename, txtExtension);
-
-	ifstream inputResFile(filename);
-	int availibty[MAX_REQUESTS][2];
-	int k = 1;
-	while (inputResFile >> availibty[k][0] >> availibty[k][1]) {
-		// When we find a matching time slot, mark it as available (set to 1).
-		if (availibty[k][0] == req.getTimeInt()) {
-			availibty[k][1] = 1;
-		}
-		k++;
-	}
-	inputResFile.close();
-
-	ofstream outputResFile(filename);
-	for (int o = 1; o < k; o++) {
-		outputResFile << availibty[o][0] << ' ' << availibty[o][1] << '\n';
-	}
-	outputResFile.close();
-}
-
-
 void getRequests(int userid, Request requests[], int& count) {
 	ifstream file("requests.txt");
 
@@ -1889,23 +1866,6 @@ void getRequests(int userid, Request requests[], int& count) {
 
 	count = i;
 
-	file.close();
-}
-
-void printOwnerToFile(Owner owner) {
-	char path[] = "users.txt";
-	ofstream file(path, ios::app);
-
-	if (!file.is_open()) {
-		cerr << "***Error opening user database.***" << endl;
-		return;
-	}
-
-	char name[NAME_LENGTH];
-	char pass[NAME_LENGTH];
-	owner.getPersonName(name);
-	owner.getPass(pass);
-	file << owner.getPersonID() << ' ' << name << ' ' << owner.getGovID() << ' ' << owner.getLevel() << ' ' << pass << '\n';
 	file.close();
 }
 
