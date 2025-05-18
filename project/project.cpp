@@ -2143,12 +2143,19 @@ Date hourToDate(int absoluteHour) {
 }
 
 Date dayToDate(int absoluteDay) {
-	int d = (absoluteDay % DAYS_IN_MONTH) + 1;
-	int totalMonths = absoluteDay / DAYS_IN_MONTH;
+	if (absoluteDay <= 0) {
+		return Date(0, 0, 0);
+	}
+	int zeroIndexedDay = absoluteDay - 1;
+	int d = (zeroIndexedDay % DAYS_IN_MONTH) + 1;
+	int totalMonths = zeroIndexedDay / DAYS_IN_MONTH;
 	int m = (totalMonths % MONTHS_IN_YEAR) + 1;
 	return Date(m, d, 0);
 }
 
-Date monthToDate(int monthNum) {
-	return Date(monthNum, 0, 0);
+Date monthToDate(int monthNum) { 
+	if (monthNum < 1 || monthNum > MONTHS_IN_YEAR) {
+		return Date(0, 0, 0); 
+	}
+	return Date(monthNum, 1, 0); 
 }
