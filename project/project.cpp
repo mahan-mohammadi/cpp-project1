@@ -374,7 +374,7 @@ void Resource::operator=(Resource next) {
 	 copyString(ResName , temp);
 	 type = next.getType();
 	 price = next.getPrice();
-	 cost = next.getPrice();
+	 cost = next.getCost();
 	 stock = next.getStock();
 	 sectionid = next.getSectionid();
 }
@@ -1522,8 +1522,6 @@ void ViewNonApprovedReqMenu(int userid) {
 					else {
 						requests[i].Approve();
 						found = true;
-
-						requests[i].Approve();
 
 						system("cls");
 						cout << "***request for id (" << requests[i].getReqID() << ") is approved***\n\n";
